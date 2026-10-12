@@ -1,0 +1,8 @@
+// DEV environment. Selected by the RefProj-Dev scheme (Debug-Dev / Release-Dev).
+#include "Base.xcconfig"
+
+APP_ENVIRONMENT = DEV
+APP_BUNDLE_ID = $(APP_BASE_BUNDLE_ID).dev
+APP_DISPLAY_NAME = RefProj DEV
+// "//" starts a comment in xcconfig, hence the $() separator.
+API_BASE_URL = https:/$()/api.dev.refproj.example

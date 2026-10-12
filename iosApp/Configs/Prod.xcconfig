@@ -1,0 +1,8 @@
+// PROD environment. Selected by the RefProj-Prod scheme (Debug-Prod / Release-Prod).
+#include "Base.xcconfig"
+
+APP_ENVIRONMENT = PROD
+APP_BUNDLE_ID = $(APP_BASE_BUNDLE_ID)
+APP_DISPLAY_NAME = RefProj
+// "//" starts a comment in xcconfig, hence the $() separator.
+API_BASE_URL = https:/$()/api.refproj.example

@@ -1,0 +1,8 @@
+// SIT environment. Selected by the RefProj-Sit scheme (Debug-Sit / Release-Sit).
+#include "Base.xcconfig"
+
+APP_ENVIRONMENT = SIT
+APP_BUNDLE_ID = $(APP_BASE_BUNDLE_ID).sit
+APP_DISPLAY_NAME = RefProj SIT
+// "//" starts a comment in xcconfig, hence the $() separator.
+API_BASE_URL = https:/$()/api.sit.refproj.example

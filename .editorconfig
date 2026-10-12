@@ -1,0 +1,29 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{yml,yaml,json,xcconfig}]
+indent_size = 2
+
+[*.{kt,kts}]
+max_line_length = 140
+ktlint_code_style = ktlint_official
+ij_kotlin_allow_trailing_comma = true
+ij_kotlin_allow_trailing_comma_on_call_site = true
+ij_kotlin_imports_layout = *
+# Composables are PascalCase by convention.
+ktlint_function_naming_ignore_when_annotated_with = Composable
+# Enforced by detekt instead (with better Compose awareness).
+ktlint_standard_function-signature = disabled
+ktlint_standard_class-signature = disabled
+# Compose rules (io.nlopez.compose.rules)
+compose_allowed_composition_locals = LocalSpacing,LocalAppConfig,LocalDebugSettings
+
+[*.md]
+trim_trailing_whitespace = false

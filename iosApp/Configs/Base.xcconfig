@@ -1,0 +1,9 @@
+// Shared by all environments. Included by Dev/Sit/Stage/Prod.xcconfig.
+//
+// SECURITY: Never put secrets in xcconfig files — they end up in Info.plist inside the IPA.
+// Per-developer settings (e.g. DEVELOPMENT_TEAM) go in Local.xcconfig, which is gitignored.
+// Copy Local.xcconfig.example -> Local.xcconfig to set yours up.
+
+APP_BASE_BUNDLE_ID = com.charlesuru.refproj
+
+#include? "Local.xcconfig"

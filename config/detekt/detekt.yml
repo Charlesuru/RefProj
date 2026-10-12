@@ -1,0 +1,47 @@
+# Overrides on top of detekt's default config (buildUponDefaultConfig = true).
+# Only list deviations here, each with a reason.
+
+config:
+  validation: true
+
+build:
+  maxIssues: 0 # Zero tolerance: CI fails on any finding. Fix or explicitly @Suppress with a reason.
+
+complexity:
+  LongParameterList:
+    # Composables take many optional parameters by design.
+    ignoreDefaultParameters: true
+    ignoreAnnotated: [ 'Composable' ]
+  LongMethod:
+    ignoreAnnotated: [ 'Composable' ]
+  TooManyFunctions:
+    ignoreAnnotatedFunctions: [ 'Preview' ]
+    ignorePrivate: true
+
+naming:
+  FunctionNaming:
+    # Composables are PascalCase.
+    ignoreAnnotated: [ 'Composable' ]
+
+style:
+  MagicNumber:
+    # Design tokens (colors, dp sizes) and tests are full of literal values by nature.
+    excludes: [ '**/designsystem/**', '**/test/**', '**/*Test.kt', '**/commonTest/**', '**/androidHostTest/**' ]
+    ignoreAnnotated: [ 'Preview' ]
+  UnusedPrivateMember:
+    ignoreAnnotated: [ 'Preview' ]
+  ForbiddenComment:
+    # TODOs must reference a Jira ticket, e.g. "TODO(REF-123): ..."
+    comments:
+      - reason: 'TODO/FIXME must reference a Jira ticket: TODO(REF-123): ...'
+        value: 'TODO:'
+      - reason: 'TODO/FIXME must reference a Jira ticket: FIXME(REF-123): ...'
+        value: 'FIXME:'
+    allowedPatterns: '(TODO|FIXME)\([A-Z]+-\d+\)'
+  ForbiddenMethodCall:
+    active: true
+    methods:
+      - reason: 'Use the injected logger (Kermit) instead of println.'
+        value: 'kotlin.io.println'
+      - reason: 'Use the injected logger (Kermit) instead of print.'
+        value: 'kotlin.io.print'

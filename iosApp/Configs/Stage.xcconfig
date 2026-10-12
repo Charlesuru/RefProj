@@ -1,0 +1,8 @@
+// STAGE environment. Selected by the RefProj-Stage scheme (Debug-Stage / Release-Stage).
+#include "Base.xcconfig"
+
+APP_ENVIRONMENT = STAGE
+APP_BUNDLE_ID = $(APP_BASE_BUNDLE_ID).stage
+APP_DISPLAY_NAME = RefProj STAGE
+// "//" starts a comment in xcconfig, hence the $() separator.
+API_BASE_URL = https:/$()/api.stage.refproj.example

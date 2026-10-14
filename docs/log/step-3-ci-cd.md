@@ -81,6 +81,7 @@ CI jobs: gitleaks · actionlint + zizmor · spotless + detekt (SARIF to code sca
 | Dependency review: kotlin-gradle-plugin 2.4.10 (moderate) | Embedded in Gradle 9.8.1 (latest) for `kotlin-dsl` in build-logic | Cannot be pinned; accepted in `allow-ghsas` with reason and exit condition, listed in `docs/ci-cd.md` |
 | PR #2 stopped running CI | Merge conflict after PR #1 was rebase-merged | Rebased the REF-3 commits onto the new `main` (content unchanged), force-pushed the feature branch with lease |
 | Local checkout jumped to an old local `main` | Switched outside the agent (IDE or manually) right after the rebase | Switched back to `ci/REF-3-github-actions`, moved local `main` to `origin/main` |
+| First Deploy DEV + SIT: iOS failed with `Missing environment variable(s): MATCH_PASSWORD` (Android skipped as planned) | A reusable workflow only receives the secrets its caller passes — environment secrets included, even though the job declares `environment:`. Not visible before real secrets existed | Callers pass `secrets: inherit` (zizmor `secrets-inherit` suppressed inline with the reason); rule "no repository-level secrets" added to `docs/ci-cd.md` |
 
 ## 5. Owner actions
 - [x] Approved direct push of `main` to the empty repository

@@ -65,6 +65,7 @@ it to every job, so Android and iOS of one run carry the same number.
 | `main` only changes through PRs with a green **`CI result`**, linear history, resolved threads; no force-push or deletion | ruleset `main` |
 | Release tags `v*` can only be created/moved/deleted by admins | ruleset `release-tags` |
 | Secrets are **environment** secrets. `dev`/`sit` accept only `main`; `stage`/`prod` accept only `v*` tags and need a reviewer | GitHub Environments |
+| **No repository- or organization-level secrets.** Deploy callers pass `secrets: inherit` (a called workflow sees no secrets otherwise, not even its environment's), so a repository-level secret would reach every deploy job | GitHub Environments |
 | `GITHUB_TOKEN` is read-only by default; jobs request extra scopes explicitly | workflow `permissions:` |
 | Only GitHub-owned actions plus `gradle/actions` and `ruby/setup-ruby`, **pinned to a full commit SHA** (enforced) | Actions settings |
 | Pinned CLI tools are checksum-verified before use | [`scripts/ci/install-tool.sh`](../scripts/ci/install-tool.sh) |

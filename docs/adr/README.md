@@ -10,3 +10,4 @@ New ADR: copy `0000-template.md`, take the next number, open a PR. Status: Propo
 | 0003 | Multi-module with convention plugins | Accepted |
 | 0004 | XcodeGen for the iOS project | Accepted |
 | 0005 | Release tooling: fastlane, signing, versioning, secret scanning | Accepted |
+| 0006 | CI/CD on GitHub Actions, public repository | Accepted |

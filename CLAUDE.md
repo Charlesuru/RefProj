@@ -97,7 +97,8 @@ Stop and ask the user (in Swedish, with step-by-step instructions) when:
 | `feature/*` | One module per user-facing feature |
 | `build-logic/` | Gradle convention plugins (`refproj.*`) |
 | `fastlane/` | Build/test/upload lanes for both platforms — `bundle exec fastlane lanes` |
-| `.githooks/`, `scripts/` | Git hooks (gitleaks, format, commit-msg) and `setup.sh` |
+| `.github/` | CI/CD workflows, Dependabot, CODEOWNERS, PR template, repo settings as code — see `docs/ci-cd.md` |
+| `.githooks/`, `scripts/` | Git hooks (gitleaks, format, commit-msg), `setup.sh`, CI helpers (`scripts/ci`), GitHub setup (`scripts/github`) |
 | `config/detekt` | Static analysis rules |
 | `docs/` | Architecture, ADRs, runbooks, progress log |
 

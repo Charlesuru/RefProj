@@ -28,7 +28,7 @@ and an AI-driven (but human-decided) development workflow. What the app *does* i
 ## Owner decisions (already answered — do not re-ask)
 | Topic | Decision |
 |---|---|
-| GitHub | Private repo under `https://github.com/Charlesuru` → `Charlesuru/RefProj` |
+| GitHub | **Public** repo `https://github.com/Charlesuru/RefProj` (owner decision 2026-10-14, step 3: GitHub Free lacks protections for private repos — see ADR 0006). Commits use the owner's GitHub noreply e-mail. Certificates repo stays private |
 | Accounts | Owner HAS Apple Developer Program and Google Play Console accounts |
 | Observability | Firebase (Crashlytics + Analytics) |
 | IDs | Bundle ID / applicationId `com.studiodraug.refproj` (+ `.dev`, `.sit`, `.stage`). Code package `com.studiodraug.refproj` |
@@ -62,6 +62,7 @@ Repo, modules, version catalog, convention plugins, 4 environments (Android flav
 - GitHub Actions: PR checks (lint, detekt, tests, build both platforms), `main` → DEV/SIT builds, tag → STAGE/PROD with manual approval via GitHub Environments.
 - Caching, concurrency cancellation, SARIF upload (detekt), dependency review, Dependabot/Renovate, CODEOWNERS, branch protection, PR template.
 - Phase 2 in same step or follow-up: self-hosted Mac runner (setup instructions + `runs-on` switch).
+  Done as an optional switch (`MACOS_RUNNER`), deploy jobs only — public repos get free hosted macOS minutes.
 
 ### Step 4 — Core (model: Sonnet)
 - Modules: `domain`, `data`, `core:navigation`, `core:network` (Ktor), `core:featureflags`, `core:observability` (Kermit → Crashlytics), `core:storage`, `core:testing`, `core:ui`.

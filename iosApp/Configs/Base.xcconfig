@@ -4,6 +4,6 @@
 // Per-developer settings (e.g. DEVELOPMENT_TEAM) go in Local.xcconfig, which is gitignored.
 // Copy Local.xcconfig.example -> Local.xcconfig to set yours up.
 
-APP_BASE_BUNDLE_ID = com.charlesuru.refproj
+APP_BASE_BUNDLE_ID = com.studiodraug.refproj
 
 #include? "Local.xcconfig"

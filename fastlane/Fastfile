@@ -17,7 +17,7 @@ default_platform(:android)
 ROOT = File.expand_path("..", __dir__)
 ENVIRONMENTS = %w[dev sit stage prod].freeze
 TAGGED_ENVIRONMENTS = %w[stage prod].freeze
-BASE_APP_ID = "com.charlesuru.refproj"
+BASE_APP_ID = "com.studiodraug.refproj"
 RELEASE_TAG = /\Av(\d+)\.(\d+)\.(\d+)\z/
 # Build numbers are minutes since this instant: monotonic, shared by local and CI builds,
 # and far below Android's versionCode limit (2_100_000_000) for centuries.

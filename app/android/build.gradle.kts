@@ -3,10 +3,10 @@ plugins {
 }
 
 android {
-    namespace = "com.charlesuru.refproj.android"
+    namespace = "com.studiodraug.refproj.android"
 
     defaultConfig {
-        applicationId = "com.charlesuru.refproj"
+        applicationId = "com.studiodraug.refproj"
         // Set by fastlane from the git tag and build number (docs/adr/0005-release-tooling.md).
         versionCode = providers.gradleProperty("refproj.versionCode").orNull?.toInt() ?: 1
         versionName = providers.gradleProperty("refproj.versionName").orNull ?: "0.1.0"

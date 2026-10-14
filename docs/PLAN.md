@@ -31,7 +31,8 @@ and an AI-driven (but human-decided) development workflow. What the app *does* i
 | GitHub | Private repo under `https://github.com/Charlesuru` → `Charlesuru/RefProj` |
 | Accounts | Owner HAS Apple Developer Program and Google Play Console accounts |
 | Observability | Firebase (Crashlytics + Analytics) |
-| IDs | Bundle ID / applicationId `com.charlesuru.refproj` (+ `.dev`, `.sit`, `.stage`). Code package `com.charlesuru.refproj` |
+| IDs | Bundle ID / applicationId `com.studiodraug.refproj` (+ `.dev`, `.sit`, `.stage`). Code package `com.studiodraug.refproj` |
+| Domain | Owner's reverse domain is **`com.studiodraug`** for ALL bundle IDs, applicationIds and Kotlin packages. `Charlesuru` is only the GitHub account — never use it in IDs |
 | Approach | Step by step; owner reviews after each step |
 | Jira key | Placeholder `REF` until Jira exists (step 8) |
 

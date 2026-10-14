@@ -38,10 +38,10 @@ remove a whole feature from the graph. We start with a single module per feature
 ## Environments
 | Env | Android applicationId | iOS bundle ID | Purpose |
 |---|---|---|---|
-| DEV | `com.charlesuru.refproj.dev` | `com.charlesuru.refproj.dev` | Daily development, debug tools on |
+| DEV | `com.studiodraug.refproj.dev` | `com.studiodraug.refproj.dev` | Daily development, debug tools on |
 | SIT | `…refproj.sit` | `…refproj.sit` | System integration testing against SIT backend |
 | STAGE | `…refproj.stage` | `…refproj.stage` | Production-like pre-release / UAT |
-| PROD | `com.charlesuru.refproj` | `com.charlesuru.refproj` | App Store / Google Play |
+| PROD | `com.studiodraug.refproj` | `com.studiodraug.refproj` | App Store / Google Play |
 
 Android: product flavors in `app/android/build.gradle.kts`.
 iOS: build configurations `<Debug|Release>-<Env>` + `iosApp/Configs/<Env>.xcconfig`, one scheme per env.

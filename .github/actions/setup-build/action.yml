@@ -1,0 +1,52 @@
+name: Set up build
+description: >-
+  JDK, Gradle (with caching) and optionally Ruby/Bundler, the Kotlin/Native toolchain cache,
+  Xcode and XcodeGen. Every job that builds the app starts with this action.
+
+inputs:
+  ruby:
+    description: Install Ruby and the locked gems (needed for fastlane)
+    default: "false"
+  ios:
+    description: Select Xcode, install XcodeGen and cache the Kotlin/Native toolchain (macOS only)
+    default: "false"
+
+runs:
+  using: composite
+  steps:
+    # The Gradle daemon runs on JDK 25 (gradle/gradle-daemon-jvm.properties); provide it so Gradle
+    # does not download a toolchain on every run.
+    - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+      with:
+        distribution: temurin
+        java-version: "25"
+
+    # Caches dependencies, wrapper and build cache. Writes the cache only from main; PRs read it.
+    - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+      with:
+        add-job-summary: on-failure
+
+    - if: inputs.ruby == 'true'
+      uses: ruby/setup-ruby@651ff0d62c5c79bed6d53ec518387aae20e72c1a # v1.329.0
+      with:
+        bundler-cache: true # version from .ruby-version, gems from Gemfile.lock
+
+    - if: inputs.ios == 'true'
+      shell: bash
+      env:
+        XCODE_VERSION: "26.6"
+      run: |
+        sudo xcode-select --switch "/Applications/Xcode_${XCODE_VERSION}.app"
+        xcodebuild -version
+
+    - if: inputs.ios == 'true'
+      shell: bash
+      run: scripts/ci/install-tool.sh xcodegen
+
+    # Kotlin/Native downloads its compiler and LLVM toolchain (~1 GB) to ~/.konan on first use.
+    - if: inputs.ios == 'true'
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ~/.konan
+        key: konan-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('gradle/libs.versions.toml') }}
+        restore-keys: konan-${{ runner.os }}-${{ runner.arch }}-

@@ -1,0 +1,68 @@
+# Manual store upload of an already released tag. Run it from the tag:
+#   Actions -> Store upload -> Run workflow -> "Use workflow from: Tags / vX.Y.Z"
+# Uploads only — nothing reaches users without a human in the store consoles:
+#   Android: Play production track as a DRAFT (roll out in Play Console)
+#   iOS:     App Store Connect build, NOT submitted (submit for review in App Store Connect)
+name: Store upload
+
+on:
+  workflow_dispatch:
+    inputs:
+      platforms:
+        description: Platforms to upload
+        type: choice
+        options: [both, android, ios]
+        default: both
+
+permissions:
+  contents: read
+
+concurrency:
+  group: store-release
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    name: Verify tag + build number
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      build-number: ${{ steps.number.outputs.value }}
+      platforms: ${{ steps.platforms.outputs.value }}
+    steps:
+      - name: Must run from a release tag
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          [[ "$REF_TYPE" == tag && "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
+            echo "::error::Run this workflow from a vX.Y.Z tag ('Use workflow from' -> Tags)."
+            exit 1
+          }
+      - id: number
+        # Minutes since 2026-01-01 UTC — must match BUILD_NUMBER_EPOCH in fastlane/Fastfile.
+        run: echo "value=$(( ($(date -u +%s) - $(date -u -d 2026-01-01T00:00:00Z +%s)) / 60 ))" >> "$GITHUB_OUTPUT"
+      - id: platforms
+        env:
+          CHOICE: ${{ inputs.platforms }}
+        run: |
+          case "$CHOICE" in
+            both) echo 'value=["android","ios"]' >> "$GITHUB_OUTPUT" ;;
+            android | ios) echo "value=[\"$CHOICE\"]" >> "$GITHUB_OUTPUT" ;;
+            *) echo "::error::invalid platforms '$CHOICE'"; exit 1 ;;
+          esac
+
+  store:
+    name: store
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: ${{ fromJSON(needs.prepare.outputs.platforms) }}
+    uses: ./.github/workflows/_distribute.yml
+    with:
+      environment: prod
+      platform: ${{ matrix.platform }}
+      lane: release
+      build-number: ${{ needs.prepare.outputs.build-number }}
+    # No secrets are passed: the reusable job reads them from its GitHub Environment.

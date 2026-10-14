@@ -1,0 +1,80 @@
+# Release train: pushing a tag vX.Y.Z (on main) ships that exact commit to STAGE and then PROD.
+# Both GitHub Environments require a human approval before their jobs start (docs/ci-cd.md).
+#   STAGE: Android -> Firebase App Distribution, iOS -> TestFlight (RefProj STAGE)
+#   PROD:  Android -> Play internal track,       iOS -> TestFlight (RefProj)
+# Going live in the stores is a separate, manual workflow: "Store upload" (store-release.yml).
+name: Release
+
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    name: Verify tag + build number
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      build-number: ${{ steps.number.outputs.value }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Tag is a release tag on main
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::'$TAG' is not a vX.Y.Z release tag"; exit 1; }
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main || { echo "::error::$TAG does not point at a commit on main"; exit 1; }
+      - id: number
+        # Minutes since 2026-01-01 UTC — must match BUILD_NUMBER_EPOCH in fastlane/Fastfile.
+        run: echo "value=$(( ($(date -u +%s) - $(date -u -d 2026-01-01T00:00:00Z +%s)) / 60 ))" >> "$GITHUB_OUTPUT"
+
+  stage:
+    name: stage
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [android, ios]
+    uses: ./.github/workflows/_distribute.yml
+    with:
+      environment: stage
+      platform: ${{ matrix.platform }}
+      build-number: ${{ needs.prepare.outputs.build-number }}
+    # No secrets are passed: the reusable job reads them from its GitHub Environment.
+
+  prod:
+    name: prod
+    needs: [prepare, stage]
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [android, ios]
+    uses: ./.github/workflows/_distribute.yml
+    with:
+      environment: prod
+      platform: ${{ matrix.platform }}
+      build-number: ${{ needs.prepare.outputs.build-number }}
+
+  github-release:
+    name: GitHub release
+    needs: prod
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write # create the release
+    steps:
+      - name: Create release with generated notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --verify-tag --generate-notes --title "$TAG"

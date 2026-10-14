@@ -1,0 +1,6 @@
+# zizmor (workflow security linter) configuration. Runs in CI: .github/workflows/ci.yml.
+rules:
+  # GitHub's new "$/" self-repository syntax is preferred, but actionlint (1.7.12) cannot parse it yet.
+  # Switch to "uses: $/..." once actionlint supports it, then remove this exception.
+  self-repository:
+    disable: true

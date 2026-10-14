@@ -22,11 +22,12 @@ deploy_key_title="RefProj CI (read-only)"
 environments=(dev sit stage prod)
 
 # --- Read local configuration without exporting or printing it -----------------------------------
-dotenv_value() { # $1 = name; value from fastlane/.env, surrounding quotes removed
+dotenv_value() { # $1 = name; value from fastlane/.env, parsed like dotenv (fastlane): trimmed, quotes removed
   [[ -f fastlane/.env ]] || return 0
   local line
   line="$(grep -E "^$1=" fastlane/.env | tail -n 1 || true)"
   line="${line#*=}"
+  line="${line#"${line%%[![:space:]]*}"}"; line="${line%"${line##*[![:space:]]}"}"
   line="${line%\"}"; line="${line#\"}"; line="${line%\'}"; line="${line#\'}"
   printf '%s' "$line"
 }

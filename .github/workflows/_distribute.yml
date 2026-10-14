@@ -1,0 +1,113 @@
+# Reusable: build, sign and upload one platform for one environment by running the matching
+# fastlane lane. Secrets come from the GitHub Environment named after the target environment, so
+# its protection rules (allowed refs, required reviewers) apply. See docs/ci-cd.md.
+name: Distribute
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: dev | sit | stage | prod
+        required: true
+        type: string
+      platform:
+        description: android | ios
+        required: true
+        type: string
+      lane:
+        description: "beta (testers) or release (store upload, never submitted)"
+        default: beta
+        type: string
+      build-number:
+        description: Shared by every job of the calling run, so both platforms carry the same number
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  distribute:
+    name: ${{ inputs.platform }} ${{ inputs.lane }} → ${{ inputs.environment }}
+    environment: ${{ inputs.environment }}
+    # Deploy jobs only run trusted code (main or release tags), so the macOS runner may be the
+    # owner's self-hosted Mac: set the repository variable MACOS_RUNNER to its label.
+    runs-on: ${{ inputs.platform == 'ios' && (vars.MACOS_RUNNER || 'macos-26') || 'ubuntu-24.04' }}
+    timeout-minutes: 60
+    env:
+      BUILD_NUMBER: ${{ inputs.build-number }}
+      PLATFORM: ${{ inputs.platform }}
+      LANE: ${{ inputs.lane }}
+      TARGET_ENV: ${{ inputs.environment }}
+    steps:
+      - name: Validate inputs
+        run: |
+          [[ "$TARGET_ENV" =~ ^(dev|sit|stage|prod)$ ]] || { echo "::error::invalid environment '$TARGET_ENV'"; exit 1; }
+          [[ "$PLATFORM" =~ ^(android|ios)$ ]] || { echo "::error::invalid platform '$PLATFORM'"; exit 1; }
+          [[ "$LANE" =~ ^(beta|release)$ ]] || { echo "::error::invalid lane '$LANE'"; exit 1; }
+          [[ "$BUILD_NUMBER" =~ ^[0-9]+$ ]] || { echo "::error::invalid build number '$BUILD_NUMBER'"; exit 1; }
+
+      # Android DEV/SIT/STAGE go to Firebase App Distribution, which is set up in plan step 4.
+      # Until its variables exist the upload is skipped with a warning instead of failing main.
+      - name: Check distribution target
+        id: target
+        env:
+          FIREBASE_APP_ID: ${{ vars[format('FIREBASE_APP_ID_ANDROID_{0}', inputs.environment)] }}
+        run: |
+          if [[ "$PLATFORM" == android && "$TARGET_ENV" != prod && -z "$FIREBASE_APP_ID" ]]; then
+            env_upper="$(tr '[:lower:]' '[:upper:]' <<< "$TARGET_ENV")"
+            echo "::warning::Firebase App Distribution is not configured for $env_upper (variable FIREBASE_APP_ID_ANDROID_$env_upper); skipping the Android upload."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - if: steps.target.outputs.skip != 'true'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # version name comes from tags
+          persist-credentials: false
+
+      - if: steps.target.outputs.skip != 'true'
+        uses: ./.github/actions/setup-build
+        with:
+          ruby: "true"
+          ios: ${{ inputs.platform == 'ios' }}
+
+      - name: Write secret files
+        if: steps.target.outputs.skip != 'true'
+        env:
+          REFPROJ_SIGNING_KEYSTORE_BASE64: ${{ inputs.platform == 'android' && secrets.REFPROJ_SIGNING_KEYSTORE_BASE64 || '' }}
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ inputs.platform == 'android' && secrets.PLAY_SERVICE_ACCOUNT_JSON || '' }}
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ inputs.platform == 'android' && secrets.FIREBASE_SERVICE_ACCOUNT_JSON || '' }}
+        run: scripts/ci/secret-files.sh write
+
+      - name: fastlane ${{ inputs.platform }} ${{ inputs.lane }} env:${{ inputs.environment }}
+        if: steps.target.outputs.skip != 'true'
+        env:
+          # Android
+          REFPROJ_SIGNING_STORE_PASSWORD: ${{ inputs.platform == 'android' && secrets.REFPROJ_SIGNING_STORE_PASSWORD || '' }}
+          REFPROJ_SIGNING_KEY_PASSWORD: ${{ inputs.platform == 'android' && secrets.REFPROJ_SIGNING_KEY_PASSWORD || '' }}
+          REFPROJ_SIGNING_KEY_ALIAS: ${{ vars.REFPROJ_SIGNING_KEY_ALIAS }}
+          FIREBASE_APP_ID_ANDROID_DEV: ${{ vars.FIREBASE_APP_ID_ANDROID_DEV }}
+          FIREBASE_APP_ID_ANDROID_SIT: ${{ vars.FIREBASE_APP_ID_ANDROID_SIT }}
+          FIREBASE_APP_ID_ANDROID_STAGE: ${{ vars.FIREBASE_APP_ID_ANDROID_STAGE }}
+          FIREBASE_TESTER_GROUPS: ${{ vars.FIREBASE_TESTER_GROUPS }}
+          # iOS
+          APPLE_TEAM_ID: ${{ vars.APPLE_TEAM_ID }}
+          ASC_KEY_ID: ${{ vars.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ vars.ASC_ISSUER_ID }}
+          ASC_KEY_CONTENT_BASE64: ${{ inputs.platform == 'ios' && secrets.ASC_KEY_CONTENT_BASE64 || '' }}
+          MATCH_GIT_URL: ${{ vars.MATCH_GIT_URL }} # SSH form, read via the deploy key
+          MATCH_PASSWORD: ${{ inputs.platform == 'ios' && secrets.MATCH_PASSWORD || '' }}
+          MATCH_GIT_PRIVATE_KEY: ${{ inputs.platform == 'ios' && secrets.MATCH_GIT_PRIVATE_KEY || '' }}
+        run: bundle exec fastlane "$PLATFORM" "$LANE" "env:$TARGET_ENV"
+
+      - name: Summary
+        if: steps.target.outputs.skip != 'true'
+        run: echo "✅ \`$PLATFORM $LANE\` → **$TARGET_ENV**, build number $BUILD_NUMBER, commit \`${GITHUB_SHA::7}\`" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Remove secret files
+        if: always()
+        run: |
+          if [[ -f scripts/ci/secret-files.sh ]]; then scripts/ci/secret-files.sh clean; fi

@@ -1,0 +1,48 @@
+# Continuous delivery from trunk: every change merged to main is built, signed and sent to
+# testers in DEV and SIT (Android: Firebase App Distribution, iOS: TestFlight).
+# Unfinished features ship dark behind feature flags (CLAUDE.md, trunk-based development).
+name: Deploy DEV + SIT
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - ".github/ISSUE_TEMPLATE/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-main
+  # Never cancel an upload half-way; a newer push waits and then ships the latest main.
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    name: Build number
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      build-number: ${{ steps.number.outputs.value }}
+    steps:
+      - id: number
+        # Minutes since 2026-01-01 UTC — must match BUILD_NUMBER_EPOCH in fastlane/Fastfile.
+        run: echo "value=$(( ($(date -u +%s) - $(date -u -d 2026-01-01T00:00:00Z +%s)) / 60 ))" >> "$GITHUB_OUTPUT"
+
+  distribute:
+    name: ${{ matrix.environment }}
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        environment: [dev, sit]
+        platform: [android, ios]
+    uses: ./.github/workflows/_distribute.yml
+    with:
+      environment: ${{ matrix.environment }}
+      platform: ${{ matrix.platform }}
+      build-number: ${{ needs.prepare.outputs.build-number }}
+    # No secrets are passed: the reusable job reads them from its GitHub Environment.

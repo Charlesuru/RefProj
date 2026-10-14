@@ -1,0 +1,12 @@
+# Code owners are requested for review automatically. Later rules take precedence.
+# Security-sensitive paths are listed explicitly so they keep an owner if the default changes.
+*                       @Charlesuru
+
+/.github/               @Charlesuru
+/fastlane/              @Charlesuru
+/scripts/               @Charlesuru
+/build-logic/           @Charlesuru
+/.gitleaks.toml         @Charlesuru
+/.gitignore             @Charlesuru
+/docs/secrets.md        @Charlesuru
+/CLAUDE.md              @Charlesuru

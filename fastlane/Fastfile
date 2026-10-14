@@ -2,6 +2,7 @@
 # used identically by developers, AI agents and CI.
 #
 #   bundle exec fastlane test                               # quality gate (format, lint, all tests)
+#   bundle exec fastlane lint                               # format + static analysis only
 #   bundle exec fastlane android build env:dev              # debug APK
 #   bundle exec fastlane android build env:sit type:release # signed if the upload key is configured
 #   bundle exec fastlane android beta env:sit               # -> Firebase App Distribution
@@ -17,9 +18,12 @@ default_platform(:android)
 # fastlane/.env is a copy of .env.example, so unused variables are present but empty. Several
 # actions only check for presence (match sends an empty "Authorization: Basic" header when
 # MATCH_GIT_BASIC_AUTHORIZATION is ""), so an empty template variable must count as unset.
-File.foreach(File.join(__dir__, ".env.example")) do |line|
-  name = line[/\A([A-Z][A-Z0-9_]*)=/, 1]
-  ENV.delete(name) if name && ENV[name]&.strip&.empty?
+# The local .env is scanned too, so variables that were later removed from the template still count.
+%w[.env.example .env].map { |file| File.join(__dir__, file) }.select { |path| File.exist?(path) }.each do |path|
+  File.foreach(path) do |line|
+    name = line[/\A([A-Z][A-Z0-9_]*)=/, 1]
+    ENV.delete(name) if name && ENV[name]&.strip&.empty?
+  end
 end
 
 ROOT = File.expand_path("..", __dir__)
@@ -29,6 +33,7 @@ BASE_APP_ID = "com.studiodraug.refproj"
 RELEASE_TAG = /\Av(\d+)\.(\d+)\.(\d+)\z/
 # Build numbers are minutes since this instant: monotonic, shared by local and CI builds,
 # and far below Android's versionCode limit (2_100_000_000) for centuries.
+# CI computes the same number once per workflow run (.github/workflows/*.yml) — keep them in sync.
 BUILD_NUMBER_EPOCH = Time.utc(2026, 1, 1)
 
 # ---------------------------------------------------------------------------------------------
@@ -118,6 +123,11 @@ end
 desc "Quality gate: formatting, static analysis and all tests (Android host + iOS simulator)"
 lane :test do
   gradle!("spotlessCheck", "detekt", "allTests")
+end
+
+desc "Formatting and static analysis (spotless, detekt). Writes the detekt SARIF report for CI"
+lane :lint do
+  gradle!("spotlessCheck", "detekt")
 end
 
 desc "Print the version name and build number this commit would get"

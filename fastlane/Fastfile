@@ -143,7 +143,9 @@ platform :android do
       ":app:android:#{task}#{env.capitalize}#{type.capitalize}",
       properties: { "refproj.versionName" => version_name, "refproj.versionCode" => build_number },
     )
-    format == "aab" ? lane_context[SharedValues::GRADLE_AAB_OUTPUT_PATH] : lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH]
+    path = format == "aab" ? lane_context[SharedValues::GRADLE_AAB_OUTPUT_PATH] : lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH]
+    UI.success("Built #{format.upcase}: #{path}")
+    path
   end
 
   desc "Run Android host unit tests"

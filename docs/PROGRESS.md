@@ -2,9 +2,8 @@
 
 Read at the start of every AI session (after `docs/PLAN.md`). Update at the end of every step.
 
-**Next action:** iOS owner setup is done. The owner is now doing the **Android** items of the *Step 2 — owner setup*
-checklist (upload key, Play Console, service account), possibly with AI help: give step-by-step Swedish instructions,
-never ask for or display secret values. Then step 3 (model: Opus). At the start of step 3, verify
+**Next action:** iOS and Android owner setup is done (Firebase deferred to step 4). Run step 3 (model: Opus).
+At the start of step 3, verify
 (`bundle exec fastlane ios certificates`, `bundle exec fastlane android build env:prod type:release format:aab` → signed),
 then push `main` + the step-2 branch to GitHub (`Charlesuru/RefProj`, empty, private) and open the PR for step 2.
 
@@ -48,11 +47,22 @@ Owner decision: certificates repo `Charlesuru/refproj-certificates` (private) �
 - [x] `MATCH_PASSWORD` chosen → `ios bootstrap_signing` done 2026-10-14: 1 Apple Distribution cert + 4 App Store
       profiles in `Charlesuru/refproj-certificates`; read-only `ios certificates` lane verified
 - [x] Owner ran `bundle exec fastlane ios archive env:dev` — signed archive OK 2026-10-14
-- [ ] Android upload key in `~/.secrets/refproj/upload.jks`, passwords in `~/.gradle/gradle.properties`
-- [ ] Play Console: app `com.studiodraug.refproj`, Play App Signing on, first AAB uploaded manually (internal track), service account JSON
-- [ ] Firebase project + Android apps for DEV/SIT/STAGE (can wait until step 4) + App Distribution service account
+- [x] Android upload key in `~/.secrets/refproj/upload.jks` (PKCS12, alias `upload`, RSA 4096, valid to 2051,
+      cert SHA-256 `0B:87:58:0F:…:24:E6`), passwords in `~/.gradle/gradle.properties` — 2026-10-14
+- [x] Play Console: app `com.studiodraug.refproj` created, first AAB (versionCode 412532) uploaded manually and released
+      to the internal track; Play App Signing is implicit for new AAB apps (Google holds the app signing key) — 2026-10-14
+- [x] Google Cloud project `refproj` (Play Android Developer API enabled), service account
+      `play-publisher@refproj.iam.gserviceaccount.com` (no project roles; Play Console permissions on RefProj only:
+      release to production + testing tracks). JSON key → `~/.secrets/refproj/play-service-account.json`, path in
+      `fastlane/.env`. Verified 2026-10-14: `validate_play_store_json_key` OK, and an API upload of a newly built AAB to
+      the internal track as **draft** succeeded (confirms upload key + service account + permissions end to end)
+- [ ] Firebase project + Android apps for DEV/SIT/STAGE + App Distribution service account — deferred to step 4
+      (reuse Google Cloud project `refproj`)
 
 ## Open items / decisions pending
+- Play Console moved *App integrity* to the *Protected with Play* page; the signing-certificate view was not found there.
+  Upload-key registration is instead proven by the successful API upload above.
+- A draft internal release (from the API upload test) may remain in Play Console; owner can discard it.
 - Jira project key: placeholder `REF` until Jira is set up (step 8).
 - App icons: added with the design system (step 4).
 - detekt 1.23.x with Kotlin-compiler pinning; move to detekt 2.x when stable.

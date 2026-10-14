@@ -6,3 +6,5 @@ APP_BUNDLE_ID = $(APP_BASE_BUNDLE_ID).stage
 APP_DISPLAY_NAME = RefProj STAGE
 // "//" starts a comment in xcconfig, hence the $() separator.
 API_BASE_URL = https:/$()/api.stage.refproj.example
+// Placeholder icon with the environment label (scripts/assets/generate-placeholder-icons.swift).
+ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon-Stage

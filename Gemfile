@@ -7,5 +7,5 @@ ruby file: ".ruby-version"
 
 gem "fastlane", "~> 2.241"
 
-plugins_path = File.join(File.dirname(__FILE__), "fastlane", "Pluginfile")
-eval_gemfile(plugins_path) if File.exist?(plugins_path)
+# fastlane plugins. A literal path: Dependabot only parses uninterpolated eval_gemfile arguments.
+eval_gemfile("fastlane/Pluginfile")

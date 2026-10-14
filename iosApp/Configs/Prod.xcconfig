@@ -6,3 +6,4 @@ APP_BUNDLE_ID = $(APP_BASE_BUNDLE_ID)
 APP_DISPLAY_NAME = RefProj
 // "//" starts a comment in xcconfig, hence the $() separator.
 API_BASE_URL = https:/$()/api.refproj.example
+ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon

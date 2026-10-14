@@ -50,7 +50,9 @@ jobs:
       environment: stage
       platform: ${{ matrix.platform }}
       build-number: ${{ needs.prepare.outputs.build-number }}
-    # No secrets are passed: the reusable job reads them from its GitHub Environment.
+    # A called workflow only sees secrets its caller passes, environment secrets included. The repository has
+    # no repository- or organization-level secrets, so `inherit` exposes only the target environment's secrets.
+    secrets: inherit # zizmor: ignore[secrets-inherit] -- see comment above
 
   prod:
     name: prod
@@ -64,6 +66,9 @@ jobs:
       environment: prod
       platform: ${{ matrix.platform }}
       build-number: ${{ needs.prepare.outputs.build-number }}
+    # A called workflow only sees secrets its caller passes, environment secrets included. The repository has
+    # no repository- or organization-level secrets, so `inherit` exposes only the target environment's secrets.
+    secrets: inherit # zizmor: ignore[secrets-inherit] -- see comment above
 
   github-release:
     name: GitHub release

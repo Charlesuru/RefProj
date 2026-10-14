@@ -62,9 +62,12 @@ JSON
 api -X PUT "repos/$repo/vulnerability-alerts"
 api -X PUT "repos/$repo/automated-security-fixes"
 api -X PUT "repos/$repo/private-vulnerability-reporting"
-api -X PATCH "repos/$repo/code-scanning/default-setup" --input - <<'JSON'
+# CodeQL only accepts "actions" once workflow files exist on the default branch.
+if ! api -X PATCH "repos/$repo/code-scanning/default-setup" --input - <<'JSON' 2>/dev/null; then
 { "state": "configured", "languages": ["actions"], "query_suite": "default" }
 JSON
+  echo "  ! CodeQL default setup skipped: no workflows on the default branch yet. Re-run this script after merging them."
+fi
 
 # $1 = environment, $2 = ref type (branch|tag), $3 = ref pattern, $4 = "reviewed" to require approval
 configure_environment() {

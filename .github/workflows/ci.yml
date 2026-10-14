@@ -169,6 +169,10 @@ jobs:
         with:
           fail-on-severity: moderate
           retry-on-snapshot-warnings: true
+          # Accepted risks — each needs a reason and an exit condition (docs/ci-cd.md#dependency-updates):
+          #   GHSA-r937-wjx7-w2jp: kotlin-gradle-plugin 2.4.10 embedded in Gradle 9.8.1 (latest) for build-logic's
+          #   kotlin-dsl; build-only (Kotlin build cache metadata). Remove when Gradle embeds Kotlin >= 2.4.20.
+          allow-ghsas: GHSA-r937-wjx7-w2jp
           comment-summary-in-pr: on-failure
 
   result:

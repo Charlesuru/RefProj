@@ -4,10 +4,11 @@
 buildscript {
     dependencies {
         constraints {
-            // Security pin for the build classpath (not shipped in the app): AGP 9.4.1 resolves a
-            // vulnerable Bouncy Castle. Remove once AGP itself depends on >= 1.85. See libs.versions.toml.
-            listOf(libs.bouncycastle.bcprov, libs.bouncycastle.bcpkix, libs.bouncycastle.bcutil).forEach {
-                classpath(it) { because("GHSA-9pwp-9qqc-pr26, GHSA-qp49-qgx5-5m26, GHSA-c3fc-8qff-9hwx") }
+            // Security pins for the build classpath (not shipped in the app): AGP 9.4.1 resolves
+            // vulnerable versions of these libraries. Advisories and removal rule: libs.versions.toml.
+            // Tool classpaths inside the modules are pinned by build-logic (ToolClasspathPins.kt).
+            libs.bundles.build.tool.security.pins.get().forEach {
+                classpath(it) { because("Known vulnerabilities in the version AGP resolves; see libs.versions.toml") }
             }
         }
     }

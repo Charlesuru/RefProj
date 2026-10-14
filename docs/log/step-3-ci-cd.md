@@ -98,3 +98,11 @@ CI jobs: gitleaks · actionlint + zizmor · spotless + detekt (SARIF to code sca
 - [ ] `scripts/github/set-ci-secrets.sh` — CI secrets + deploy key
 - [ ] Watch the first *Deploy DEV + SIT* run (iOS to TestFlight; Android skipped until step 4)
 - [ ] Optional: GitHub → Settings → Emails → *Keep my email addresses private* + *Block command line pushes that expose my email*
+
+## 6. Closing the step
+- First successful **Deploy DEV + SIT**: run 38608250712 on `60e8fee`. iOS DEV and SIT are in TestFlight
+  ("Ready to Submit" = processed; internal testers get it through an internal testing group). Android DEV/SIT are
+  skipped until Firebase App Distribution exists (step 4).
+- Rulesets, CodeQL default setup and environment secrets verified by name through the GitHub API.
+- Deploy-time fixes: PR #3 (`secrets: inherit`), PR #4 (`.env` trimming), PR #5 (placeholder icons, Gemfile for Dependabot).
+- Open for later: first `v*` tag exercises `release.yml`; PR-label deploys proposed for step 4.

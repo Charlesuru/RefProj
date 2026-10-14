@@ -2,15 +2,15 @@
 
 Read at the start of every AI session (after `docs/PLAN.md`). Update at the end of every step.
 
-**Next action:** finish the step-3 owner checklist below (merge PR #2, rulesets, CI secrets, first deploy), then verify
-the first *Deploy DEV + SIT* run at the start of step 4 and tick it off here. Then run step 4 (model: Sonnet).
+**Next action:** run step 4 (model: Sonnet). Start by setting up Firebase (project, apps for DEV/SIT/STAGE, App
+Distribution service account), so Android DEV/SIT deploys stop being skipped. Decide the PR-label deploy proposal (open items).
 Detailed step logs: `docs/log/`.
 
 | Step | Scope | Status |
 |---|---|---|
 | 1 | Foundation: repo, modules, version catalog, convention plugins, 4 environments, lint, CLAUDE.md | ✅ Done 2026-10-12 |
 | 2 | Fastlane + secrets + signing (match, Play upload key) | ✅ Done 2026-10-14 (PR #1; Firebase → step 4) |
-| 3 | CI/CD (GitHub Actions → later self-hosted Mac runner) | ✅ Code done 2026-10-14 (PR #2) · ⏳ owner checklist |
+| 3 | CI/CD (GitHub Actions → later self-hosted Mac runner) | ✅ Done 2026-10-14 (PRs #2–#5) |
 | 4 | Core: design system, Koin, Nav3, feature flags, observability (Firebase), localisation, domain/data | ⏳ Next |
 | 5 | Features: onboarding, login, tabbed logged-in shell | |
 | 6 | Debug menu | |
@@ -68,15 +68,23 @@ Owner decision: certificates repo `Charlesuru/refproj-certificates` (private) �
   `docs/ci-cd.md#vulnerable-build-tooling`.
 - Applied by the owner: `configure-repo.sh --skip-rulesets` (merge options, Actions policy with enforced SHA pinning,
   security features, environments dev/sit → `main`, stage/prod → `v*` tags + reviewer).
-- Not verifiable before secrets exist: deploy workflows (`deploy-main`, `release`, `store-release`).
+- Rulesets `main` + `release-tags` active; CodeQL default setup (actions) configured; CI secrets in all four
+  environments (names checked, values never read); read-only deploy key on the certificates repo.
+- **Deploy DEV + SIT** (run 38608250712, `60e8fee`): all jobs green. iOS DEV + SIT uploaded to TestFlight (match via
+  deploy key, signing, upload with the ASC API key); Android skipped as planned until Firebase (step 4).
+- The first deploy runs found three issues, fixed in PRs #3–#5: environment secrets need `secrets: inherit` for the
+  reusable job, `set-ci-secrets.sh` now trims `.env` values like dotenv, and the app needed icons (placeholders).
+- Not exercised yet: `release.yml` (STAGE → PROD) and `store-release.yml`. First real run with the first `v*` tag.
 
 ## Step 3 — owner checklist
 - [x] Public repository, e-mail clean-up, PR #1 merged (rebase)
 - [x] `scripts/github/configure-repo.sh --skip-rulesets`
-- [ ] Merge PR #2 (**Rebase and merge**)
-- [ ] `scripts/github/configure-repo.sh` (rulesets `main` + `release-tags`, CodeQL for workflows)
-- [ ] `scripts/github/set-ci-secrets.sh` (CI secrets + read-only deploy key on the certificates repo)
-- [ ] First *Deploy DEV + SIT* run: iOS DEV + SIT in TestFlight; Android skipped with a warning (Firebase in step 4)
+- [x] Merge PR #2 (**Rebase and merge**)
+- [x] `scripts/github/configure-repo.sh` (rulesets `main` + `release-tags`, CodeQL for workflows)
+- [x] `scripts/github/set-ci-secrets.sh` (CI secrets + read-only deploy key on the certificates repo)
+- [x] First *Deploy DEV + SIT* run: iOS DEV + SIT in TestFlight; Android skipped with a warning (Firebase in step 4)
+- [x] Dependabot alert #1 dismissed as *tolerable risk* (matches `allow-ghsas`)
+- [ ] TestFlight: internal testing group per app (DEV, SIT) with *automatic distribution*, so new builds reach testers
 - [ ] GitHub → Settings → Emails: *Keep my email addresses private* + *Block command line pushes that expose my email*
 - [ ] Optional: delete the local branch `build/REF-2-fastlane-secrets-signing` (merged as PR #1)
 
@@ -92,3 +100,6 @@ Owner decision: certificates repo `Charlesuru/refproj-certificates` (private) �
   `scripts/assets/generate-placeholder-icons.swift`. Replace with the real brand icon with the design system (step 4);
   Play also needs a 512 px store icon before the first production release.
 - detekt 1.23.x with Kotlin-compiler pinning; move to detekt 2.x when stable.
+- **Proposal, owner decision pending (step 4):** PR label `deploy:dev` builds a PR to DEV for testing before merge
+  (`dev` environment then also accepts PR branches from this repository); SIT moves from every merge to manual/nightly.
+- Confirm the Dependabot bundler job is green after the Gemfile fix (next weekly run).

@@ -2,17 +2,16 @@
 
 Read at the start of every AI session (after `docs/PLAN.md`). Update at the end of every step.
 
-**Next action:** iOS and Android owner setup is done (Firebase deferred to step 4). Run step 3 (model: Opus).
-At the start of step 3, verify
-(`bundle exec fastlane ios certificates`, `bundle exec fastlane android build env:prod type:release format:aab` → signed),
-then push `main` + the step-2 branch to GitHub (`Charlesuru/RefProj`, empty, private) and open the PR for step 2.
+**Next action:** finish the step-3 owner checklist below (merge PR #2, rulesets, CI secrets, first deploy), then verify
+the first *Deploy DEV + SIT* run at the start of step 4 and tick it off here. Then run step 4 (model: Sonnet).
+Detailed step logs: `docs/log/`.
 
 | Step | Scope | Status |
 |---|---|---|
 | 1 | Foundation: repo, modules, version catalog, convention plugins, 4 environments, lint, CLAUDE.md | ✅ Done 2026-10-12 |
-| 2 | Fastlane + secrets + signing (match, Play upload key) | ✅ Code done 2026-10-14 · ⏳ owner setup |
-| 3 | CI/CD (GitHub Actions → later self-hosted Mac runner) | ⏳ Next |
-| 4 | Core: design system, Koin, Nav3, feature flags, observability (Firebase), localisation, domain/data | |
+| 2 | Fastlane + secrets + signing (match, Play upload key) | ✅ Done 2026-10-14 (PR #1; Firebase → step 4) |
+| 3 | CI/CD (GitHub Actions → later self-hosted Mac runner) | ✅ Code done 2026-10-14 (PR #2) · ⏳ owner checklist |
+| 4 | Core: design system, Koin, Nav3, feature flags, observability (Firebase), localisation, domain/data | ⏳ Next |
 | 5 | Features: onboarding, login, tabbed logged-in shell | |
 | 6 | Debug menu | |
 | 7 | Tests: unit, integration, UI, screenshot, architecture + coverage | |
@@ -59,10 +58,35 @@ Owner decision: certificates repo `Charlesuru/refproj-certificates` (private) �
 - [ ] Firebase project + Android apps for DEV/SIT/STAGE + App Distribution service account — deferred to step 4
       (reuse Google Cloud project `refproj`)
 
+## Step 3 — verified
+- Repository is **public** (owner decision; GitHub Free gives no protections to private repos — ADR 0006). History uses
+  the owner's noreply e-mail; the repository was recreated so no old commit object is reachable.
+- PR #2 `CI result` green: gitleaks, actionlint + zizmor, spotless + detekt (SARIF), Android tests, Android builds
+  (DEV APK, PROD AAB/R8), iOS simulator tests + build (≈6 min warm), Gradle dependency graph + dependency review.
+- Dependency review found vulnerable libraries in the build toolchain (AGP 9.4.1, Lint, Kotlin swift-export); pinned in
+  the `build-tool-security-pins` bundle. Accepted: GHSA-r937-wjx7-w2jp (Kotlin embedded in Gradle 9.8.1). See
+  `docs/ci-cd.md#vulnerable-build-tooling`.
+- Applied by the owner: `configure-repo.sh --skip-rulesets` (merge options, Actions policy with enforced SHA pinning,
+  security features, environments dev/sit → `main`, stage/prod → `v*` tags + reviewer).
+- Not verifiable before secrets exist: deploy workflows (`deploy-main`, `release`, `store-release`).
+
+## Step 3 — owner checklist
+- [x] Public repository, e-mail clean-up, PR #1 merged (rebase)
+- [x] `scripts/github/configure-repo.sh --skip-rulesets`
+- [ ] Merge PR #2 (**Rebase and merge**)
+- [ ] `scripts/github/configure-repo.sh` (rulesets `main` + `release-tags`, CodeQL for workflows)
+- [ ] `scripts/github/set-ci-secrets.sh` (CI secrets + read-only deploy key on the certificates repo)
+- [ ] First *Deploy DEV + SIT* run: iOS DEV + SIT in TestFlight; Android skipped with a warning (Firebase in step 4)
+- [ ] GitHub → Settings → Emails: *Keep my email addresses private* + *Block command line pushes that expose my email*
+- [ ] Optional: delete the local branch `build/REF-2-fastlane-secrets-signing` (merged as PR #1)
+
 ## Open items / decisions pending
 - Play Console moved *App integrity* to the *Protected with Play* page; the signing-certificate view was not found there.
   Upload-key registration is instead proven by the successful API upload above.
 - A draft internal release (from the API upload test) may remain in Play Console; owner can discard it.
 - Jira project key: placeholder `REF` until Jira is set up (step 8).
+- Required PR approvals are 0 until the AI has its own GitHub identity (step 8) → then 1 in `ruleset-main.json`.
+- Build-tool security pins and the accepted GHSA: re-check on every AGP/Kotlin/Gradle upgrade.
+- Switch `uses: ./…` to `uses: $/…` once actionlint supports it (then drop the zizmor exception).
 - App icons: added with the design system (step 4).
 - detekt 1.23.x with Kotlin-compiler pinning; move to detekt 2.x when stable.

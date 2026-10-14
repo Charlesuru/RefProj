@@ -68,7 +68,8 @@ CI jobs: gitleaks · actionlint + zizmor · spotless + detekt (SARIF to code sca
 ## 3. Verification so far
 - Locally: actionlint (with shellcheck) and zizmor — no findings; shellcheck on all scripts; CI helper scripts exercised
   with temporary paths; `spotlessCheck detekt allTests :app:android:assembleDevDebug` green.
-- On GitHub (PR #2): gitleaks, workflow lint, lint, Android tests, Android build and iOS (≈8–14 min) green on the first run.
+- On GitHub (PR #2): gitleaks, workflow lint, lint, Android tests, Android build and iOS (≈8–14 min) green on the first run;
+  after the build-tool pins the whole check, including dependency review, is green (`CI result` ✅).
 
 ## 4. Problems found and fixed
 | Problem | Cause | Fix |

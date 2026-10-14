@@ -99,6 +99,20 @@ Dependabot ([`.github/dependabot.yml`](../.github/dependabot.yml)) opens grouped
 the CLI tools in `scripts/ci/install-tool.sh`, `detekt-kotlin`, `ktlint`, `compose-rules`, Xcode in
 `.github/actions/setup-build`.
 
+### Vulnerable build tooling
+Dependency review also scans the **build toolchain** (AGP, Android Lint, Kotlin tooling), not only app libraries. When the
+latest stable toolchain still resolves a vulnerable library:
+1. **Pin** a fixed version in the `build-tool-security-pins` bundle of `gradle/libs.versions.toml` (advisory listed next
+   to the version). It is applied to the build classpath (root `build.gradle.kts`) and to tool classpaths inside the
+   modules (`build-logic/.../ToolClasspathPins.kt`). Verify signing, lint and both platform builds afterwards.
+2. Only if a pin is impossible, **accept the risk** in `allow-ghsas` of the dependency-review step in `ci.yml`, with the
+   reason and an exit condition in a comment, and list it below.
+3. Re-check pins and exceptions whenever AGP, Kotlin or Gradle is upgraded; drop what is no longer needed.
+
+| Accepted advisory | Where | Why it can't be pinned | Remove when |
+|---|---|---|---|
+| GHSA-r937-wjx7-w2jp (moderate) | Kotlin 2.4.10 embedded in Gradle 9.8.1, used by `build-logic`'s `kotlin-dsl` | Embedded Kotlin is part of Gradle itself | Gradle embeds Kotlin ≥ 2.4.20 |
+
 ## Runners
 | Job | Runner |
 |---|---|

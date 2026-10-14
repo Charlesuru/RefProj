@@ -23,6 +23,7 @@ GoogleService-Info.plist
 **/play-store-credentials*.json
 **/service-account*.json
 fastlane/.env*
+!fastlane/.env.example
 fastlane/*.json
 iosApp/Configs/Local.xcconfig
 iosApp/Configs/Secrets.xcconfig
@@ -67,7 +68,7 @@ Pods/
 .swiftpm/
 
 # =====================================================================
-#  Fastlane / Ruby
+#  Fastlane / Ruby  (Gemfile.lock IS committed)
 # =====================================================================
 fastlane/report.xml
 fastlane/Preview.html
@@ -76,6 +77,11 @@ fastlane/test_output/
 fastlane/README.md
 vendor/bundle/
 .bundle/
+
+# =====================================================================
+#  Gitleaks
+# =====================================================================
+gitleaks-report.*
 
 # =====================================================================
 #  Build artifacts

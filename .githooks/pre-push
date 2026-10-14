@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Pre-push: the fast part of the quality gate. Tests and builds run in CI on the pull request.
+set -euo pipefail
+./gradlew --quiet spotlessCheck detekt || {
+  echo "pre-push: lint failed. Run ./gradlew spotlessApply detekt and fix the findings." >&2
+  exit 1
+}

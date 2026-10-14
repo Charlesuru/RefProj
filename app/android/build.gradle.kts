@@ -7,7 +7,7 @@ android {
 
     defaultConfig {
         applicationId = "com.charlesuru.refproj"
-        // Overridden in CI from the build number / git tag (see fastlane, step 2).
+        // Set by fastlane from the git tag and build number (docs/adr/0005-release-tooling.md).
         versionCode = providers.gradleProperty("refproj.versionCode").orNull?.toInt() ?: 1
         versionName = providers.gradleProperty("refproj.versionName").orNull ?: "0.1.0"
     }
@@ -55,7 +55,7 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            // Release signing is configured in step 2 from environment variables / CI secrets.
+            // Signed with the upload key when configured (refproj.android.application, docs/secrets.md).
             // Never commit a keystore or its passwords.
         }
     }

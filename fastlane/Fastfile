@@ -1,0 +1,341 @@
+# RefProj fastlane lanes — the single entry point for building, testing and shipping,
+# used identically by developers, AI agents and CI.
+#
+#   bundle exec fastlane test                               # quality gate (format, lint, all tests)
+#   bundle exec fastlane android build env:dev              # debug APK
+#   bundle exec fastlane android build env:sit type:release # signed if the upload key is configured
+#   bundle exec fastlane android beta env:sit               # -> Firebase App Distribution
+#   bundle exec fastlane ios build env:dev                  # simulator build, no signing
+#   bundle exec fastlane ios beta env:stage                 # -> TestFlight
+#
+# Environments: dev, sit, stage, prod. STAGE and PROD uploads require a release tag (vX.Y.Z) on HEAD.
+# Secrets come from environment variables only (fastlane/.env locally, GitHub Environments in CI).
+# See docs/secrets.md for every variable and docs/adr/0005-release-tooling.md for the rationale.
+
+default_platform(:android)
+
+ROOT = File.expand_path("..", __dir__)
+ENVIRONMENTS = %w[dev sit stage prod].freeze
+TAGGED_ENVIRONMENTS = %w[stage prod].freeze
+BASE_APP_ID = "com.charlesuru.refproj"
+RELEASE_TAG = /\Av(\d+)\.(\d+)\.(\d+)\z/
+# Build numbers are minutes since this instant: monotonic, shared by local and CI builds,
+# and far below Android's versionCode limit (2_100_000_000) for centuries.
+BUILD_NUMBER_EPOCH = Time.utc(2026, 1, 1)
+
+# ---------------------------------------------------------------------------------------------
+#  Helpers
+# ---------------------------------------------------------------------------------------------
+
+def environment!(options)
+  env = options[:env].to_s.downcase
+  UI.user_error!("Missing or invalid env:<#{ENVIRONMENTS.join('|')}> (got '#{options[:env]}')") unless ENVIRONMENTS.include?(env)
+  env
+end
+
+def require_env!(*names)
+  missing = names.reject { |name| ENV[name].to_s.strip != "" }
+  return if missing.empty?
+
+  UI.user_error!("Missing environment variable(s): #{missing.join(', ')}. See docs/secrets.md.")
+end
+
+def app_id(env)
+  env == "prod" ? BASE_APP_ID : "#{BASE_APP_ID}.#{env}"
+end
+
+def git(*args)
+  Dir.chdir(ROOT) { Actions.sh("git", *args, log: false, error_callback: ->(_) {}).strip }
+end
+
+def exact_release_tag
+  git("tag", "--points-at", "HEAD").split("\n").find { |tag| tag.match?(RELEASE_TAG) }
+end
+
+# vX.Y.Z on HEAD -> X.Y.Z. Otherwise the next minor after the latest release tag, so that
+# DEV/SIT builds never land in an App Store version train that has already been released.
+def version_name
+  return ENV["VERSION_NAME"] unless ENV["VERSION_NAME"].to_s.empty?
+
+  exact = exact_release_tag
+  return exact.delete_prefix("v") if exact
+
+  latest = git("tag", "--list", "v*", "--sort=-v:refname").split("\n").find { |tag| tag.match?(RELEASE_TAG) }
+  return "0.1.0" unless latest
+
+  major, minor, = latest.match(RELEASE_TAG).captures.map(&:to_i)
+  "#{major}.#{minor + 1}.0"
+end
+
+# Memoized so every artifact and note produced by one fastlane run carries the same number.
+def build_number
+  @build_number ||=
+    if ENV["BUILD_NUMBER"].to_s.empty?
+      ((Time.now.utc - BUILD_NUMBER_EPOCH) / 60).floor
+    else
+      Integer(ENV["BUILD_NUMBER"])
+    end
+end
+
+def ensure_release_tag!(env)
+  return unless TAGGED_ENVIRONMENTS.include?(env)
+
+  UI.user_error!("#{env.upcase} uploads require a release tag vX.Y.Z on HEAD.") unless exact_release_tag
+end
+
+def release_notes
+  "#{git('log', '-1', '--pretty=%s')}\n\n#{version_name} (#{build_number}) · #{git('rev-parse', '--short', 'HEAD')}"
+end
+
+def ensure_signed!(path)
+  UI.user_error!("No build output found") if path.to_s.empty? || !File.exist?(path)
+  # AGP names unsigned release APKs "*-unsigned.apk"; AABs are signed with JAR signing.
+  unsigned =
+    if path.end_with?(".apk")
+      path.end_with?("-unsigned.apk")
+    else
+      !Actions.sh("jarsigner", "-verify", path, log: false, error_callback: ->(_) {}).include?("jar verified.")
+    end
+  UI.user_error!("#{File.basename(path)} is not signed. Configure the upload key (docs/secrets.md).") if unsigned
+end
+
+def gradle!(*tasks, properties: {})
+  gradle(project_dir: ROOT, tasks: tasks, properties: properties, flags: "--stacktrace")
+end
+
+# ---------------------------------------------------------------------------------------------
+#  Cross-platform
+# ---------------------------------------------------------------------------------------------
+
+desc "Quality gate: formatting, static analysis and all tests (Android host + iOS simulator)"
+lane :test do
+  gradle!("spotlessCheck", "detekt", "allTests")
+end
+
+desc "Print the version name and build number this commit would get"
+lane :version do
+  UI.message("version_name=#{version_name} build_number=#{build_number}")
+end
+
+# ---------------------------------------------------------------------------------------------
+#  Android
+# ---------------------------------------------------------------------------------------------
+
+platform :android do
+  desc "Build an APK/AAB. Options: env:<dev|sit|stage|prod> type:<debug|release> format:<apk|aab>"
+  lane :build do |options|
+    env = environment!(options)
+    type = (options[:type] || "debug").to_s.downcase
+    format = (options[:format] || "apk").to_s.downcase
+    UI.user_error!("type must be debug or release") unless %w[debug release].include?(type)
+    UI.user_error!("format must be apk or aab") unless %w[apk aab].include?(format)
+
+    task = format == "aab" ? "bundle" : "assemble"
+    gradle!(
+      ":app:android:#{task}#{env.capitalize}#{type.capitalize}",
+      properties: { "refproj.versionName" => version_name, "refproj.versionCode" => build_number },
+    )
+    format == "aab" ? lane_context[SharedValues::GRADLE_AAB_OUTPUT_PATH] : lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH]
+  end
+
+  desc "Run Android host unit tests"
+  lane :test do
+    gradle!("testAndroidHostTest", ":app:android:testDevDebugUnitTest")
+  end
+
+  desc "Upload a signed build. DEV/SIT/STAGE -> Firebase App Distribution, PROD -> Play internal track"
+  lane :beta do |options|
+    env = environment!(options)
+    ensure_release_tag!(env)
+
+    if env == "prod"
+      require_env!("PLAY_SERVICE_ACCOUNT_FILE")
+      aab = build(env: env, type: "release", format: "aab")
+      ensure_signed!(aab)
+      upload_to_play_store(
+        package_name: app_id(env),
+        json_key: ENV["PLAY_SERVICE_ACCOUNT_FILE"],
+        aab: aab,
+        track: "internal",
+        release_status: "completed",
+        skip_upload_metadata: true,
+        skip_upload_changelogs: true,
+        skip_upload_images: true,
+        skip_upload_screenshots: true,
+      )
+    else
+      app_id_var = "FIREBASE_APP_ID_ANDROID_#{env.upcase}"
+      require_env!(app_id_var, "FIREBASE_SERVICE_ACCOUNT_FILE")
+      apk = build(env: env, type: "release", format: "apk")
+      ensure_signed!(apk)
+      firebase_app_distribution(
+        app: ENV[app_id_var],
+        android_artifact_path: apk,
+        android_artifact_type: "APK",
+        service_credentials_file: ENV["FIREBASE_SERVICE_ACCOUNT_FILE"],
+        groups: ENV.fetch("FIREBASE_TESTER_GROUPS", "internal"),
+        release_notes: release_notes,
+      )
+    end
+  end
+
+  desc "Upload PROD to the Play production track as a DRAFT. A human rolls it out in Play Console."
+  lane :release do
+    env = "prod"
+    ensure_release_tag!(env)
+    require_env!("PLAY_SERVICE_ACCOUNT_FILE")
+    aab = build(env: env, type: "release", format: "aab")
+    ensure_signed!(aab)
+    upload_to_play_store(
+      package_name: app_id(env),
+      json_key: ENV["PLAY_SERVICE_ACCOUNT_FILE"],
+      aab: aab,
+      track: "production",
+      release_status: "draft",
+      skip_upload_metadata: true,
+      skip_upload_changelogs: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+    )
+  end
+end
+
+# ---------------------------------------------------------------------------------------------
+#  iOS
+# ---------------------------------------------------------------------------------------------
+
+platform :ios do
+  # A temporary keychain on CI, so match never touches a login keychain.
+  before_all do
+    setup_ci if ENV["CI"]
+  end
+
+  desc "Generate iosApp/RefProj.xcodeproj from iosApp/project.yml"
+  lane :generate do
+    Actions.sh("xcodegen", "generate", "--spec", File.join(ROOT, "iosApp/project.yml"))
+  end
+
+  desc "Install App Store certificates and profiles from the match repo (read-only)"
+  lane :certificates do |options|
+    require_env!("APPLE_TEAM_ID", "MATCH_GIT_URL", "MATCH_PASSWORD")
+    api_key = asc_api_key
+    envs = options[:env] ? [environment!(options)] : ENVIRONMENTS
+    match(
+      type: "appstore",
+      app_identifier: envs.map { |env| app_id(env) },
+      team_id: ENV["APPLE_TEAM_ID"],
+      api_key: api_key,
+      readonly: true,
+    )
+  end
+
+  desc "OWNER ONLY, run once: create the distribution certificate and App Store profiles in the match repo"
+  lane :bootstrap_signing do
+    UI.user_error!("Run bootstrap_signing locally, never on CI.") if ENV["CI"]
+    require_env!("APPLE_TEAM_ID", "MATCH_GIT_URL", "MATCH_PASSWORD")
+    match(
+      type: "appstore",
+      app_identifier: ENVIRONMENTS.map { |env| app_id(env) },
+      team_id: ENV["APPLE_TEAM_ID"],
+      api_key: asc_api_key,
+      readonly: false,
+    )
+  end
+
+  desc "Build for the simulator without signing. Options: env:<dev|sit|stage|prod>"
+  lane :build do |options|
+    env = environment!(options)
+    generate
+    Actions.sh(
+      "xcodebuild", "build",
+      "-project", File.join(ROOT, "iosApp/RefProj.xcodeproj"),
+      "-scheme", "RefProj-#{env.capitalize}",
+      "-configuration", "Debug-#{env.capitalize}",
+      "-destination", "generic/platform=iOS Simulator",
+      "-derivedDataPath", File.join(ROOT, "build/ios/DerivedData"),
+      "CODE_SIGNING_ALLOWED=NO",
+      "MARKETING_VERSION=#{version_name}",
+      "CURRENT_PROJECT_VERSION=#{build_number}",
+    )
+  end
+
+  desc "Run the shared Kotlin tests on the iOS simulator"
+  lane :test do
+    gradle!("iosSimulatorArm64Test")
+  end
+
+  desc "Archive a signed App Store build. Options: env:<dev|sit|stage|prod>"
+  lane :archive do |options|
+    env = environment!(options)
+    require_env!("APPLE_TEAM_ID")
+    certificates(env: env)
+    generate
+
+    bundle_id = app_id(env)
+    profile = "match AppStore #{bundle_id}"
+    build_app(
+      project: File.join(ROOT, "iosApp/RefProj.xcodeproj"),
+      scheme: "RefProj-#{env.capitalize}",
+      configuration: "Release-#{env.capitalize}",
+      export_method: "app-store",
+      export_options: { provisioningProfiles: { bundle_id => profile } },
+      output_directory: File.join(ROOT, "build/ios"),
+      output_name: "RefProj-#{env.capitalize}.ipa",
+      derived_data_path: File.join(ROOT, "build/ios/DerivedData"),
+      clean: true,
+      xcargs: [
+        "DEVELOPMENT_TEAM=#{ENV['APPLE_TEAM_ID']}",
+        "CODE_SIGN_STYLE=Manual",
+        "CODE_SIGN_IDENTITY='Apple Distribution'",
+        "PROVISIONING_PROFILE_SPECIFIER='#{profile}'",
+        "MARKETING_VERSION=#{version_name}",
+        "CURRENT_PROJECT_VERSION=#{build_number}",
+      ].join(" "),
+    )
+  end
+
+  desc "Upload to TestFlight (internal testers). Options: env:<dev|sit|stage|prod>"
+  lane :beta do |options|
+    env = environment!(options)
+    ensure_release_tag!(env)
+    archive(env: env)
+    upload_to_testflight(
+      api_key: asc_api_key,
+      app_identifier: app_id(env),
+      changelog: release_notes,
+      skip_waiting_for_build_processing: true,
+    )
+  end
+
+  desc "Upload PROD to App Store Connect. Submission for review is a human decision in App Store Connect."
+  lane :release do
+    env = "prod"
+    ensure_release_tag!(env)
+    archive(env: env)
+    upload_to_app_store(
+      api_key: asc_api_key,
+      app_identifier: app_id(env),
+      submit_for_review: false,
+      skip_metadata: true,
+      skip_screenshots: true,
+      precheck_include_in_app_purchases: false,
+      force: true, # Skip the HTML preview; nothing is submitted.
+    )
+  end
+
+  # App Store Connect API key: a file path locally (ASC_KEY_PATH), base64 content on CI (ASC_KEY_CONTENT_BASE64).
+  private_lane :asc_api_key do
+    require_env!("ASC_KEY_ID", "ASC_ISSUER_ID")
+    if ENV["ASC_KEY_CONTENT_BASE64"].to_s.empty?
+      require_env!("ASC_KEY_PATH")
+      app_store_connect_api_key(key_id: ENV["ASC_KEY_ID"], issuer_id: ENV["ASC_ISSUER_ID"], key_filepath: ENV["ASC_KEY_PATH"])
+    else
+      app_store_connect_api_key(
+        key_id: ENV["ASC_KEY_ID"],
+        issuer_id: ENV["ASC_ISSUER_ID"],
+        key_content: ENV["ASC_KEY_CONTENT_BASE64"],
+        is_key_content_base64: true,
+      )
+    end
+  end
+end

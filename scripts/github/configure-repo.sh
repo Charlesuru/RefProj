@@ -58,6 +58,7 @@ api -X PATCH "repos/$repo" --input - <<'JSON'
   }
 }
 JSON
+# Dependabot alerts also switch on the dependency graph, which ci.yml needs to submit the Gradle graph.
 api -X PUT "repos/$repo/vulnerability-alerts"
 api -X PUT "repos/$repo/automated-security-fixes"
 api -X PUT "repos/$repo/private-vulnerability-reporting"

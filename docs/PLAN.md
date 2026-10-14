@@ -39,7 +39,8 @@ and an AI-driven (but human-decided) development workflow. What the app *does* i
 ## How we work (session protocol)
 1. Each step runs in its **own session**. Owner runs `/clear` between steps and types "kör steg N".
 2. At session start: read `CLAUDE.md` (auto-loaded), `docs/PLAN.md`, `docs/PROGRESS.md`.
-3. At step end: verify (build/test/lint), update `docs/PROGRESS.md`, commit, then tell the owner:
+3. At step end: verify (build/test/lint), update `docs/PROGRESS.md`, write the step log `docs/log/step-N-<topic>.md`
+   (what was done, decisions, problems + fixes, owner actions — see `docs/log/README.md`), commit, then tell the owner:
    a summary in Swedish, which **model** to use for the next step, and anything they must prepare.
 4. **Tell the owner when to switch model** (`/model`) — they cannot be expected to remember. Also say when context is getting large and a `/clear` is wise.
 5. Blocked on a secret, account or console action → stop and give exact, numbered instructions in Swedish.

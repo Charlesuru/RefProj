@@ -1,6 +1,8 @@
 # Progress log
 
-Read at the start of every AI session. Update at the end of every step.
+Read at the start of every AI session (after `docs/PLAN.md`). Update at the end of every step.
+
+**Next action:** Step 2 (model: Opus). Before starting, ask the owner to confirm the step-2 preparations listed in `docs/PLAN.md`.
 
 | Step | Scope | Status |
 |---|---|---|

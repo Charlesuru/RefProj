@@ -6,6 +6,13 @@ take the correct approach — or stop and ask.
 
 Communicate with the user in **Swedish**. Write code, comments, commit messages, PRs and docs in **English**.
 
+## 0. Session start (always — the user runs `/clear` between steps)
+1. Read `docs/PLAN.md` (requirements, owner decisions, step-by-step plan, session protocol).
+2. Read `docs/PROGRESS.md` (what is done, what is next, open items).
+3. Continue with the next step. Do not re-ask questions already answered in `docs/PLAN.md`.
+4. At the end of a step: verify, update `docs/PROGRESS.md`, commit, and tell the user which
+   **model** to use next (`/model`) and what they need to prepare.
+
 ## 1. Non-negotiable rules
 
 ### Security & secrets

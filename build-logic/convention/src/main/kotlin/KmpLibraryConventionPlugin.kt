@@ -2,6 +2,7 @@ import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
 import com.studiodraug.refproj.buildlogic.derivedNamespace
 import com.studiodraug.refproj.buildlogic.lib
 import com.studiodraug.refproj.buildlogic.libs
+import com.studiodraug.refproj.buildlogic.pinToolClasspathSecurityVersions
 import com.studiodraug.refproj.buildlogic.pluginId
 import com.studiodraug.refproj.buildlogic.version
 import org.gradle.api.Plugin
@@ -22,6 +23,7 @@ class KmpLibraryConventionPlugin : Plugin<Project> {
         with(target) {
             pluginManager.apply(libs.pluginId("kotlin-multiplatform"))
             pluginManager.apply(libs.pluginId("android-kmp-library"))
+            pinToolClasspathSecurityVersions()
 
             extensions.configure<KotlinMultiplatformExtension> {
                 (this as ExtensionAware).extensions.configure<KotlinMultiplatformAndroidLibraryTarget>("android") {

@@ -54,7 +54,8 @@ spotless = "8.10.4"
 
 # --- Build classpath security pins ---
 # AGP 9.4.1 brings Bouncy Castle 1.80.2 (GHSA-9pwp-9qqc-pr26 critical, GHSA-qp49-qgx5-5m26 high,
-# GHSA-c3fc-8qff-9hwx moderate; fixed in 1.85). Raised in the root build.gradle.kts until AGP ships >= 1.85.
+# GHSA-c3fc-8qff-9hwx moderate; fixed in 1.85) on the build classpath and in Android Lint. Raised in the root
+# build.gradle.kts and build-logic ToolClasspathPins.kt until AGP ships >= 1.85.
 bouncycastle = "1.86"
 ktlint = "1.8.0"
 compose-rules = "0.6.8"

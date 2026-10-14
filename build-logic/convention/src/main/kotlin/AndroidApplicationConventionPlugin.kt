@@ -1,6 +1,7 @@
 import com.android.build.api.dsl.ApplicationExtension
 import com.studiodraug.refproj.buildlogic.configureReleaseSigning
 import com.studiodraug.refproj.buildlogic.libs
+import com.studiodraug.refproj.buildlogic.pinToolClasspathSecurityVersions
 import com.studiodraug.refproj.buildlogic.pluginId
 import com.studiodraug.refproj.buildlogic.version
 import org.gradle.api.JavaVersion
@@ -17,6 +18,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
         with(target) {
             pluginManager.apply(libs.pluginId("android-application"))
             pluginManager.apply(libs.pluginId("compose-compiler"))
+            pinToolClasspathSecurityVersions()
 
             extensions.configure<ApplicationExtension> {
                 compileSdk = libs.version("android-compileSdk").toInt()

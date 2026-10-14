@@ -82,6 +82,7 @@ CI jobs: gitleaks · actionlint + zizmor · spotless + detekt (SARIF to code sca
 | PR #2 stopped running CI | Merge conflict after PR #1 was rebase-merged | Rebased the REF-3 commits onto the new `main` (content unchanged), force-pushed the feature branch with lease |
 | Local checkout jumped to an old local `main` | Switched outside the agent (IDE or manually) right after the rebase | Switched back to `ci/REF-3-github-actions`, moved local `main` to `origin/main` |
 | First Deploy DEV + SIT: iOS failed with `Missing environment variable(s): MATCH_PASSWORD` (Android skipped as planned) | A reusable workflow only receives the secrets its caller passes — environment secrets included, even though the job declares `environment:`. Not visible before real secrets existed | Callers pass `secrets: inherit` (zizmor `secrets-inherit` suppressed inline with the reason); rule "no repository-level secrets" added to `docs/ci-cd.md` |
+| Second deploy: match `Invalid password passed via 'MATCH_PASSWORD'` (the deploy key clone worked) | `set-ci-secrets.sh` kept a trailing space from the unquoted value in `fastlane/.env`; dotenv (fastlane) trims it locally | The script now parses `.env` like dotenv (trims whitespace, then removes quotes); owner re-ran it |
 
 ## 5. Owner actions
 - [x] Approved direct push of `main` to the empty repository

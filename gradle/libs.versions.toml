@@ -52,11 +52,23 @@ detekt = "1.23.8"
 detekt-kotlin = "2.0.21"
 spotless = "8.10.4"
 
-# --- Build classpath security pins ---
-# AGP 9.4.1 brings Bouncy Castle 1.80.2 (GHSA-9pwp-9qqc-pr26 critical, GHSA-qp49-qgx5-5m26 high,
-# GHSA-c3fc-8qff-9hwx moderate; fixed in 1.85) on the build classpath and in Android Lint. Raised in the root
-# build.gradle.kts and build-logic ToolClasspathPins.kt until AGP ships >= 1.85.
+# --- Build-tool security pins ---
+# Vulnerable libraries that the build toolchain (AGP 9.4.1, Android Lint, Kotlin swift-export; all latest
+# stable) resolves. Build tooling only, not shipped in the app. Applied to the root build classpath
+# (build.gradle.kts) and to tool classpaths (build-logic ToolClasspathPins.kt). Drop a pin once the
+# toolchain itself depends on a fixed version (check: dependency review on a PR without the pin).
+#   Bouncy Castle 1.80.2 (AGP)          -> fixed 1.85:    GHSA-9pwp-9qqc-pr26 (critical), GHSA-qp49-qgx5-5m26 (high), GHSA-c3fc-8qff-9hwx (moderate)
+#   jose4j 0.9.5 (AGP bundletool)       -> fixed 0.9.6:   GHSA-3677-xxcr-wjqv (high)
+#   jdom2 2.0.6 (AGP jetifier)          -> fixed 2.0.6.1: GHSA-2363-cqg2-863c (high)
+#   commons-lang3 3.16.0 (AGP, Lint)    -> fixed 3.18.0:  GHSA-j288-q9x7-2f5v (moderate)
+#   httpclient 4.5.6 (Lint)             -> fixed 4.5.13:  GHSA-7r82-7xv7-xcpj (moderate)
+#   opentelemetry-api 1.41.0 (swift-export) -> fixed 1.62.0: GHSA-rcgg-9c38-7xpx (moderate)
 bouncycastle = "1.86"
+jose4j = "0.9.7"
+jdom2 = "2.0.6.1"
+commons-lang3 = "3.21.0"
+httpclient = "4.5.14"
+opentelemetry = "1.67.0"
 ktlint = "1.8.0"
 compose-rules = "0.6.8"
 
@@ -130,10 +142,28 @@ compose-compiler-gradlePlugin = { module = "org.jetbrains.kotlin:compose-compile
 detekt-gradlePlugin = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", version.ref = "detekt" }
 spotless-gradlePlugin = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
 
-# Build classpath security pins (see [versions])
+# Build-tool security pins (see [versions])
 bouncycastle-bcprov = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle" }
 bouncycastle-bcpkix = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref = "bouncycastle" }
 bouncycastle-bcutil = { module = "org.bouncycastle:bcutil-jdk18on", version.ref = "bouncycastle" }
+jose4j = { module = "org.bitbucket.b_c:jose4j", version.ref = "jose4j" }
+jdom2 = { module = "org.jdom:jdom2", version.ref = "jdom2" }
+commons-lang3 = { module = "org.apache.commons:commons-lang3", version.ref = "commons-lang3" }
+httpclient = { module = "org.apache.httpcomponents:httpclient", version.ref = "httpclient" }
+opentelemetry-api = { module = "io.opentelemetry:opentelemetry-api", version.ref = "opentelemetry" }
+
+[bundles]
+# Every library in this bundle is constrained on the build and tool classpaths. Advisories: see [versions].
+build-tool-security-pins = [
+  "bouncycastle-bcprov",
+  "bouncycastle-bcpkix",
+  "bouncycastle-bcutil",
+  "jose4j",
+  "jdom2",
+  "commons-lang3",
+  "httpclient",
+  "opentelemetry-api",
+]
 
 [plugins]
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

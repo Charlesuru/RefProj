@@ -3,23 +3,24 @@ package com.studiodraug.refproj.buildlogic
 import org.gradle.api.Project
 
 /**
- * Security pins for tool classpaths that AGP resolves inside every Android module. These libraries
- * run in the build (Android Lint), they are not shipped in the app. The root build.gradle.kts pins the
- * same libraries on the build classpath; versions and advisories are in gradle/libs.versions.toml.
- * Remove once AGP itself depends on fixed versions.
+ * Security pins for tool classpaths that AGP and the Kotlin plugin resolve inside every module. These
+ * libraries run in the build (Android Lint, Kotlin swift-export), they are not shipped in the app.
+ * The root build.gradle.kts pins the same bundle on the build classpath; versions, advisories and the
+ * removal rule are in gradle/libs.versions.toml (bundle `build-tool-security-pins`).
  */
-private val TOOL_CONFIGURATIONS = setOf("androidLintTool")
+private val TOOL_CONFIGURATIONS = setOf("androidLintTool", "swiftExportClasspathResolvable")
 
-private val PINNED_LIBRARIES = listOf("bouncycastle-bcprov", "bouncycastle-bcpkix", "bouncycastle-bcutil")
+private const val PIN_BUNDLE = "build-tool-security-pins"
 
-private const val REASON = "GHSA-9pwp-9qqc-pr26, GHSA-qp49-qgx5-5m26, GHSA-c3fc-8qff-9hwx"
+private const val REASON = "Known vulnerabilities in the version the toolchain resolves; see libs.versions.toml"
 
 internal fun Project.pinToolClasspathSecurityVersions() {
     val pins =
-        PINNED_LIBRARIES.map { alias ->
-            val library = libs.lib(alias).get()
-            "${library.module}:${library.versionConstraint.requiredVersion}"
-        }
+        libs
+            .findBundle(PIN_BUNDLE)
+            .orElseThrow { IllegalArgumentException("Missing bundle '$PIN_BUNDLE' in libs.versions.toml") }
+            .get()
+            .map { "${it.module}:${it.versionConstraint.requiredVersion}" }
     configurations.matching { it.name in TOOL_CONFIGURATIONS }.configureEach {
         val configuration = name
         pins.forEach { pin -> project.dependencies.constraints.add(configuration, pin) { because(REASON) } }

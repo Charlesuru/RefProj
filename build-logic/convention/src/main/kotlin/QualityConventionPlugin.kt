@@ -1,6 +1,7 @@
-import com.charlesuru.refproj.buildlogic.libs
-import com.charlesuru.refproj.buildlogic.version
 import com.diffplug.gradle.spotless.SpotlessExtension
+import com.diffplug.spotless.LineEnding
+import com.studiodraug.refproj.buildlogic.libs
+import com.studiodraug.refproj.buildlogic.version
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.extensions.DetektExtension
 import org.gradle.api.Plugin
@@ -17,6 +18,25 @@ import org.gradle.kotlin.dsl.withType
  * Running these at the root (instead of per module) gives one fast task and one report for CI.
  */
 class QualityConventionPlugin : Plugin<Project> {
+    private companion object {
+        /**
+         * Never scanned: build outputs (Xcode leaves symlinks there that dangle after a Gradle clean),
+         * caches, vendored Ruby gems and generated Xcode projects. Matching the directory itself prunes
+         * the walk, so the walker never enters it.
+         */
+        val EXCLUDED =
+            listOf(
+                "**/build",
+                "**/build/**",
+                "**/.gradle/**",
+                "**/.kotlin/**",
+                "vendor/**",
+                "**/node_modules/**",
+                "iosApp/Pods/**",
+                "iosApp/*.xcodeproj/**",
+            )
+    }
+
     override fun apply(target: Project) =
         with(target) {
             check(this == rootProject) { "refproj.quality must only be applied to the root project" }
@@ -24,11 +44,14 @@ class QualityConventionPlugin : Plugin<Project> {
             pluginManager.apply("io.gitlab.arturbosch.detekt")
             pluginManager.apply("com.diffplug.spotless")
 
-            val kotlinSources =
+            // Spotless' targetExclude() filters only after walking the whole tree, so every
+            // target is a pre-filtered file tree instead.
+            fun sources(vararg patterns: String) =
                 fileTree(rootDir) {
-                    include("**/src/**/*.kt")
-                    exclude("**/build/**", "**/.gradle/**")
+                    include(patterns.toList())
+                    exclude(EXCLUDED)
                 }
+            val kotlinSources = sources("**/src/**/*.kt")
 
             extensions.configure<DetektExtension> {
                 buildUponDefaultConfig = true
@@ -61,19 +84,19 @@ class QualityConventionPlugin : Plugin<Project> {
             val ktlintVersion = libs.version("ktlint")
             val composeRules = "io.nlopez.compose.rules:ktlint:${libs.version("compose-rules")}"
             extensions.configure<SpotlessExtension> {
+                // The repo is LF-only (.gitattributes, .editorconfig). The default GIT_ATTRIBUTES mode
+                // walks the whole working tree, including symlinks Xcode leaves in build directories.
+                lineEndings = LineEnding.UNIX
                 kotlin {
-                    target("**/*.kt")
-                    targetExclude("**/build/**", "**/.gradle/**")
+                    target(sources("**/*.kt"))
                     ktlint(ktlintVersion).customRuleSets(listOf(composeRules))
                 }
                 kotlinGradle {
-                    target("**/*.gradle.kts")
-                    targetExclude("**/build/**", "**/.gradle/**")
+                    target(sources("**/*.gradle.kts"))
                     ktlint(ktlintVersion)
                 }
                 format("misc") {
-                    target("**/*.md", "**/*.yml", "**/*.yaml", "**/.gitignore", "**/*.toml")
-                    targetExclude("**/build/**", "**/.gradle/**", "**/node_modules/**", "iosApp/Pods/**")
+                    target(sources("**/*.md", "**/*.yml", "**/*.yaml", "**/.gitignore", "**/*.toml"))
                     trimTrailingWhitespace()
                     endWithNewline()
                 }

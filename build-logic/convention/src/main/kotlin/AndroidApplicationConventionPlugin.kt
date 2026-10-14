@@ -1,8 +1,8 @@
 import com.android.build.api.dsl.ApplicationExtension
-import com.charlesuru.refproj.buildlogic.configureReleaseSigning
-import com.charlesuru.refproj.buildlogic.libs
-import com.charlesuru.refproj.buildlogic.pluginId
-import com.charlesuru.refproj.buildlogic.version
+import com.studiodraug.refproj.buildlogic.configureReleaseSigning
+import com.studiodraug.refproj.buildlogic.libs
+import com.studiodraug.refproj.buildlogic.pluginId
+import com.studiodraug.refproj.buildlogic.version
 import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project

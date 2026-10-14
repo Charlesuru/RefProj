@@ -1,8 +1,8 @@
 import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
-import com.charlesuru.refproj.buildlogic.derivedNamespace
-import com.charlesuru.refproj.buildlogic.lib
-import com.charlesuru.refproj.buildlogic.libs
-import com.charlesuru.refproj.buildlogic.pluginId
+import com.studiodraug.refproj.buildlogic.derivedNamespace
+import com.studiodraug.refproj.buildlogic.lib
+import com.studiodraug.refproj.buildlogic.libs
+import com.studiodraug.refproj.buildlogic.pluginId
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware

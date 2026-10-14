@@ -32,17 +32,20 @@ then push `main` + the step-2 branch to GitHub and open the PR for step 2.
 - gitleaks: repo history + working tree clean; custom rules catch passwords, base64 key material, `.jks` files; no false
   positives on empty template values or `${{ secrets.X }}`.
 - commit-msg hook accepts/rejects the expected subjects. Gates: spotlessCheck, detekt, allTests, assembleDevDebug green.
+- Domain corrected to `com.studiodraug` (bundle IDs, applicationIds, Kotlin packages); GitHub stays `Charlesuru`.
+  Both platforms rebuilt and verified (`com.studiodraug.refproj.dev`).
+- Fixed: Spotless walked the whole tree (incl. `vendor/bundle` and dangling Xcode symlinks in `build/`);
+  lint targets are now pre-filtered file trees with LF line endings.
 - Not verifiable without owner accounts: match, TestFlight, Play and Firebase uploads (see checklist).
 
 ## Step 2 — owner setup (checklist)
 Owner decision: certificates repo `Charlesuru/refproj-certificates` (private) — **yes**.
-- [ ] `gh auth login`; create private `Charlesuru/RefProj` (empty) and private `Charlesuru/refproj-certificates` (empty)
-- [ ] `./scripts/setup.sh` (installs hooks, gems, creates `fastlane/.env` + `Local.xcconfig`)
-- [ ] Apple: Team ID → `fastlane/.env` + `Local.xcconfig`; 4 App IDs registered (`com.charlesuru.refproj[.dev|.sit|.stage]`)
+- [x] `gh auth login` / repos / `./scripts/setup.sh` — owner reports done 2026-10-14 (verify at step 3 start)
+- [x] Apple: Team ID → `fastlane/.env` + `Local.xcconfig`; 4 App IDs registered (`com.studiodraug.refproj[.dev|.sit|.stage]`)
 - [ ] App Store Connect: 4 apps (RefProj DEV/SIT/STAGE/RefProj); API key (App Manager) → `~/.secrets/refproj/`, IDs in `fastlane/.env`
 - [ ] `MATCH_PASSWORD` chosen (password manager) → `bundle exec fastlane ios bootstrap_signing`
 - [ ] Android upload key in `~/.secrets/refproj/upload.jks`, passwords in `~/.gradle/gradle.properties`
-- [ ] Play Console: app `com.charlesuru.refproj`, Play App Signing on, first AAB uploaded manually (internal track), service account JSON
+- [ ] Play Console: app `com.studiodraug.refproj`, Play App Signing on, first AAB uploaded manually (internal track), service account JSON
 - [ ] Firebase project + Android apps for DEV/SIT/STAGE (can wait until step 4) + App Distribution service account
 
 ## Open items / decisions pending

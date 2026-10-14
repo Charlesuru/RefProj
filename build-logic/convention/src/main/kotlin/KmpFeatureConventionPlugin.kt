@@ -1,5 +1,5 @@
-import com.charlesuru.refproj.buildlogic.lib
-import com.charlesuru.refproj.buildlogic.libs
+import com.studiodraug.refproj.buildlogic.lib
+import com.studiodraug.refproj.buildlogic.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure

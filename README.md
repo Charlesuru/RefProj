@@ -1,5 +1,7 @@
 # RefProj
 
+[![CI](https://github.com/Charlesuru/RefProj/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Charlesuru/RefProj/actions/workflows/ci.yml)
+
 Enterprise reference project — Compose Multiplatform app for Android and iOS.
 
 ## Requirements
@@ -52,9 +54,16 @@ STAGE/PROD uploads require a `vX.Y.Z` tag. Versioning, signing and distribution:
 ./gradlew spotlessCheck detekt allTests # what CI runs
 ```
 
+## CI/CD
+GitHub Actions runs the same fastlane lanes: every PR must pass **`CI result`** (lint, tests and builds on both platforms,
+secret and dependency scanning). `main` ships to DEV + SIT; a `vX.Y.Z` tag ships to STAGE → PROD after approval.
+Details, release how-to and the security model: [docs/ci-cd.md](docs/ci-cd.md).
+
 ## Docs
 - [CLAUDE.md](CLAUDE.md) — rules for AI agents (and humans)
 - [docs/architecture.md](docs/architecture.md) — modules, layers, environments
 - [docs/adr/](docs/adr/) — architecture decisions
+- [docs/ci-cd.md](docs/ci-cd.md) — pipelines, releasing, runners, repository settings
 - [docs/secrets.md](docs/secrets.md) — every secret, where it lives, how to rotate it
+- [SECURITY.md](SECURITY.md) — reporting a vulnerability
 - [docs/PROGRESS.md](docs/PROGRESS.md) — build-out progress

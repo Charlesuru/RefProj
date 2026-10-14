@@ -19,33 +19,35 @@ Every secret this project uses: what it is, where it lives, who needs it and how
 |---|---|
 | `.gitignore` | Key, certificate, profile, `.env` and Firebase config files are never staged by accident |
 | `.githooks/pre-commit` | `gitleaks git --staged` blocks commits containing secrets (installed by `scripts/setup.sh`) |
-| CI (step 3) | `gitleaks` on every PR + GitHub secret scanning and push protection |
+| CI | `gitleaks` on every PR and push to `main` + GitHub secret scanning and push protection ([ci-cd.md](ci-cd.md#security-model)) |
 | Play App Signing | We only hold the **upload** key; Google holds the app signing key. A lost/leaked upload key is resettable |
 | fastlane match | Certificates/profiles are AES-encrypted at rest; CI gets read-only access |
-| GitHub Environments | Secrets are scoped per environment; STAGE/PROD deployments need a human approval |
+| GitHub Environments | Secrets are scoped per environment; `dev`/`sit` accept only `main`, `stage`/`prod` only `v*` tags and need a human approval |
 
 ## Inventory
 
-**Secret** = must be protected. **Config** = not secret, but environment-specific (GitHub *variable*, not *secret*).
+**Secret** = must be protected (GitHub *environment secret*). **Config** = not secret (GitHub *variable*: repository-level
+unless marked per environment). CI values are copied from the owner's machine by `scripts/github/set-ci-secrets.sh`.
 
 | Variable | Kind | What | Local | CI (GitHub Environment) | Rotate |
 |---|---|---|---|---|---|
 | `REFPROJ_SIGNING_STORE_FILE` | Secret (file) | Android **upload** keystore (`.jks`) | `~/.secrets/refproj/upload.jks` | `REFPROJ_SIGNING_KEYSTORE_BASE64` (decoded to a temp file by the workflow) — all envs | [Upload key](#android-upload-key) |
 | `REFPROJ_SIGNING_STORE_PASSWORD` | Secret | Keystore password | `~/.gradle/gradle.properties` as `refproj.signing.storePassword`, or `fastlane/.env` | all envs | with the key |
-| `REFPROJ_SIGNING_KEY_ALIAS` | Config | Key alias (`upload`) | as above (`refproj.signing.keyAlias`) | all envs | — |
+| `REFPROJ_SIGNING_KEY_ALIAS` | Config | Key alias (`upload`) | as above (`refproj.signing.keyAlias`) | repository variable | — |
 | `REFPROJ_SIGNING_KEY_PASSWORD` | Secret | Key password | as above (`refproj.signing.keyPassword`) | all envs | with the key |
 | `PLAY_SERVICE_ACCOUNT_FILE` | Secret (file) | Google Play service account JSON (release manager on this app only) | `~/.secrets/refproj/play-service-account.json` | `PLAY_SERVICE_ACCOUNT_JSON` — `prod` only | [Service accounts](#google-service-accounts) |
 | `FIREBASE_SERVICE_ACCOUNT_FILE` | Secret (file) | Firebase service account JSON (*Firebase App Distribution Admin* role) | `~/.secrets/refproj/firebase-service-account.json` | `FIREBASE_SERVICE_ACCOUNT_JSON` — `dev`, `sit`, `stage` | [Service accounts](#google-service-accounts) |
-| `FIREBASE_APP_ID_ANDROID_<ENV>` | Config | Firebase Android app ID per environment (`1:…:android:…`) | `fastlane/.env` | variable — `dev`, `sit`, `stage` | — |
-| `FIREBASE_TESTER_GROUPS` | Config | App Distribution tester group aliases | `fastlane/.env` | variable | — |
-| `APPLE_TEAM_ID` | Config | Apple Developer Team ID (10 chars) | `fastlane/.env` + `Local.xcconfig` (`DEVELOPMENT_TEAM`) | variable — all envs | — |
-| `ASC_KEY_ID` | Config | App Store Connect API key ID | `fastlane/.env` | variable — all envs | with the key |
-| `ASC_ISSUER_ID` | Config | App Store Connect issuer ID | `fastlane/.env` | variable — all envs | — |
+| `FIREBASE_APP_ID_ANDROID_<ENV>` | Config | Firebase Android app ID per environment (`1:…:android:…`). Unset → CI skips that Android upload | `fastlane/.env` | environment variable — `dev`, `sit`, `stage` | — |
+| `FIREBASE_TESTER_GROUPS` | Config | App Distribution tester group aliases | `fastlane/.env` | repository variable | — |
+| `APPLE_TEAM_ID` | Config | Apple Developer Team ID (10 chars) | `fastlane/.env` + `Local.xcconfig` (`DEVELOPMENT_TEAM`) | repository variable | — |
+| `ASC_KEY_ID` | Config | App Store Connect API key ID | `fastlane/.env` | repository variable | with the key |
+| `ASC_ISSUER_ID` | Config | App Store Connect issuer ID | `fastlane/.env` | repository variable | — |
 | `ASC_KEY_PATH` | Secret (file) | App Store Connect API key `.p8` (role: *App Manager*) | `~/.secrets/refproj/AuthKey_<ID>.p8` | — | [ASC key](#app-store-connect-api-key) |
 | `ASC_KEY_CONTENT_BASE64` | Secret | Same `.p8`, base64 | — | all envs | [ASC key](#app-store-connect-api-key) |
-| `MATCH_GIT_URL` | Config | `https://github.com/Charlesuru/refproj-certificates.git` | `fastlane/.env` | variable — all envs | — |
+| `MATCH_GIT_URL` | Config | Certificates repo: HTTPS locally, SSH (`git@github.com:Charlesuru/refproj-certificates.git`) on CI | `fastlane/.env` | repository variable | — |
 | `MATCH_PASSWORD` | Secret | Passphrase that encrypts the match repo | `fastlane/.env` + password manager | all envs | [match](#ios-certificates-fastlane-match) |
-| `MATCH_GIT_BASIC_AUTHORIZATION` | Secret | base64 `user:token` — fine-grained PAT, **read-only**, certificates repo only | — | all envs | [match](#ios-certificates-fastlane-match) |
+| `MATCH_GIT_PRIVATE_KEY` | Secret | Private half of the **read-only deploy key** on the certificates repo (ed25519) | — | all envs | [match](#ios-certificates-fastlane-match) |
+| `MACOS_RUNNER` | Config | Label of the optional self-hosted Mac for iOS deploys ([ci-cd.md](ci-cd.md#self-hosted-mac-runner-optional)); unset = GitHub-hosted | — | repository variable | — |
 | `google-services.json` / `GoogleService-Info.plist` | Config (treated as secret) | Firebase client config per env (step 4) | `app/android/src/<env>/`, `iosApp/Firebase/<Env>/` | base64 secrets per env | Regenerate in Firebase console |
 
 Firebase client config files contain API keys that are public by design (restricted by app ID / bundle ID),
@@ -57,25 +59,27 @@ but we keep them out of git so a public fork never points at our Firebase projec
 1. Generate a new key (`keytool -genkeypair -v -keystore ~/.secrets/refproj/upload-new.jks -storetype PKCS12 -alias upload -keyalg RSA -keysize 4096 -validity 9125`).
 2. Export the certificate: `keytool -export -rfc -keystore ~/.secrets/refproj/upload-new.jks -alias upload -file upload_certificate.pem`.
 3. Play Console → *Test and release → App integrity → Upload key → Request upload key reset*, attach the `.pem`.
-4. When Google confirms, update the local file/passwords and the CI secrets in **all** environments. Delete the old key and the `.pem`.
+4. When Google confirms, update the local file/passwords, run `scripts/github/set-ci-secrets.sh` (all environments). Delete the old key and the `.pem`.
 
 ### Google service accounts
 1. Google Cloud console → *IAM → Service accounts* → the account → *Keys → Add key → JSON*.
-2. Replace the local file and the CI secret (`PLAY_SERVICE_ACCOUNT_JSON` / `FIREBASE_SERVICE_ACCOUNT_JSON`).
+2. Replace the local file and the CI secret (`PLAY_SERVICE_ACCOUNT_JSON` via `scripts/github/set-ci-secrets.sh` /
+   `FIREBASE_SERVICE_ACCOUNT_JSON`).
 3. Run one upload (`bundle exec fastlane android beta env:dev`) to verify, then **delete the old key** in the console.
 
 ### App Store Connect API key
 1. App Store Connect → *Users and Access → Integrations → App Store Connect API → Team Keys → +* (role *App Manager*).
-2. Download the `.p8` (only possible once) to `~/.secrets/refproj/`, update `ASC_KEY_ID`, `ASC_KEY_PATH` and the CI secret
-   (`base64 -i AuthKey_<ID>.p8 | pbcopy`).
+2. Download the `.p8` (only possible once) to `~/.secrets/refproj/`, update `ASC_KEY_ID` and `ASC_KEY_PATH` in `fastlane/.env`,
+   then run `scripts/github/set-ci-secrets.sh`.
 3. Verify (`bundle exec fastlane ios certificates`), then **revoke** the old key.
 
 ### iOS certificates (fastlane match)
 - **Certificate expiry (yearly):** `bundle exec fastlane match nuke distribution` (owner only, revokes the cert), then
   `bundle exec fastlane ios bootstrap_signing`. CI picks up the new cert automatically.
-- **New passphrase:** `bundle exec fastlane match change_password`, then update `MATCH_PASSWORD` locally and in all environments.
-- **CI token:** create a new fine-grained PAT (Contents: read, repository `refproj-certificates` only, expiry ≤ 1 year), update
-  `MATCH_GIT_BASIC_AUTHORIZATION` (`printf '%s' 'Charlesuru:<token>' | base64`), revoke the old token.
+- **New passphrase:** `bundle exec fastlane match change_password`, update `MATCH_PASSWORD` in `fastlane/.env`, run
+  `scripts/github/set-ci-secrets.sh`.
+- **CI deploy key:** run `scripts/github/set-ci-secrets.sh`. It generates a new key, replaces the deploy key
+  *RefProj CI (read-only)* on the certificates repo and updates `MATCH_GIT_PRIVATE_KEY` in all environments.
 
 ## If a secret is committed
 1. **Rotate it immediately** using the runbook above. Treat it as public from the moment it was pushed.

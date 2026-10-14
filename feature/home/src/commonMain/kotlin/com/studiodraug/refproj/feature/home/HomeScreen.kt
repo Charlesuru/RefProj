@@ -14,6 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.studiodraug.refproj.core.designsystem.theme.RefTheme
 import com.studiodraug.refproj.feature.home.resources.Res
+import com.studiodraug.refproj.feature.home.resources.home_body
 import com.studiodraug.refproj.feature.home.resources.home_environment
 import com.studiodraug.refproj.feature.home.resources.home_title
 import org.jetbrains.compose.resources.stringResource
@@ -31,6 +32,7 @@ fun HomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(text = stringResource(Res.string.home_title), style = MaterialTheme.typography.headlineMedium)
+            Text(text = stringResource(Res.string.home_body))
             Text(text = stringResource(Res.string.home_environment, environmentName))
         }
     }

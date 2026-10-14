@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_title">RefProj</string>
+    <string name="home_body">AI-accelerated project setup and development!</string>
     <string name="home_environment">Environment: %1$s</string>
 </resources>

@@ -14,6 +14,14 @@
 
 default_platform(:android)
 
+# fastlane/.env is a copy of .env.example, so unused variables are present but empty. Several
+# actions only check for presence (match sends an empty "Authorization: Basic" header when
+# MATCH_GIT_BASIC_AUTHORIZATION is ""), so an empty template variable must count as unset.
+File.foreach(File.join(__dir__, ".env.example")) do |line|
+  name = line[/\A([A-Z][A-Z0-9_]*)=/, 1]
+  ENV.delete(name) if name && ENV[name]&.strip&.empty?
+end
+
 ROOT = File.expand_path("..", __dir__)
 ENVIRONMENTS = %w[dev sit stage prod].freeze
 TAGGED_ENVIRONMENTS = %w[stage prod].freeze

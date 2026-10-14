@@ -42,8 +42,11 @@ then push `main` + the step-2 branch to GitHub and open the PR for step 2.
 Owner decision: certificates repo `Charlesuru/refproj-certificates` (private) — **yes**.
 - [x] `gh auth login` / repos / `./scripts/setup.sh` — owner reports done 2026-10-14 (verify at step 3 start)
 - [x] Apple: Team ID → `fastlane/.env` + `Local.xcconfig`; 4 App IDs registered (`com.studiodraug.refproj[.dev|.sit|.stage]`)
-- [ ] App Store Connect: 4 apps (RefProj DEV/SIT/STAGE/RefProj); API key (App Manager) → `~/.secrets/refproj/`, IDs in `fastlane/.env`
-- [ ] `MATCH_PASSWORD` chosen (password manager) → `bundle exec fastlane ios bootstrap_signing`
+- [x] App Store Connect API key (App Manager) → `~/.secrets/refproj/`, IDs in `fastlane/.env`
+- [ ] App Store Connect: 4 apps (RefProj DEV/SIT/STAGE/RefProj) — needed for TestFlight uploads
+- [x] `MATCH_PASSWORD` chosen → `ios bootstrap_signing` done 2026-10-14: 1 Apple Distribution cert + 4 App Store
+      profiles in `Charlesuru/refproj-certificates`; read-only `ios certificates` lane verified
+- [ ] Owner: `bundle exec fastlane ios archive env:dev` (first signed archive; click "Always Allow" on the keychain prompt)
 - [ ] Android upload key in `~/.secrets/refproj/upload.jks`, passwords in `~/.gradle/gradle.properties`
 - [ ] Play Console: app `com.studiodraug.refproj`, Play App Signing on, first AAB uploaded manually (internal track), service account JSON
 - [ ] Firebase project + Android apps for DEV/SIT/STAGE (can wait until step 4) + App Distribution service account

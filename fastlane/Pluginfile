@@ -1,0 +1,2 @@
+# fastlane plugins. Managed by `bundle exec fastlane add_plugin <name>`.
+gem "fastlane-plugin-firebase_app_distribution", "~> 1.0"

@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Pre-commit: block secrets, then check formatting of staged Kotlin/Gradle files.
+# Installed by scripts/setup.sh (git config core.hooksPath .githooks). Never bypass with --no-verify.
+set -euo pipefail
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "pre-commit: gitleaks is not installed. Run: brew install gitleaks" >&2
+  exit 1
+fi
+gitleaks git --staged --config .gitleaks.toml --redact --no-banner --log-level warn || {
+  echo "pre-commit: possible secret in staged changes. Remove it (and rotate it if it was real)." >&2
+  echo "            See docs/secrets.md. False positive? Add a narrow allowlist to .gitleaks.toml." >&2
+  exit 1
+}
+
+if git diff --cached --name-only --diff-filter=ACMR | grep -qE '\.(kt|kts)$'; then
+  ./gradlew --quiet spotlessCheck || {
+    echo "pre-commit: formatting issues. Run ./gradlew spotlessApply and stage the result." >&2
+    exit 1
+  }
+fi

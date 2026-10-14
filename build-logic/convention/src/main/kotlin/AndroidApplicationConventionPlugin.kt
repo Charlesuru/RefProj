@@ -1,4 +1,5 @@
 import com.android.build.api.dsl.ApplicationExtension
+import com.charlesuru.refproj.buildlogic.configureReleaseSigning
 import com.charlesuru.refproj.buildlogic.libs
 import com.charlesuru.refproj.buildlogic.pluginId
 import com.charlesuru.refproj.buildlogic.version
@@ -40,6 +41,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                             "/META-INF/versions/9/previous-compilation-data.bin",
                         )
                 }
+                configureReleaseSigning(this)
             }
         }
 }

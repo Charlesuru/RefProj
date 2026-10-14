@@ -1,0 +1,6 @@
+# fastlane match: iOS certificates and provisioning profiles live in a separate, private,
+# encrypted git repo (Charlesuru/refproj-certificates). Decryption key: MATCH_PASSWORD.
+# Lanes pass type, app identifiers and readonly explicitly — see Fastfile (ios certificates).
+git_url(ENV["MATCH_GIT_URL"])
+storage_mode("git")
+git_branch("main")

@@ -25,6 +25,7 @@ Communicate with the user in **Swedish**. Write code, comments, commit messages,
 - Never print, log, echo or paste a secret value — not in code, logs, commit messages, PRs or chat.
 - Never embed real secrets in the app binary. `AppConfig`, `BuildConfig` and xcconfig values are **public**.
 - If a task needs a secret you don't have: **stop** and ask the user, with exact instructions.
+- Secrets inventory and rotation: `docs/secrets.md`. A new secret updates that file, `.gitignore` and `.gitleaks.toml`.
 - Never disable security features (TLS validation, R8, backup exclusion, secret scanning) to make something work.
 
 ### Architecture (see `docs/architecture.md`)
@@ -95,6 +96,8 @@ Stop and ask the user (in Swedish, with step-by-step instructions) when:
 | `data` | Repositories, API clients, persistence |
 | `feature/*` | One module per user-facing feature |
 | `build-logic/` | Gradle convention plugins (`refproj.*`) |
+| `fastlane/` | Build/test/upload lanes for both platforms — `bundle exec fastlane lanes` |
+| `.githooks/`, `scripts/` | Git hooks (gitleaks, format, commit-msg) and `setup.sh` |
 | `config/detekt` | Static analysis rules |
 | `docs/` | Architecture, ADRs, runbooks, progress log |
 

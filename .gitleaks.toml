@@ -1,0 +1,33 @@
+# Secret scanning — runs in the pre-commit hook (.githooks/pre-commit) and in CI.
+# Extends the built-in gitleaks rules with project-specific ones. Keep in sync with .gitignore
+# and docs/secrets.md when adding a new kind of secret.
+title = "RefProj gitleaks config"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "refproj-signing-or-match-password"
+description = "Android upload-key password or fastlane match passphrase with a value"
+regex = '''(?i)(?:REFPROJ_SIGNING_(?:STORE|KEY)_PASSWORD|refproj\.signing\.(?:store|key)Password|MATCH_PASSWORD)[ \t]*[=:][ \t]*["']?([^\s"'$]{4,})'''
+secretGroup = 1
+keywords = ["refproj_signing", "refproj.signing", "match_password"]
+
+[[rules]]
+id = "refproj-base64-secret-assignment"
+description = "Base64-encoded key material assigned to a known variable"
+regex = '''(?i)(?:ASC_KEY_CONTENT_BASE64|MATCH_GIT_BASIC_AUTHORIZATION|[A-Z_]*KEYSTORE_BASE64)[ \t]*[=:][ \t]*["']?([A-Za-z0-9+/=]{16,})'''
+secretGroup = 1
+keywords = ["base64", "basic_authorization"]
+
+[[rules]]
+id = "refproj-forbidden-secret-file"
+description = "Key, certificate, profile or Firebase config file — these must never be committed"
+path = '''(?i)(?:\.(?:jks|keystore|p8|p12|pfx|pem|key|cer|mobileprovision|provisionprofile)|google-services\.json|GoogleService-Info\.plist|service-account[^/]*\.json|play-store-credentials[^/]*\.json)$'''
+
+[[allowlists]]
+description = "Generated or vendored files without secrets"
+paths = [
+  '''(?:^|/)Gemfile\.lock$''',
+  '''(?:^|/)gradle/wrapper/gradle-wrapper\.jar$''',
+]

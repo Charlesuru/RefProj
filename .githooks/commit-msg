@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# Commit-msg: Conventional Commits with a Jira ticket key, e.g.
+#   feat(login): add biometric unlock [REF-42]
+# Git-generated merge/revert subjects and fixup!/squash!/amend! commits are exempt.
+set -euo pipefail
+
+subject="$(grep -vE '^\s*#' "$1" | head -n 1)"
+
+if [[ "$subject" =~ ^(Merge\ |Revert\ \"|fixup!\ |squash!\ |amend!\ ) ]]; then
+  exit 0
+fi
+
+pattern='^(feat|fix|refactor|perf|test|docs|build|ci|chore|revert)(\([a-z0-9._/-]+\))?!?: [^ ].* \[[A-Z][A-Z0-9]+-[0-9]+\]$'
+if [[ ! "$subject" =~ $pattern ]]; then
+  cat >&2 <<MSG
+commit-msg: subject must be a Conventional Commit ending with a Jira key:
+    <type>(<scope>): <summary> [REF-123]
+  types: feat fix refactor perf test docs build ci chore revert
+  got:   $subject
+MSG
+  exit 1
+fi
+
+if (( ${#subject} > 100 )); then
+  echo "commit-msg: subject is ${#subject} characters; keep it at 100 or fewer." >&2
+  exit 1
+fi

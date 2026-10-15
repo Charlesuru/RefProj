@@ -87,13 +87,16 @@ class QualityConventionPlugin : Plugin<Project> {
                 // The repo is LF-only (.gitattributes, .editorconfig). The default GIT_ATTRIBUTES mode
                 // walks the whole working tree, including symlinks Xcode leaves in build directories.
                 lineEndings = LineEnding.UNIX
+                // Explicit path: the file tree targets are not under each module, so ktlint would not find
+                // the root .editorconfig (code style, Compose rule settings) by itself.
+                val editorConfig = file(".editorconfig")
                 kotlin {
                     target(sources("**/*.kt"))
-                    ktlint(ktlintVersion).customRuleSets(listOf(composeRules))
+                    ktlint(ktlintVersion).customRuleSets(listOf(composeRules)).setEditorConfigPath(editorConfig)
                 }
                 kotlinGradle {
                     target(sources("**/*.gradle.kts"))
-                    ktlint(ktlintVersion)
+                    ktlint(ktlintVersion).setEditorConfigPath(editorConfig)
                 }
                 format("misc") {
                     target(sources("**/*.md", "**/*.yml", "**/*.yaml", "**/.gitignore", "**/*.toml"))

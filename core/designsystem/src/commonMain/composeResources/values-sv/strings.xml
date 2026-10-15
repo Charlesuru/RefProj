@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="designsystem_back">Tillbaka</string>
+    <string name="designsystem_retry">Försök igen</string>
+    <string name="designsystem_loading">Laddar</string>
+    <string name="designsystem_error_title">Något gick fel</string>
+    <string name="designsystem_confirm">OK</string>
+    <string name="designsystem_cancel">Avbryt</string>
+</resources>

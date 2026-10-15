@@ -19,11 +19,18 @@ complexity:
     ignorePrivate: true
 
 naming:
+  MatchingDeclarationName:
+    # Compose files are named after their main composable (RefButton.kt), even when they also
+    # declare a supporting type such as RefButtonStyle.
+    active: false
   FunctionNaming:
     # Composables are PascalCase.
     ignoreAnnotated: [ 'Composable' ]
 
 style:
+  MaxLineLength:
+    # Same limit as ktlint (.editorconfig max_line_length).
+    maxLineLength: 140
   MagicNumber:
     # Design tokens (colors, dp sizes) and tests are full of literal values by nature.
     excludes: [ '**/designsystem/**', '**/test/**', '**/*Test.kt', '**/commonTest/**', '**/androidHostTest/**' ]

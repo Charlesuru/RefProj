@@ -18,8 +18,9 @@ flowchart LR
 
     R -- "human review<br/>rebase-merge" --> M[(main)]
 
-    M -- "Deploy DEV + SIT" --> DEV[DEV<br/>Firebase · TestFlight]
-    M --> SIT[SIT<br/>Firebase · TestFlight]
+    PRL["PR labelled deploy:dev"] -. "Deploy PR to DEV" .-> DEV
+    M -- "Deploy DEV (every merge)" --> DEV[DEV<br/>Firebase · TestFlight]
+    M -- "Deploy SIT (nightly, if changed)" --> SIT[SIT<br/>Firebase · TestFlight]
 
     M -. "owner tags vX.Y.Z" .-> T[(tag)]
     T -- "Release · approval" --> STAGE[STAGE<br/>Firebase · TestFlight]
@@ -31,17 +32,19 @@ flowchart LR
 
 | Workflow | Trigger | What | Secrets |
 |---|---|---|---|
-| [`ci.yml`](../.github/workflows/ci.yml) | PR to `main`, push to `main` | Quality gate; the required check is **`CI result`** | none |
-| [`deploy-main.yml`](../.github/workflows/deploy-main.yml) | push to `main` (code changes, not docs) | DEV + SIT, both platforms | `dev`, `sit` |
+| [`ci.yml`](../.github/workflows/ci.yml) | every PR (also stacked PRs), push to `main` | Quality gate; the required check is **`CI result`** | none |
+| [`deploy-main.yml`](../.github/workflows/deploy-main.yml) | push to `main` (code changes, not docs) | DEV, both platforms | `dev` |
+| [`deploy-sit.yml`](../.github/workflows/deploy-sit.yml) | 02:00 UTC Mon–Fri (skipped if `main` is already in SIT), or manual | SIT, both platforms | `sit` |
+| [`deploy-pr.yml`](../.github/workflows/deploy-pr.yml) | label **`deploy:dev`** on a PR, and every push to it while labelled | DEV preview of the PR (merged into its base), both platforms | `dev` |
 | [`release.yml`](../.github/workflows/release.yml) | tag `vX.Y.Z` on `main` | STAGE → PROD (each needs approval), then a GitHub release | `stage`, `prod` |
 | [`store-release.yml`](../.github/workflows/store-release.yml) | manual, run **from a tag** | Play production draft / App Store Connect upload | `prod` |
-| [`_distribute.yml`](../.github/workflows/_distribute.yml) | called by the three above | One platform → one environment via `fastlane <platform> <beta\|release>` | the environment's |
+| [`_distribute.yml`](../.github/workflows/_distribute.yml) | called by the deploy workflows | One platform → one environment via `fastlane <platform> <beta\|release>` | the environment's |
 
 Where each environment's build goes is defined in [ADR 0005](adr/0005-release-tooling.md#distribution-per-environment).
 **Nothing reaches end users without a human:** Play rollout and App Review submission happen in the store consoles.
 
 ## Releasing
-1. Make sure `main` is green and DEV/SIT have been tested.
+1. Make sure `main` is green and DEV/SIT have been tested (run *Deploy SIT* manually if the nightly build is too old).
 2. Tag the commit on `main` (only admins may create `v*` tags — ruleset `release-tags`):
    ```bash
    git switch main && git pull
@@ -64,7 +67,8 @@ it to every job, so Android and iOS of one run carry the same number.
 |---|---|
 | `main` only changes through PRs with a green **`CI result`**, linear history, resolved threads; no force-push or deletion | ruleset `main` |
 | Release tags `v*` can only be created/moved/deleted by admins | ruleset `release-tags` |
-| Secrets are **environment** secrets. `dev`/`sit` accept only `main`; `stage`/`prod` accept only `v*` tags and need a reviewer | GitHub Environments |
+| Secrets are **environment** secrets. `sit` accepts only `main`; `dev` accepts `main` and PR merge refs (`refs/pull/*/merge`, for `deploy:dev` previews); `stage`/`prod` accept only `v*` tags and need a reviewer | GitHub Environments |
+| PR previews (`deploy:dev`) only for branches of this repository, never forks or Dependabot; only collaborators with write access can add labels. They reach `dev` only — never `sit`, `stage` or `prod` | `deploy-pr.yml`, GitHub Environments |
 | **No repository- or organization-level secrets.** Deploy callers pass `secrets: inherit` (a called workflow sees no secrets otherwise, not even its environment's), so a repository-level secret would reach every deploy job | GitHub Environments |
 | `GITHUB_TOKEN` is read-only by default; jobs request extra scopes explicitly | workflow `permissions:` |
 | Only GitHub-owned actions plus `gradle/actions` and `ruby/setup-ruby`, **pinned to a full commit SHA** (enforced) | Actions settings |
@@ -119,15 +123,16 @@ latest stable toolchain still resolves a vulnerable library:
 |---|---|
 | Everything on Linux | `ubuntu-24.04` (GitHub-hosted) |
 | PR checks on macOS | `macos-26` (GitHub-hosted) — **always** |
-| iOS deploys (`_distribute.yml`) | `macos-26`, or the self-hosted Mac when the repository variable `MACOS_RUNNER` is set |
+| iOS deploys of `main` and tags (`_distribute.yml`) | `macos-26`, or the self-hosted Mac when the repository variable `MACOS_RUNNER` is set |
+| iOS PR previews (`deploy-pr.yml`) | `macos-26` — **always** (`trusted: false`) |
 
 Public repositories get GitHub-hosted runners (macOS included) free of charge, so the self-hosted Mac (plan phase 2) is
 **optional** — useful only for speed (warm caches) or if the repository becomes private again.
 
 ### Self-hosted Mac runner (optional)
 Pull-request code must **never** run on it: on a public repository anyone can open a PR, and a self-hosted runner executes
-that code on the owner's machine with access to its keychain and files. That is why only `_distribute.yml` (which runs
-`main` and release tags, never PRs) can use it.
+that code on the owner's machine with access to its keychain and files. That is why only `_distribute.yml` can use it, and
+only for trusted refs (`main`, release tags): PR previews pass `trusted: false` and always use a GitHub-hosted runner.
 
 1. Create a separate macOS user account (e.g. `ci`) without admin rights; install Xcode 26.6, Homebrew bash, rbenv/Ruby from
    `.ruby-version`, and JDK 25 there.
@@ -136,3 +141,11 @@ that code on the owner's machine with access to its keychain and files. That is 
 3. *Settings → Secrets and variables → Actions → Variables → New repository variable*: `MACOS_RUNNER` = `refproj-mac`.
 4. To go back to GitHub-hosted runners, delete the variable. To retire the runner: `./svc.sh uninstall`, then remove it in
    *Settings → Actions → Runners*.
+
+## Testing a pull request before merge (`deploy:dev`)
+1. Open the PR (a branch in this repository) and add the label **`deploy:dev`**.
+2. *Deploy PR to DEV* builds the PR merged into its base and uploads it to DEV testers (App Distribution / TestFlight).
+   Every push to the PR while it is labelled deploys again.
+3. Remove the label when done. After merge, *Deploy DEV* ships `main` as usual.
+
+The label and the `refs/pull/*/merge` rule on the `dev` environment are created by `scripts/github/configure-repo.sh`.

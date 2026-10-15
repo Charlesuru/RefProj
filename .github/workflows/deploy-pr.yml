@@ -1,0 +1,52 @@
+# Preview before merge: add the label "deploy:dev" to a pull request to send its build (the PR merged
+# into its base) to DEV testers. Every new push to a labelled PR deploys again; remove the label to stop.
+#
+# Security: only branches of this repository qualify (fork and Dependabot PRs never reach secrets), only
+# people with write access can add labels, the dev environment is the only one that accepts PR refs,
+# and PR code never runs on the self-hosted Mac (trusted: false).
+name: Deploy PR to DEV
+
+on:
+  pull_request:
+    types: [labeled, synchronize]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-pr-${{ github.event.pull_request.number }}
+  # Never cancel an upload half-way; a newer push waits and then ships the latest commit.
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    name: Build number
+    if: >-
+      contains(github.event.pull_request.labels.*.name, 'deploy:dev') &&
+      (github.event.action != 'labeled' || github.event.label.name == 'deploy:dev') &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      build-number: ${{ steps.number.outputs.value }}
+    steps:
+      - id: number
+        # Minutes since 2026-01-01 UTC — must match BUILD_NUMBER_EPOCH in fastlane/Fastfile.
+        run: echo "value=$(( ($(date -u +%s) - $(date -u -d 2026-01-01T00:00:00Z +%s)) / 60 ))" >> "$GITHUB_OUTPUT"
+
+  distribute:
+    name: dev (PR)
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [android, ios]
+    uses: ./.github/workflows/_distribute.yml
+    with:
+      environment: dev
+      platform: ${{ matrix.platform }}
+      build-number: ${{ needs.prepare.outputs.build-number }}
+      trusted: false
+    # Only environment secrets exist, so `inherit` exposes only the dev environment's (see deploy-main.yml).
+    secrets: inherit # zizmor: ignore[secrets-inherit] -- see comment above

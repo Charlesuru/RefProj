@@ -90,6 +90,10 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.analytics)
+    constraints {
+        // Security pin for a library shipped in the app; advisory and removal rule in libs.versions.toml.
+        implementation(libs.guava.android) { because("Firebase Analytics resolves Guava 31.1-android (GHSA-7g45-4rm6-3mm3)") }
+    }
     implementation(libs.compose.ui)
     debugImplementation(libs.compose.ui.tooling)
 }

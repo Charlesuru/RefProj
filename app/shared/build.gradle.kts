@@ -24,6 +24,7 @@ kotlin {
             api(projects.core.config)
             api(projects.core.observability)
             implementation(projects.core.designsystem)
+            implementation(projects.core.featureflags)
             implementation(projects.core.navigation)
             implementation(projects.core.network)
             implementation(projects.core.storage)

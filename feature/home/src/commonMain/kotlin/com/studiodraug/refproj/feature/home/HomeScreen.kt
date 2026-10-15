@@ -35,11 +35,13 @@ fun HomeScreen(
             Text(text = stringResource(Res.string.home_title), style = MaterialTheme.typography.headlineMedium)
             Text(text = stringResource(Res.string.home_body), textAlign = TextAlign.Center)
             Text(text = stringResource(Res.string.home_environment, state.environmentName))
-            Text(
-                text = stringResource(Res.string.home_version, state.version),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            state.version?.let { version ->
+                Text(
+                    text = stringResource(Res.string.home_version, version),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
     }
 }

@@ -13,14 +13,28 @@ kotlin {
             baseName = "Shared"
             isStatic = true
             xcf.add(this)
+            // Swift implements these interfaces (Firebase bridges), so they must be visible in the framework.
+            export(projects.core.config)
+            export(projects.core.observability)
         }
     }
 
     sourceSets {
         commonMain.dependencies {
             api(projects.core.config)
+            api(projects.core.observability)
             implementation(projects.core.designsystem)
+            implementation(projects.core.network)
+            implementation(projects.core.storage)
+            implementation(projects.data)
+            implementation(projects.domain)
             implementation(projects.feature.home)
+            implementation(project.dependencies.platform(libs.koin.bom))
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
+        }
+        commonTest.dependencies {
+            implementation(projects.core.testing)
         }
     }
 }

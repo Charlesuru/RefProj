@@ -2,8 +2,8 @@
 
 Read at the start of every AI session (after `docs/PLAN.md`). Update at the end of every step.
 
-**Next action:** owner finishes the step-4 checklist (merge the stacked PRs #8–#14 in order, Firebase service account,
-`configure-repo.sh`, `set-ci-secrets.sh`, first deploy with Firebase). Then run step 5 (model: Sonnet).
+**Next action:** run step 5 (model: Sonnet). Optional before that: label a PR `deploy:dev` once, and run *Deploy SIT*
+manually once, to see both new workflows end to end.
 Detailed step logs: `docs/log/`.
 
 | Step | Scope | Status |
@@ -11,7 +11,7 @@ Detailed step logs: `docs/log/`.
 | 1 | Foundation: repo, modules, version catalog, convention plugins, 4 environments, lint, CLAUDE.md | ✅ Done 2026-10-12 |
 | 2 | Fastlane + secrets + signing (match, Play upload key) | ✅ Done 2026-10-14 (PR #1; Firebase → step 4) |
 | 3 | CI/CD (GitHub Actions → later self-hosted Mac runner) | ✅ Done 2026-10-14 (PRs #2–#5) |
-| 4 | Core: design system, Koin, Nav3, feature flags, observability (Firebase), localisation, domain/data | 🔍 Built 2026-10-15, PRs #8–#14 in review |
+| 4 | Core: design system, Koin, Nav3, feature flags, observability (Firebase), localisation, domain/data | ✅ Done 2026-10-15 (PRs #8–#15) |
 | 5 | Features: onboarding, login, tabbed logged-in shell | |
 | 6 | Debug menu | |
 | 7 | Tests: unit, integration, UI, screenshot, architecture + coverage | |
@@ -90,26 +90,30 @@ Owner decision: certificates repo `Charlesuru/refproj-certificates` (private) �
 
 ## Step 4 — verified
 - Stacked PRs #8 (design system) → #9 (core + Koin) → #10 (navigation + l10n) → #11 (feature flags) → #12 (Firebase)
-  → #13 (`deploy:dev` + SIT nightly) → #14 (docs). Log: [step-4-core.md](log/step-4-core.md), decisions: ADR 0007.
+  → #15 (iOS archive signing fix) → #13 (`deploy:dev` + SIT nightly) → #14 (docs), each restacked onto `main` after the
+  previous rebase-merge. Log: [step-4-core.md](log/step-4-core.md), decisions: ADR 0007.
 - Gates green on every branch; Android (emulator) and iOS (simulator) DEV run in English and Swedish; Firebase initialises
   on both platforms with the owner's config, and both build/run without it.
 - Dependency review caught Guava 31.1-android shipped via Firebase Analytics → pinned to 33.7.2-android.
-- Not exercised yet: Firebase App Distribution upload, `deploy:dev` and SIT nightly runs, dSYM/mapping upload (need the
-  owner actions below and a merged `main`).
+- **Deploys with Firebase verified** (run 38711322510): Android DEV + SIT in Firebase App Distribution (owner installed
+  both via App Tester), iOS DEV + SIT in TestFlight; Firebase config written from environment secrets; Crashlytics dSYM
+  upload validated in a local signed archive.
+- The first Firebase deploy failed on iOS: signing passed as xcargs hit the Swift package resource bundles → fixed in #15
+  (manual signing on the app target only).
+- Not exercised yet: a `deploy:dev` PR preview and a *Deploy SIT* run (nightly/manual).
 
 ## Step 4 — owner checklist
 - [x] Firebase project on Google Cloud `refproj` (Analytics on), 4 Android + 4 iOS apps; `app/android/google-services.json`
       and `iosApp/Firebase/<Env>/GoogleService-Info.plist` downloaded (checked against bundle IDs 2026-10-15)
 - [ ] Budget alert on the billing account (or unlink billing → Spark); Crashlytics/Analytics/App Distribution are free
-- [ ] Crashlytics enabled per app in the console (if the console asks); App Distribution group `internal` with testers
-- [ ] Service account `firebase-distribution` (role *Firebase App Distribution Admin*) → JSON key to
-      `~/.secrets/refproj/firebase-service-account.json`; `fastlane/.env`: `FIREBASE_SERVICE_ACCOUNT_FILE`,
-      `FIREBASE_APP_ID_ANDROID_DEV|SIT|STAGE`
-- [ ] Merge #8 → #14 in order (**Rebase and merge**); after each merge the next PR must be restacked onto `main` (ask the AI)
-- [ ] `scripts/github/configure-repo.sh` (dev accepts `refs/pull/*/merge`, label `deploy:dev`)
-- [ ] `scripts/github/set-ci-secrets.sh` (Firebase config + service account + app IDs; also rotates the match deploy key)
-- [ ] First *Deploy DEV* with Firebase: Android in App Distribution, iOS in TestFlight; then try `deploy:dev` on a PR and
-      run *Deploy SIT* manually once
+- [x] App Distribution onboarded for DEV, SIT, STAGE; group `internal` with testers; App Tester on the owner's device
+- [x] Service account `firebase-distribution` (*Firebase App Distribution Admin*) → `~/.secrets/refproj/`; `fastlane/.env`
+      filled; read-only API check OK for DEV/SIT/STAGE
+- [x] Merged #8 → #12, #15, #13, #14 (**Rebase and merge**), restacked after each merge
+- [x] `scripts/github/configure-repo.sh` (dev accepts `refs/pull/*/merge`, label `deploy:dev`) — verified via the API
+- [x] `scripts/github/set-ci-secrets.sh` — Firebase secrets/variables present in the right environments (names checked)
+- [x] First deploys with Firebase: Android → App Distribution, iOS → TestFlight (DEV + SIT)
+- [ ] Optional: try `deploy:dev` on a PR; run *Deploy SIT* manually once
 
 ## Open items / decisions pending
 - Play Console moved *App integrity* to the *Protected with Play* page; the signing-certificate view was not found there.

@@ -112,6 +112,20 @@ def ensure_signed!(path)
   UI.user_error!("#{File.basename(path)} is not signed. Configure the upload key (docs/secrets.md).") if unsigned
 end
 
+# Firebase client config (gitignored; written from secrets on CI, docs/secrets.md). Every build that reaches
+# testers or a store must report crashes, so uploads refuse to run without it.
+def ensure_firebase_config!(platform, env)
+  path =
+    if platform == :android
+      File.join(ROOT, "app/android/google-services.json")
+    else
+      File.join(ROOT, "iosApp/Firebase/#{env.capitalize}/GoogleService-Info.plist")
+    end
+  return if File.exist?(path)
+
+  UI.user_error!("Firebase config missing: #{path.delete_prefix("#{ROOT}/")}. Download it from the Firebase console (docs/secrets.md).")
+end
+
 def gradle!(*tasks, properties: {})
   gradle(project_dir: ROOT, tasks: tasks, properties: properties, flags: "--stacktrace")
 end
@@ -167,6 +181,7 @@ platform :android do
   lane :beta do |options|
     env = environment!(options)
     ensure_release_tag!(env)
+    ensure_firebase_config!(:android, env)
 
     if env == "prod"
       require_env!("PLAY_SERVICE_ACCOUNT_FILE")
@@ -203,6 +218,7 @@ platform :android do
   lane :release do
     env = "prod"
     ensure_release_tag!(env)
+    ensure_firebase_config!(:android, env)
     require_env!("PLAY_SERVICE_ACCOUNT_FILE")
     aab = build(env: env, type: "release", format: "aab")
     ensure_signed!(aab)
@@ -273,6 +289,7 @@ platform :ios do
       "-configuration", "Debug-#{env.capitalize}",
       "-destination", "generic/platform=iOS Simulator",
       "-derivedDataPath", File.join(ROOT, "build/ios/DerivedData"),
+      "-disableAutomaticPackageResolution", # Swift packages exactly as in iosApp/Package.resolved
       "CODE_SIGNING_ALLOWED=NO",
       "MARKETING_VERSION=#{version_name}",
       "CURRENT_PROJECT_VERSION=#{build_number}",
@@ -288,6 +305,7 @@ platform :ios do
   lane :archive do |options|
     env = environment!(options)
     require_env!("APPLE_TEAM_ID")
+    ensure_firebase_config!(:ios, env)
     certificates(env: env)
     generate
 
@@ -302,6 +320,7 @@ platform :ios do
       output_directory: File.join(ROOT, "build/ios"),
       output_name: "RefProj-#{env.capitalize}.ipa",
       derived_data_path: File.join(ROOT, "build/ios/DerivedData"),
+      disable_package_automatic_updates: true, # Swift packages exactly as in iosApp/Package.resolved
       clean: true,
       xcargs: [
         "DEVELOPMENT_TEAM=#{ENV['APPLE_TEAM_ID']}",

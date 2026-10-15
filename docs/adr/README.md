@@ -11,3 +11,4 @@ New ADR: copy `0000-template.md`, take the next number, open a PR. Status: Propo
 | 0004 | XcodeGen for the iOS project | Accepted |
 | 0005 | Release tooling: fastlane, signing, versioning, secret scanning | Accepted |
 | 0006 | CI/CD on GitHub Actions, public repository | Accepted |
+| 0007 | Core infrastructure: DI, navigation, storage, observability, feature flags | Accepted |

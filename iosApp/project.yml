@@ -12,6 +12,18 @@ options:
   createIntermediateGroups: true
   defaultConfig: Debug-Dev
   generateEmptyDirectories: true
+  # Pins every Swift package (incl. Firebase's transitive ones) to the committed lockfile. To update:
+  # change the version below, resolve in Xcode, then copy the new Package.resolved back to iosApp/.
+  postGenCommand: >-
+    mkdir -p RefProj.xcodeproj/project.xcworkspace/xcshareddata/swiftpm &&
+    cp Package.resolved RefProj.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
+
+# Firebase native SDKs (Crashlytics, Analytics), bridged to Kotlin via core:observability interfaces.
+# Version policy: latest release that is at least two weeks old (docs/observability.md).
+packages:
+  Firebase:
+    url: https://github.com/firebase/firebase-ios-sdk
+    exactVersion: 12.19.2
 
 configs:
   Debug-Dev: debug
@@ -46,6 +58,11 @@ targets:
     platform: iOS
     sources:
       - path: Sources
+    dependencies:
+      - package: Firebase
+        product: FirebaseCrashlytics
+      - package: Firebase
+        product: FirebaseAnalyticsCore # Analytics without ad-ID / ad-conversion support (no advertising)
     info:
       path: Sources/Info.plist
       properties:
@@ -61,6 +78,14 @@ targets:
         CADisableMinimumFrameDurationOnPhone: true
         ITSAppUsesNonExemptEncryption: false
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        # Firebase collects nothing until FirebaseObservability.swift enables it (release builds only).
+        # No advertising: ad storage, ad user data and personalisation are denied; no IDFA (AdSupport not linked).
+        FirebaseCrashlyticsCollectionEnabled: false
+        FIREBASE_ANALYTICS_COLLECTION_ENABLED: false
+        GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_STORAGE: false
+        GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_USER_DATA: false
+        GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION_SIGNALS: false
+        FirebaseAppDelegateProxyEnabled: false # no method swizzling; we use no Firebase feature that needs it
     settings:
       base:
         PRODUCT_NAME: RefProj
@@ -88,6 +113,35 @@ targets:
           fi
           cd "$SRCROOT/.."
           ./gradlew :app:shared:embedAndSignAppleFrameworkForXcode
+    postBuildScripts:
+      - name: Copy Firebase config
+        basedOnDependencyAnalysis: false
+        script: |
+          set -euo pipefail
+          # Per-environment GoogleService-Info.plist (gitignored). Missing = Firebase stays off.
+          src="$SRCROOT/Firebase/$APP_FIREBASE_DIR/GoogleService-Info.plist"
+          dst="$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/GoogleService-Info.plist"
+          if [ -f "$src" ]; then
+            cp "$src" "$dst"
+          else
+            rm -f "$dst"
+            echo "warning: $src not found; crash reporting and analytics are disabled in this build (docs/secrets.md)."
+          fi
+      - name: Upload symbols to Crashlytics
+        basedOnDependencyAnalysis: false
+        inputFiles:
+          - ${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}
+          - ${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${PRODUCT_NAME}
+          - ${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Info.plist
+          - $(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/GoogleService-Info.plist
+          - $(TARGET_BUILD_DIR)/$(EXECUTABLE_PATH)
+        script: |
+          set -euo pipefail
+          # Release builds with a Firebase config only: uploads the dSYM (which includes the static
+          # Kotlin framework) so Crashlytics can symbolicate Swift and Kotlin frames.
+          if [[ "$CONFIGURATION" == Debug* ]]; then exit 0; fi
+          if [ ! -f "$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/GoogleService-Info.plist" ]; then exit 0; fi
+          "${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run"
 
 schemes:
   RefProj-Dev:

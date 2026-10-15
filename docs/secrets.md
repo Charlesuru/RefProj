@@ -48,10 +48,12 @@ unless marked per environment). CI values are copied from the owner's machine by
 | `MATCH_PASSWORD` | Secret | Passphrase that encrypts the match repo | `fastlane/.env` + password manager | all envs | [match](#ios-certificates-fastlane-match) |
 | `MATCH_GIT_PRIVATE_KEY` | Secret | Private half of the **read-only deploy key** on the certificates repo (ed25519) | — | all envs | [match](#ios-certificates-fastlane-match) |
 | `MACOS_RUNNER` | Config | Label of the optional self-hosted Mac for iOS deploys ([ci-cd.md](ci-cd.md#self-hosted-mac-runner-optional)); unset = GitHub-hosted | — | repository variable | — |
-| `google-services.json` / `GoogleService-Info.plist` | Config (treated as secret) | Firebase client config per env (step 4) | `app/android/src/<env>/`, `iosApp/Firebase/<Env>/` | base64 secrets per env | Regenerate in Firebase console |
+| `google-services.json` | Config (treated as secret) | Firebase client config, all four Android apps in one file | `app/android/google-services.json` | `GOOGLE_SERVICES_JSON_BASE64` — all envs (written into the checkout by `scripts/ci/secret-files.sh`) | [Firebase config](#firebase-client-config) |
+| `GoogleService-Info.plist` | Config (treated as secret) | Firebase client config, one per iOS app/environment | `iosApp/Firebase/<Env>/GoogleService-Info.plist` | `GOOGLE_SERVICE_INFO_PLIST_BASE64` — that environment's file in each env | [Firebase config](#firebase-client-config) |
 
 Firebase client config files contain API keys that are public by design (restricted by app ID / bundle ID),
-but we keep them out of git so a public fork never points at our Firebase project.
+but we keep them out of git so a public fork never points at our Firebase project. Without them the app builds and
+runs with crash reporting and analytics off (PR checks, forks); fastlane refuses to upload a build without them.
 
 ## Rotation runbooks
 
@@ -66,6 +68,14 @@ but we keep them out of git so a public fork never points at our Firebase projec
 2. Replace the local file and the CI secret (`PLAY_SERVICE_ACCOUNT_JSON` via `scripts/github/set-ci-secrets.sh` /
    `FIREBASE_SERVICE_ACCOUNT_JSON`).
 3. Run one upload (`bundle exec fastlane android beta env:dev`) to verify, then **delete the old key** in the console.
+
+### Firebase client config
+Firebase project: Google Cloud project `refproj`, one Android and one iOS app per environment.
+1. Firebase console → *Project settings → General → Your apps* → download `google-services.json` (any Android app; it
+   contains all four) and each iOS app's `GoogleService-Info.plist` to the local paths above.
+2. Run `scripts/github/set-ci-secrets.sh` to update the CI secrets.
+3. The API keys inside are restricted to our app IDs; if one is abused, restrict or rotate it in Google Cloud console →
+   *APIs & Services → Credentials*, then repeat 1–2.
 
 ### App Store Connect API key
 1. App Store Connect → *Users and Access → Integrations → App Store Connect API → Team Keys → +* (role *App Manager*).

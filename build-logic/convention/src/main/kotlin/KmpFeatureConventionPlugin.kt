@@ -11,6 +11,9 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
  * Rules (enforced by architecture tests):
  *  - A feature may depend on core and domain modules.
  *  - A feature must NEVER depend on another feature or on data.
+ *
+ * Every feature gets the design system, the MVVM base (core:ui), route keys (core:navigation),
+ * Koin for ViewModel injection, and the shared test doubles.
  */
 class KmpFeatureConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) =
@@ -20,8 +23,14 @@ class KmpFeatureConventionPlugin : Plugin<Project> {
             extensions.configure<KotlinMultiplatformExtension> {
                 sourceSets.getByName("commonMain").dependencies {
                     implementation(project(":core:designsystem"))
-                    implementation(libs.lib("androidx-lifecycle-viewmodel-compose"))
-                    implementation(libs.lib("androidx-lifecycle-runtime-compose"))
+                    implementation(project(":core:navigation"))
+                    implementation(project(":core:ui"))
+                    implementation(project.dependencies.platform(libs.lib("koin-bom")))
+                    implementation(libs.lib("koin-core"))
+                    implementation(libs.lib("koin-compose-viewmodel"))
+                }
+                sourceSets.getByName("commonTest").dependencies {
+                    implementation(project(":core:testing"))
                 }
             }
         }

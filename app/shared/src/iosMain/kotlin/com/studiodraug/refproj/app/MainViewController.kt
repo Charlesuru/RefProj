@@ -4,7 +4,6 @@ import androidx.compose.ui.window.ComposeUIViewController
 import com.studiodraug.refproj.app.di.startApp
 import com.studiodraug.refproj.core.config.AppConfig
 import com.studiodraug.refproj.core.config.AppEnvironment
-import org.koin.mp.KoinPlatform
 import platform.UIKit.UIViewController
 
 /**
@@ -31,7 +30,4 @@ fun startIosApp(
 
 /** Hosts the shared Compose UI. Requires [startIosApp] to have run. */
 @Suppress("FunctionName", "unused") // Called from Swift as MainViewControllerKt.MainViewController()
-fun MainViewController(): UIViewController {
-    val config = KoinPlatform.getKoin().get<AppConfig>()
-    return ComposeUIViewController { App(config) }
-}
+fun MainViewController(): UIViewController = ComposeUIViewController { App() }

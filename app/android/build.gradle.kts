@@ -5,6 +5,11 @@ plugins {
 android {
     namespace = "com.studiodraug.refproj.android"
 
+    // Supported languages (docs/localisation.md). Strips other locales pulled in by libraries.
+    androidResources {
+        localeFilters += listOf("en", "sv")
+    }
+
     defaultConfig {
         applicationId = "com.studiodraug.refproj"
         // Set by fastlane from the git tag and build number (docs/adr/0005-release-tooling.md).

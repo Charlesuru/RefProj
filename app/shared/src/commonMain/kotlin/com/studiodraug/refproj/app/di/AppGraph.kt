@@ -12,6 +12,7 @@ import com.studiodraug.refproj.core.storage.storageModule
 import com.studiodraug.refproj.data.dataModule
 import com.studiodraug.refproj.domain.onboarding.CompleteOnboardingUseCase
 import com.studiodraug.refproj.domain.onboarding.ObserveOnboardingCompletedUseCase
+import com.studiodraug.refproj.feature.home.homeModule
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
 import org.koin.dsl.KoinAppDeclaration
@@ -47,6 +48,8 @@ internal fun appModules(
         networkModule,
         dataModule,
         domainModule,
+        // Features
+        homeModule,
     )
 
 /** Use cases are stateless: a new instance per injection. */

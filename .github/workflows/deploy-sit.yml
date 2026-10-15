@@ -1,0 +1,60 @@
+# System integration testing gets a stable build once a night instead of every merge, so testers are
+# not interrupted during the day. Run it manually (Actions → Deploy SIT → Run workflow) when needed.
+name: Deploy SIT
+
+on:
+  schedule:
+    - cron: "0 2 * * 1-5" # 02:00 UTC, Monday–Friday
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-sit
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    name: Changes + build number
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      actions: read # find the last successful run of this workflow
+    outputs:
+      build-number: ${{ steps.number.outputs.value }}
+      deploy: ${{ steps.changes.outputs.deploy }}
+    steps:
+      - id: changes
+        name: Skip when main has not changed since the last SIT deploy
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          last="$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/deploy-sit.yml/runs?branch=main&status=success&per_page=1" \
+            --jq '.workflow_runs[0].head_sha // ""')"
+          if [[ "$EVENT" == schedule && "$last" == "$GITHUB_SHA" ]]; then
+            echo "::notice::main (${GITHUB_SHA::7}) is already in SIT; nothing to deploy."
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+          fi
+      - id: number
+        # Minutes since 2026-01-01 UTC — must match BUILD_NUMBER_EPOCH in fastlane/Fastfile.
+        run: echo "value=$(( ($(date -u +%s) - $(date -u -d 2026-01-01T00:00:00Z +%s)) / 60 ))" >> "$GITHUB_OUTPUT"
+
+  distribute:
+    name: sit
+    needs: prepare
+    if: needs.prepare.outputs.deploy == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [android, ios]
+    uses: ./.github/workflows/_distribute.yml
+    with:
+      environment: sit
+      platform: ${{ matrix.platform }}
+      build-number: ${{ needs.prepare.outputs.build-number }}
+    # Only environment secrets exist, so `inherit` exposes only the sit environment's (see deploy-main.yml).
+    secrets: inherit # zizmor: ignore[secrets-inherit] -- see comment above

@@ -22,6 +22,10 @@ on:
         description: Shared by every job of the calling run, so both platforms carry the same number
         required: true
         type: string
+      trusted:
+        description: "false for pull-request code: it must never run on the self-hosted Mac (docs/ci-cd.md)"
+        default: true
+        type: boolean
 
 permissions:
   contents: read
@@ -30,9 +34,9 @@ jobs:
   distribute:
     name: ${{ inputs.platform }} ${{ inputs.lane }} → ${{ inputs.environment }}
     environment: ${{ inputs.environment }}
-    # Deploy jobs only run trusted code (main or release tags), so the macOS runner may be the
-    # owner's self-hosted Mac: set the repository variable MACOS_RUNNER to its label.
-    runs-on: ${{ inputs.platform == 'ios' && (vars.MACOS_RUNNER || 'macos-26') || 'ubuntu-24.04' }}
+    # Trusted code (main, release tags) may use the owner's self-hosted Mac (repository variable MACOS_RUNNER).
+    # Pull-request previews (deploy:dev label) always run on GitHub-hosted runners.
+    runs-on: ${{ inputs.platform == 'ios' && ((inputs.trusted && vars.MACOS_RUNNER) || 'macos-26') || 'ubuntu-24.04' }}
     timeout-minutes: 60
     env:
       BUILD_NUMBER: ${{ inputs.build-number }}

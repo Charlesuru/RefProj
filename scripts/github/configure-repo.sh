@@ -94,9 +94,17 @@ JSON
 }
 
 configure_environment dev branch main
+# Pull-request previews (label deploy:dev, deploy-pr.yml) run on refs/pull/<n>/merge. dev is the only
+# environment that accepts them.
+echo "→ Environment dev (+ branch refs/pull/*/merge)"
+api -X POST "repos/$repo/environments/dev/deployment-branch-policies" -f name='refs/pull/*/merge' -f type=branch
 configure_environment sit branch main
 configure_environment stage tag 'v*' reviewed
 configure_environment prod tag 'v*' reviewed
+
+echo "→ Label deploy:dev"
+gh label create "deploy:dev" --repo "$repo" --force --color 1F5EFF \
+  --description "Deploy this pull request to DEV testers (deploy-pr.yml)" >/dev/null
 
 if [[ "$skip_rulesets" == false ]]; then
   for file in .github/settings/ruleset-*.json; do

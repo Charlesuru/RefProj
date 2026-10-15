@@ -1,7 +1,7 @@
-# Continuous delivery from trunk: every change merged to main is built, signed and sent to
-# testers in DEV and SIT (Android: Firebase App Distribution, iOS: TestFlight).
+# Continuous delivery from trunk: every change merged to main is built, signed and sent to DEV
+# testers (Android: Firebase App Distribution, iOS: TestFlight). SIT gets main nightly (deploy-sit.yml).
 # Unfinished features ship dark behind feature flags (CLAUDE.md, trunk-based development).
-name: Deploy DEV + SIT
+name: Deploy DEV
 
 on:
   push:
@@ -38,7 +38,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        environment: [dev, sit]
+        environment: [dev]
         platform: [android, ios]
     uses: ./.github/workflows/_distribute.yml
     with:

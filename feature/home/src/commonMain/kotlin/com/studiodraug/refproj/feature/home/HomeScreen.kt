@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.studiodraug.refproj.core.designsystem.component.RefSurface
 import com.studiodraug.refproj.core.designsystem.theme.RefTheme
@@ -31,7 +32,7 @@ fun HomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(text = stringResource(Res.string.home_title), style = MaterialTheme.typography.headlineMedium)
-            Text(text = stringResource(Res.string.home_body))
+            Text(text = stringResource(Res.string.home_body), textAlign = TextAlign.Center)
             Text(text = stringResource(Res.string.home_environment, environmentName))
         }
     }

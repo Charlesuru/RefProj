@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="designsystem_back">Back</string>
+    <string name="designsystem_retry">Try again</string>
+    <string name="designsystem_loading">Loading</string>
+    <string name="designsystem_error_title">Something went wrong</string>
+    <string name="designsystem_confirm">OK</string>
+    <string name="designsystem_cancel">Cancel</string>
+</resources>

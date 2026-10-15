@@ -23,7 +23,8 @@ ktlint_function_naming_ignore_when_annotated_with = Composable
 ktlint_standard_function-signature = disabled
 ktlint_standard_class-signature = disabled
 # Compose rules (io.nlopez.compose.rules)
-compose_allowed_composition_locals = LocalSpacing,LocalAppConfig,LocalDebugSettings
+# Design tokens (core:designsystem) and app-wide context. Keep this list short.
+compose_allowed_composition_locals = LocalRefExtendedColors,LocalRefSpacing,LocalRefSizes,LocalRefElevation,LocalAppConfig,LocalDebugSettings
 
 [*.md]
 trim_trailing_whitespace = false

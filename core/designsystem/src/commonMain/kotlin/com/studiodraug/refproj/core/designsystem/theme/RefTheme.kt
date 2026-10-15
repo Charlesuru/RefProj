@@ -2,39 +2,57 @@ package com.studiodraug.refproj.core.designsystem.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.staticCompositionLocalOf
 
-// Placeholder palette. Expanded into full design tokens (color, typography, spacing,
-// shapes, components) in step 4.
-private val LightColors =
-    lightColorScheme(
-        primary = Color(0xFF1F5EFF),
-        onPrimary = Color.White,
-        secondary = Color(0xFF00A88E),
-        background = Color(0xFFF8F9FC),
-        surface = Color.White,
-    )
+private val LocalRefExtendedColors = staticCompositionLocalOf { LightExtendedColors }
+private val LocalRefSpacing = staticCompositionLocalOf { RefSpacing() }
+private val LocalRefSizes = staticCompositionLocalOf { RefSizes() }
+private val LocalRefElevation = staticCompositionLocalOf { RefElevation() }
 
-private val DarkColors =
-    darkColorScheme(
-        primary = Color(0xFF9DB6FF),
-        onPrimary = Color(0xFF002A80),
-        secondary = Color(0xFF4FDBC1),
-        background = Color(0xFF0F1115),
-        surface = Color(0xFF171A20),
-    )
-
-/** Root theme. Every screen and preview must be wrapped in [RefTheme]. */
+/**
+ * Root theme. Every screen and preview must be wrapped in [RefTheme].
+ *
+ * Material roles (colours, typography, shapes) come from [MaterialTheme]; tokens Material does not
+ * have (extended colours, spacing, sizes, elevation) from the [RefTheme] object.
+ */
 @Composable
 fun RefTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit,
 ) {
-    MaterialTheme(
-        colorScheme = if (darkTheme) DarkColors else LightColors,
-        content = content,
-    )
+    CompositionLocalProvider(
+        LocalRefExtendedColors provides if (darkTheme) DarkExtendedColors else LightExtendedColors,
+        LocalRefSpacing provides RefSpacing(),
+        LocalRefSizes provides RefSizes(),
+        LocalRefElevation provides RefElevation(),
+    ) {
+        MaterialTheme(
+            colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme,
+            typography = RefTypography,
+            shapes = RefShapes,
+            content = content,
+        )
+    }
+}
+
+/** Design tokens beyond Material 3: `RefTheme.spacing.lg`, `RefTheme.colors.success`, … */
+object RefTheme {
+    val colors: RefExtendedColors
+        @Composable @ReadOnlyComposable
+        get() = LocalRefExtendedColors.current
+
+    val spacing: RefSpacing
+        @Composable @ReadOnlyComposable
+        get() = LocalRefSpacing.current
+
+    val sizes: RefSizes
+        @Composable @ReadOnlyComposable
+        get() = LocalRefSizes.current
+
+    val elevation: RefElevation
+        @Composable @ReadOnlyComposable
+        get() = LocalRefElevation.current
 }

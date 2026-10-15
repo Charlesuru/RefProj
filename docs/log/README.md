@@ -6,3 +6,4 @@ was fixed. Complements `docs/PROGRESS.md` (status and next action) and the ADRs 
 | Step | Log |
 |---|---|
 | 3 — CI/CD | [step-3-ci-cd.md](step-3-ci-cd.md) |
+| 4 — Core | [step-4-core.md](step-4-core.md) |

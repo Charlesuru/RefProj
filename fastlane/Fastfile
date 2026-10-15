@@ -311,10 +311,22 @@ platform :ios do
 
     bundle_id = app_id(env)
     profile = "match AppStore #{bundle_id}"
+    configuration = "Release-#{env.capitalize}"
+    # Manual signing on the app target only. Passing the profile as xcargs would apply it to every target,
+    # and Swift package resource bundles (Firebase) reject provisioning profiles.
+    update_code_signing_settings(
+      path: File.join(ROOT, "iosApp/RefProj.xcodeproj"),
+      targets: ["RefProj"],
+      build_configurations: [configuration],
+      use_automatic_signing: false,
+      team_id: ENV["APPLE_TEAM_ID"],
+      code_sign_identity: "Apple Distribution",
+      profile_name: profile,
+    )
     build_app(
       project: File.join(ROOT, "iosApp/RefProj.xcodeproj"),
       scheme: "RefProj-#{env.capitalize}",
-      configuration: "Release-#{env.capitalize}",
+      configuration: configuration,
       export_method: "app-store",
       export_options: { provisioningProfiles: { bundle_id => profile } },
       output_directory: File.join(ROOT, "build/ios"),
@@ -323,10 +335,6 @@ platform :ios do
       disable_package_automatic_updates: true, # Swift packages exactly as in iosApp/Package.resolved
       clean: true,
       xcargs: [
-        "DEVELOPMENT_TEAM=#{ENV['APPLE_TEAM_ID']}",
-        "CODE_SIGN_STYLE=Manual",
-        "CODE_SIGN_IDENTITY='Apple Distribution'",
-        "PROVISIONING_PROFILE_SPECIFIER='#{profile}'",
         "MARKETING_VERSION=#{version_name}",
         "CURRENT_PROJECT_VERSION=#{build_number}",
       ].join(" "),

@@ -7,6 +7,7 @@
   [#10](https://github.com/Charlesuru/RefProj/pull/10) navigation + localisation ·
   [#11](https://github.com/Charlesuru/RefProj/pull/11) feature flags ·
   [#12](https://github.com/Charlesuru/RefProj/pull/12) Firebase ·
+  [#15](https://github.com/Charlesuru/RefProj/pull/15) iOS signing fix ·
   [#13](https://github.com/Charlesuru/RefProj/pull/13) `deploy:dev` + SIT nightly · this docs PR
 - **Reference docs:** [ADR 0007](../adr/0007-core-infrastructure.md), [design-system.md](../design-system.md),
   [feature-flags.md](../feature-flags.md), [localisation.md](../localisation.md), [observability.md](../observability.md),
@@ -50,6 +51,8 @@ error mapping, navigator, routes, MVVM base, view models, flags, config, transla
 | `startIosApp` had too many parameters (detekt) | Swift builds `AppConfig` and passes it |
 | Firebase iOS 13.0.x was one week old (new major) | Pinned 12.19.2 (policy: latest release ≥ two weeks old) and committed `Package.resolved`; `FirebaseAnalyticsCore` instead of `FirebaseAnalytics` (no ad-ID / ad-conversion code) |
 | `deploy:dev` must not run PR code on the self-hosted Mac | `_distribute.yml` input `trusted`; PR previews always use GitHub-hosted macOS |
+| First iOS deploy with Firebase failed: the provisioning profile passed as xcargs applied to Swift package resource bundles (`… does not support provisioning profiles`). Only simulator builds had been tried locally | #15: `update_code_signing_settings` on the app target only; verified with a local signed `ios archive` before merging. Lesson: archive a signed build locally whenever the iOS dependency graph changes |
+| Rebase-merging stacked PRs gives new SHAs on `main`, so the next PR shows conflicts; retargeting does not start CI | Restack the rest of the stack onto `main` after every merge (`git rebase --onto`), which also triggers CI |
 
 ## 4. Verification
 - `./gradlew spotlessCheck detekt allTests :app:android:assembleDevDebug` green on every PR branch; CI green on #8–#9 at the time of writing.
@@ -58,6 +61,8 @@ error mapping, navigator, routes, MVVM base, view models, flags, config, transla
 - iOS DEV in the simulator (`fastlane ios build`): Koin start from Swift, Swedish, Firebase Crashlytics + Analytics 12.19.2
   configured; without the plist the build warns and runs with no-op observability.
 - Firebase config files match all bundle IDs / package names. gitleaks clean on the branch and all non-ignored files.
+- Deploy with Firebase on `main` (run 38711322510): Android DEV + SIT → App Distribution (installed by the owner via
+  App Tester), iOS DEV + SIT → TestFlight.
 
 ## 5. Owner actions
 See the step-4 checklist in [PROGRESS.md](../PROGRESS.md#step-4--owner-checklist).

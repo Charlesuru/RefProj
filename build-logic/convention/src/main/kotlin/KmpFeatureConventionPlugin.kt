@@ -12,7 +12,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
  *  - A feature may depend on core and domain modules.
  *  - A feature must NEVER depend on another feature or on data.
  *
- * Every feature gets the design system, the MVVM base (core:ui), route keys (core:navigation),
+ * Every feature gets the design system, the MVVM base (core:ui), route keys (core:navigation), feature flags,
  * Koin for ViewModel injection, and the shared test doubles.
  */
 class KmpFeatureConventionPlugin : Plugin<Project> {
@@ -23,6 +23,7 @@ class KmpFeatureConventionPlugin : Plugin<Project> {
             extensions.configure<KotlinMultiplatformExtension> {
                 sourceSets.getByName("commonMain").dependencies {
                     implementation(project(":core:designsystem"))
+                    implementation(project(":core:featureflags"))
                     implementation(project(":core:navigation"))
                     implementation(project(":core:ui"))
                     implementation(project.dependencies.platform(libs.lib("koin-bom")))

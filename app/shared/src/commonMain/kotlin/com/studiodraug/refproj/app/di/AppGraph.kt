@@ -1,6 +1,7 @@
 package com.studiodraug.refproj.app.di
 
 import com.studiodraug.refproj.core.config.AppConfig
+import com.studiodraug.refproj.core.featureflags.featureFlagsModule
 import com.studiodraug.refproj.core.network.networkModule
 import com.studiodraug.refproj.core.observability.AnalyticsTracker
 import com.studiodraug.refproj.core.observability.CrashReporter
@@ -46,6 +47,7 @@ internal fun appModules(
         observabilityModule(crashReporter, analyticsTracker),
         storageModule,
         networkModule,
+        featureFlagsModule,
         dataModule,
         domainModule,
         // Features

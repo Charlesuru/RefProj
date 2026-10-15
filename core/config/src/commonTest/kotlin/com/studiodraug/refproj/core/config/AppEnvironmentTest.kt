@@ -25,3 +25,20 @@ class AppEnvironmentTest {
         AppEnvironment.entries.filter { it != AppEnvironment.PROD }.forEach { assertFalse(it.isProduction) }
     }
 }
+
+// UNIT TEST
+class AppConfigTest {
+    private fun config(
+        environment: AppEnvironment,
+        isDebugBuild: Boolean,
+    ) = AppConfig(environment, "https://api.example", "1.0.0", "1", isDebugBuild)
+
+    @Test
+    fun debugMenu_isNeverEnabledInProdRelease() {
+        assertFalse(config(AppEnvironment.PROD, isDebugBuild = false).isDebugMenuEnabled)
+        assertTrue(config(AppEnvironment.PROD, isDebugBuild = true).isDebugMenuEnabled)
+        AppEnvironment.entries.filter { !it.isProduction }.forEach {
+            assertTrue(config(it, isDebugBuild = false).isDebugMenuEnabled)
+        }
+    }
+}

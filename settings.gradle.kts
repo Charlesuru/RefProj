@@ -39,6 +39,7 @@ include(":app:shared")
 // --- Core (cross-cutting infrastructure) ---
 include(":core:config")
 include(":core:designsystem")
+include(":core:featureflags")
 include(":core:navigation")
 include(":core:network")
 include(":core:observability")

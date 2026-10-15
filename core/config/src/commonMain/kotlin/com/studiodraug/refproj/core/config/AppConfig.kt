@@ -36,4 +36,10 @@ data class AppConfig(
     val buildNumber: String,
     /** True for debuggable builds. Gates the debug menu and verbose logging. */
     val isDebugBuild: Boolean,
-)
+) {
+    /**
+     * Debug menu and debug-only tools (feature flag overrides, state jumps). Always available in
+     * non-PROD environments and in debug builds; never in a PROD release build.
+     */
+    val isDebugMenuEnabled: Boolean get() = isDebugBuild || !environment.isProduction
+}

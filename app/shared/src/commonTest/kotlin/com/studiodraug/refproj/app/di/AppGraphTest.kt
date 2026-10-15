@@ -3,6 +3,8 @@ package com.studiodraug.refproj.app.di
 import com.russhwolf.settings.MapSettings
 import com.russhwolf.settings.ObservableSettings
 import com.studiodraug.refproj.core.config.AppConfig
+import com.studiodraug.refproj.core.featureflags.FeatureFlagOverrides
+import com.studiodraug.refproj.core.featureflags.FeatureFlags
 import com.studiodraug.refproj.core.storage.KeyValueStore
 import com.studiodraug.refproj.core.storage.SecureStore
 import com.studiodraug.refproj.core.testing.FakeAnalyticsTracker
@@ -48,6 +50,8 @@ class AppGraphTest {
         assertSame(config, koin.get<AppConfig>())
         koin.get<KeyValueStore>()
         koin.get<HttpClient>()
+        koin.get<FeatureFlags>()
+        koin.get<FeatureFlagOverrides>()
         koin.get<OnboardingRepository>()
         koin.get<ObserveOnboardingCompletedUseCase>()
         koin.get<CompleteOnboardingUseCase>()

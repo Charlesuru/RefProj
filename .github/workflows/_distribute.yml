@@ -47,8 +47,8 @@ jobs:
           [[ "$LANE" =~ ^(beta|release)$ ]] || { echo "::error::invalid lane '$LANE'"; exit 1; }
           [[ "$BUILD_NUMBER" =~ ^[0-9]+$ ]] || { echo "::error::invalid build number '$BUILD_NUMBER'"; exit 1; }
 
-      # Android DEV/SIT/STAGE go to Firebase App Distribution, which is set up in plan step 4.
-      # Until its variables exist the upload is skipped with a warning instead of failing main.
+      # Android DEV/SIT/STAGE go to Firebase App Distribution. While an environment has no Firebase
+      # app ID (variable FIREBASE_APP_ID_ANDROID_<ENV>) the upload is skipped with a warning.
       - name: Check distribution target
         id: target
         env:
@@ -80,6 +80,9 @@ jobs:
           REFPROJ_SIGNING_KEYSTORE_BASE64: ${{ inputs.platform == 'android' && secrets.REFPROJ_SIGNING_KEYSTORE_BASE64 || '' }}
           PLAY_SERVICE_ACCOUNT_JSON: ${{ inputs.platform == 'android' && secrets.PLAY_SERVICE_ACCOUNT_JSON || '' }}
           FIREBASE_SERVICE_ACCOUNT_JSON: ${{ inputs.platform == 'android' && secrets.FIREBASE_SERVICE_ACCOUNT_JSON || '' }}
+          # Firebase client config (crash reporting + analytics); fastlane refuses to upload without it.
+          GOOGLE_SERVICES_JSON_BASE64: ${{ inputs.platform == 'android' && secrets.GOOGLE_SERVICES_JSON_BASE64 || '' }}
+          GOOGLE_SERVICE_INFO_PLIST_BASE64: ${{ inputs.platform == 'ios' && secrets.GOOGLE_SERVICE_INFO_PLIST_BASE64 || '' }}
         run: scripts/ci/secret-files.sh write
 
       - name: fastlane ${{ inputs.platform }} ${{ inputs.lane }} env:${{ inputs.environment }}

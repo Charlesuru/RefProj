@@ -54,5 +54,6 @@ Both feed an `AppConfig` into shared code at startup. Shared code never chooses 
 | Navigation | Navigation 3 (JetBrains multiplatform artifacts, stable) | 0002 |
 | Modularization | Multi-module, convention plugins | 0003 |
 | iOS project | XcodeGen (generated, not committed) | 0004 |
-| DI | Koin | 0005 (step 4) |
+| DI | Koin | 0007 |
+| Storage, network, observability, feature flags | multiplatform-settings, Ktor, Kermit + Firebase (native SDKs), own flag catalogue | 0007 |
 | Lint | ktlint (via Spotless) + Compose rules + detekt | — |

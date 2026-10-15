@@ -5,12 +5,18 @@
 #
 # Reads, never prints:
 #   fastlane/.env                 APPLE_TEAM_ID, ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_PATH, MATCH_PASSWORD,
-#                                 PLAY_SERVICE_ACCOUNT_FILE, REFPROJ_SIGNING_* (if set there)
+#                                 PLAY_SERVICE_ACCOUNT_FILE, REFPROJ_SIGNING_* (if set there),
+#                                 FIREBASE_SERVICE_ACCOUNT_FILE, FIREBASE_APP_ID_ANDROID_<ENV>, FIREBASE_TESTER_GROUPS
 #   ~/.gradle/gradle.properties   refproj.signing.* (upload keystore path, alias, passwords)
+#   Firebase client config        app/android/google-services.json, iosApp/Firebase/<Env>/GoogleService-Info.plist
 # Writes (docs/secrets.md, docs/ci-cd.md):
-#   repository variables          APPLE_TEAM_ID, ASC_KEY_ID, ASC_ISSUER_ID, MATCH_GIT_URL (SSH), REFPROJ_SIGNING_KEY_ALIAS
+#   repository variables          APPLE_TEAM_ID, ASC_KEY_ID, ASC_ISSUER_ID, MATCH_GIT_URL (SSH), REFPROJ_SIGNING_KEY_ALIAS,
+#                                 FIREBASE_TESTER_GROUPS
+#   environment variables         FIREBASE_APP_ID_ANDROID_<ENV> in dev/sit/stage
 #   secrets in dev/sit/stage/prod REFPROJ_SIGNING_KEYSTORE_BASE64, REFPROJ_SIGNING_STORE_PASSWORD, REFPROJ_SIGNING_KEY_PASSWORD,
-#                                 ASC_KEY_CONTENT_BASE64, MATCH_PASSWORD, MATCH_GIT_PRIVATE_KEY
+#                                 ASC_KEY_CONTENT_BASE64, MATCH_PASSWORD, MATCH_GIT_PRIVATE_KEY,
+#                                 GOOGLE_SERVICES_JSON_BASE64, GOOGLE_SERVICE_INFO_PLIST_BASE64 (that env's plist)
+#   secrets in dev/sit/stage      FIREBASE_SERVICE_ACCOUNT_JSON
 #   secrets in prod               PLAY_SERVICE_ACCOUNT_JSON
 # Re-running rotates the deploy key and overwrites the secrets with the current local values.
 set -euo pipefail
@@ -60,6 +66,13 @@ key_alias="$(dotenv_value REFPROJ_SIGNING_KEY_ALIAS)"
 key_password="$(dotenv_value REFPROJ_SIGNING_KEY_PASSWORD)"
 [[ -n "$key_password" ]] || key_password="$(gradle_value refproj.signing.keyPassword)"
 
+firebase_json_path="$(expand_path "$(dotenv_value FIREBASE_SERVICE_ACCOUNT_FILE)")"
+firebase_tester_groups="$(dotenv_value FIREBASE_TESTER_GROUPS)"
+google_services_json="app/android/google-services.json"
+ios_plist() { # $1 = env (dev) -> iosApp/Firebase/Dev/GoogleService-Info.plist
+  printf 'iosApp/Firebase/%s/GoogleService-Info.plist' "$(tr '[:lower:]' '[:upper:]' <<< "${1:0:1}")${1:1}"
+}
+
 require APPLE_TEAM_ID "$apple_team_id"
 require ASC_KEY_ID "$asc_key_id"
 require ASC_ISSUER_ID "$asc_issuer_id"
@@ -70,6 +83,16 @@ require "upload keystore (refproj.signing.storeFile)" "$([[ -f "$store_file" ]] 
 require "refproj.signing.storePassword" "$store_password"
 require "refproj.signing.keyAlias" "$key_alias"
 require "refproj.signing.keyPassword" "$key_password"
+require "FIREBASE_SERVICE_ACCOUNT_FILE (file)" "$([[ -f "$firebase_json_path" ]] && echo ok)"
+require FIREBASE_TESTER_GROUPS "$firebase_tester_groups"
+require "$google_services_json" "$([[ -f "$google_services_json" ]] && echo ok)"
+for env in "${environments[@]}"; do
+  require "$(ios_plist "$env")" "$([[ -f "$(ios_plist "$env")" ]] && echo ok)"
+done
+for env in dev sit stage; do
+  name="FIREBASE_APP_ID_ANDROID_$(tr '[:lower:]' '[:upper:]' <<< "$env")"
+  require "$name" "$(dotenv_value "$name")"
+done
 
 echo "This writes release secrets for $repo (environments: ${environments[*]})"
 echo "and rotates the read-only deploy key on $cert_repo."
@@ -94,6 +117,12 @@ set_var ASC_KEY_ID "$asc_key_id"
 set_var ASC_ISSUER_ID "$asc_issuer_id"
 set_var MATCH_GIT_URL "git@github.com:$cert_repo.git"
 set_var REFPROJ_SIGNING_KEY_ALIAS "$key_alias"
+set_var FIREBASE_TESTER_GROUPS "$firebase_tester_groups"
+for env in dev sit stage; do
+  name="FIREBASE_APP_ID_ANDROID_$(tr '[:lower:]' '[:upper:]' <<< "$env")"
+  gh variable set "$name" --repo "$repo" --env "$env" --body "$(dotenv_value "$name")" >/dev/null
+  echo "→ $env: variable $name"
+done
 
 # --- Environment secrets (value via stdin, never as an argument) ----------------------------------
 set_secret() { # $1 = env, $2 = name; value on stdin
@@ -107,7 +136,12 @@ for env in "${environments[@]}"; do
   base64 < "$asc_key_path" | tr -d '\n' | set_secret "$env" ASC_KEY_CONTENT_BASE64
   printf '%s' "$match_password" | set_secret "$env" MATCH_PASSWORD
   set_secret "$env" MATCH_GIT_PRIVATE_KEY < "$work/match_deploy_key"
+  base64 < "$google_services_json" | tr -d '\n' | set_secret "$env" GOOGLE_SERVICES_JSON_BASE64
+  base64 < "$(ios_plist "$env")" | tr -d '\n' | set_secret "$env" GOOGLE_SERVICE_INFO_PLIST_BASE64
+done
+for env in dev sit stage; do
+  set_secret "$env" FIREBASE_SERVICE_ACCOUNT_JSON < "$firebase_json_path"
 done
 set_secret prod PLAY_SERVICE_ACCOUNT_JSON < "$play_json_path"
 
-echo "✓ Done. Firebase App Distribution secrets follow in plan step 4."
+echo "✓ Done."

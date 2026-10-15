@@ -8,3 +8,5 @@ APP_DISPLAY_NAME = RefProj SIT
 API_BASE_URL = https:/$()/api.sit.refproj.example
 // Placeholder icon with the environment label (scripts/assets/generate-placeholder-icons.swift).
 ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon-Sit
+// Firebase client config: iosApp/Firebase/Sit/GoogleService-Info.plist (gitignored, docs/secrets.md).
+APP_FIREBASE_DIR = Sit

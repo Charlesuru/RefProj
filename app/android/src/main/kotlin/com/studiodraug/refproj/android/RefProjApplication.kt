@@ -1,6 +1,7 @@
 package com.studiodraug.refproj.android
 
 import android.app.Application
+import com.studiodraug.refproj.android.observability.FirebaseObservability
 import com.studiodraug.refproj.app.di.startApp
 import com.studiodraug.refproj.core.config.AppConfig
 import com.studiodraug.refproj.core.config.AppEnvironment
@@ -19,6 +20,11 @@ class RefProjApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        startApp(appConfig) { androidContext(this@RefProjApplication) }
+        val firebase = FirebaseObservability.create(this, appConfig)
+        startApp(
+            config = appConfig,
+            crashReporter = firebase.crashReporter,
+            analyticsTracker = firebase.analyticsTracker,
+        ) { androidContext(this@RefProjApplication) }
     }
 }

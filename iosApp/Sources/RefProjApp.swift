@@ -5,12 +5,18 @@ import SwiftUI
 struct RefProjApp: App {
     init() {
         let config = BuildConfiguration.current
-        MainViewControllerKt.startIosApp(
-            environment: config.environment,
+        let firebase = FirebaseObservability.start(config: config)
+        let appConfig = AppConfig(
+            environment: AppEnvironment.companion.parse(value: config.environment),
             apiBaseUrl: config.apiBaseUrl,
             versionName: config.versionName,
             buildNumber: config.buildNumber,
             isDebugBuild: config.isDebugBuild
+        )
+        MainViewControllerKt.startIosApp(
+            config: appConfig,
+            crashReporter: firebase.crashReporter,
+            analyticsTracker: firebase.analyticsTracker
         )
     }
 

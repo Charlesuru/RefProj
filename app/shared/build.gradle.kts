@@ -24,14 +24,18 @@ kotlin {
             api(projects.core.config)
             api(projects.core.observability)
             implementation(projects.core.designsystem)
+            implementation(projects.core.navigation)
             implementation(projects.core.network)
             implementation(projects.core.storage)
+            implementation(projects.core.ui)
             implementation(projects.data)
             implementation(projects.domain)
             implementation(projects.feature.home)
             implementation(project.dependencies.platform(libs.koin.bom))
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
+            implementation(libs.koin.compose.viewmodel)
+            implementation(libs.androidx.lifecycle.viewmodel.navigation3)
         }
         commonTest.dependencies {
             implementation(projects.core.testing)

@@ -39,10 +39,12 @@ include(":app:shared")
 // --- Core (cross-cutting infrastructure) ---
 include(":core:config")
 include(":core:designsystem")
+include(":core:navigation")
 include(":core:network")
 include(":core:observability")
 include(":core:storage")
 include(":core:testing")
+include(":core:ui")
 
 // --- Domain (pure Kotlin business logic) and data (repositories) ---
 include(":domain")

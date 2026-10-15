@@ -26,6 +26,8 @@ naming:
   FunctionNaming:
     # Composables are PascalCase.
     ignoreAnnotated: [ 'Composable' ]
+    # Test names use underscores (subject_condition_result). detekt's defaults miss the KMP host-test source set.
+    excludes: [ '**/test/**', '**/commonTest/**', '**/androidHostTest/**', '**/androidDeviceTest/**', '**/iosTest/**' ]
 
 style:
   MaxLineLength:

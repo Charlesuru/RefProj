@@ -10,7 +10,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        val config = (application as RefProjApplication).appConfig
-        setContent { App(config) }
+        setContent { App() }
     }
 }

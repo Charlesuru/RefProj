@@ -17,12 +17,13 @@ import com.studiodraug.refproj.feature.home.resources.Res
 import com.studiodraug.refproj.feature.home.resources.home_body
 import com.studiodraug.refproj.feature.home.resources.home_environment
 import com.studiodraug.refproj.feature.home.resources.home_title
+import com.studiodraug.refproj.feature.home.resources.home_version
 import org.jetbrains.compose.resources.stringResource
 
 /** Placeholder screen proving the module chain builds. Replaced by the real home tab in step 5. */
 @Composable
 fun HomeScreen(
-    environmentName: String,
+    state: HomeUiState,
     modifier: Modifier = Modifier,
 ) {
     RefSurface(modifier = modifier.fillMaxSize()) {
@@ -33,7 +34,12 @@ fun HomeScreen(
         ) {
             Text(text = stringResource(Res.string.home_title), style = MaterialTheme.typography.headlineMedium)
             Text(text = stringResource(Res.string.home_body), textAlign = TextAlign.Center)
-            Text(text = stringResource(Res.string.home_environment, environmentName))
+            Text(text = stringResource(Res.string.home_environment, state.environmentName))
+            Text(
+                text = stringResource(Res.string.home_version, state.version),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }
@@ -41,5 +47,5 @@ fun HomeScreen(
 @Preview
 @Composable
 private fun HomeScreenPreview() {
-    RefTheme { HomeScreen(environmentName = "DEV") }
+    RefTheme { HomeScreen(state = HomeUiState(environmentName = "DEV", version = "1.0.0 (42)")) }
 }

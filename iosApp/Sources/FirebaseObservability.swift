@@ -8,7 +8,8 @@ import Shared
 ///
 /// Firebase is configured only when the build contains `GoogleService-Info.plist` (copied from
 /// `iosApp/Firebase/<Env>/` by a build phase; never committed). Collection is off by default
-/// (Info.plist) and switched on here for release builds only.
+/// (Info.plist). Crashlytics is switched on here for release builds only; Analytics is switched on
+/// by shared code only with the user's consent (`ConsentRepositoryImpl`, `RestrictedAnalyticsTracker`).
 enum FirebaseObservability {
     struct Bridges {
         let crashReporter: NativeCrashReporter?
@@ -23,7 +24,6 @@ enum FirebaseObservability {
         let collect = !config.isDebugBuild
         Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(collect)
         Crashlytics.crashlytics().setCustomValue(config.environment, forKey: "environment")
-        Analytics.setAnalyticsCollectionEnabled(collect)
         return Bridges(crashReporter: CrashlyticsReporter(), analyticsTracker: FirebaseAnalyticsTracker())
     }
 }

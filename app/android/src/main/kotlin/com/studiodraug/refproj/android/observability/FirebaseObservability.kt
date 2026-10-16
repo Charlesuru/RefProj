@@ -15,8 +15,10 @@ import com.studiodraug.refproj.core.observability.NoOpCrashReporter
 /**
  * Native Firebase behind the shared observability interfaces.
  *
- * Collection is off by default (AndroidManifest meta-data) and switched on here for release builds
- * only, so debug builds never pollute production dashboards. Without `google-services.json`
+ * Collection is off by default (AndroidManifest meta-data). Crashlytics is switched on here for
+ * release builds only, so debug builds never pollute production dashboards. Analytics is switched on
+ * by shared code only with the user's consent (`ConsentRepositoryImpl`, `RestrictedAnalyticsTracker`).
+ * Without `google-services.json`
  * Firebase is not initialised and the no-op implementations are used.
  */
 internal class FirebaseObservability private constructor(
@@ -33,7 +35,7 @@ internal class FirebaseObservability private constructor(
             }
             val collect = !config.isDebugBuild
             val crashlytics = FirebaseCrashlytics.getInstance().apply { isCrashlyticsCollectionEnabled = collect }
-            val analytics = FirebaseAnalytics.getInstance(context).apply { setAnalyticsCollectionEnabled(collect) }
+            val analytics = FirebaseAnalytics.getInstance(context)
             crashlytics.setCustomKey("environment", config.environment.name)
             return FirebaseObservability(CrashlyticsCrashReporter(crashlytics), FirebaseAnalyticsTracker(analytics))
         }

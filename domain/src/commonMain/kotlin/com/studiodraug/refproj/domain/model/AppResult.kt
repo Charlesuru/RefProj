@@ -19,7 +19,7 @@ sealed interface DataError {
     /** No connection or a timeout: worth retrying. */
     data object Network : DataError
 
-    /** The session is missing or expired: the user must sign in again. */
+    /** The session is missing or expired (the user must sign in again), or a login was rejected. */
     data object Unauthorized : DataError
 
     data object NotFound : DataError

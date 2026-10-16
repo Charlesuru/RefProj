@@ -111,7 +111,7 @@ gh pr create --base main --title "REF-123: Add biometric unlock" --fill-first   
 | — **Lint** | spotless + detekt; findings uploaded to *Security → Code scanning* (not for forks/Dependabot) |
 | — **Test (Android host)** · **Build (Android)** | host tests; DEV debug APK (downloadable artifact) + PROD release AAB with R8 (unsigned) |
 | — **Test + build (iOS)** | shared tests on the iOS simulator + DEV simulator build (macOS runner) |
-| — **Dependency graph + review** | fails on new vulnerable dependencies or disallowed licenses; comments on the PR only when it fails |
+| — **Dependency graph + review** | fails on new or upgraded dependencies with a known vulnerability (any scope), or — if they ship in an app — a license outside the allowlist ([ci-cd.md → License policy](ci-cd.md#license-policy)); comments on the PR only when it fails |
 | — **CI result** | the single **required** check: green only if every job above succeeded or was skipped |
 | Concurrency | a new push cancels the PR's running CI and starts over |
 | [`deploy-pr.yml`](../.github/workflows/deploy-pr.yml) *(optional)* | add the label **`deploy:dev`** to send the PR's build to DEV testers (Firebase App Distribution + TestFlight); every push redeploys while the label is on. Not for forks or Dependabot. Remove the label when done |

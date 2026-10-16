@@ -3,6 +3,7 @@ package com.studiodraug.refproj.domain.auth
 import app.cash.turbine.test
 import com.studiodraug.refproj.domain.model.AppResult
 import com.studiodraug.refproj.domain.model.DataError
+import com.studiodraug.refproj.domain.tasks.FakeTaskRepository
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -14,6 +15,7 @@ import kotlinx.coroutines.test.runTest
 // UNIT TEST
 class AuthUseCasesTest {
     private val repository = FakeAuthRepository()
+    private val tasks = FakeTaskRepository()
     private val login = LoginUseCase(repository)
 
     @Test
@@ -53,9 +55,19 @@ class AuthUseCasesTest {
                 assertNull(awaitItem())
                 login(USER.email, "secret")
                 assertEquals(USER, awaitItem())
-                LogoutUseCase(repository)()
+                LogoutUseCase(repository, tasks)()
                 assertNull(awaitItem())
             }
+        }
+
+    @Test
+    fun logout_deletesTheUsersTasks() =
+        runTest {
+            login(USER.email, "secret")
+            tasks.add("Private")
+            LogoutUseCase(repository, tasks)()
+            assertTrue(tasks.tasks.value.isEmpty())
+            assertEquals(AuthState.SignedOut, repository.authState.value)
         }
 
     private class FakeAuthRepository : AuthRepository {

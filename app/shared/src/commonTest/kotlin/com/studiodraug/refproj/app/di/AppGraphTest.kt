@@ -22,11 +22,20 @@ import com.studiodraug.refproj.domain.consent.SetAnalyticsConsentUseCase
 import com.studiodraug.refproj.domain.onboarding.CompleteOnboardingUseCase
 import com.studiodraug.refproj.domain.onboarding.ObserveOnboardingCompletedUseCase
 import com.studiodraug.refproj.domain.onboarding.OnboardingRepository
+import com.studiodraug.refproj.domain.tasks.AddTaskUseCase
+import com.studiodraug.refproj.domain.tasks.DeleteTaskUseCase
+import com.studiodraug.refproj.domain.tasks.ObserveTaskSummaryUseCase
+import com.studiodraug.refproj.domain.tasks.ObserveTasksUseCase
+import com.studiodraug.refproj.domain.tasks.SetTaskDoneUseCase
+import com.studiodraug.refproj.domain.tasks.Task
+import com.studiodraug.refproj.domain.tasks.TaskRepository
 import io.ktor.client.HttpClient
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertSame
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import org.koin.dsl.koinApplication
 import org.koin.dsl.module
 
@@ -34,8 +43,9 @@ import org.koin.dsl.module
 
 /**
  * Builds the real Koin graph and resolves the important types, on Android and iOS. Catches a
- * missing binding at test time instead of as a crash on launch. Only the platform storage
- * (SharedPreferences / NSUserDefaults / Keystore) is replaced, since it needs a device.
+ * missing binding at test time instead of as a crash on launch. Only what needs a device is replaced:
+ * platform storage (SharedPreferences / NSUserDefaults / Keystore) and the Room database behind
+ * [TaskRepository] (covered by `TaskRepositoryImplTest`).
  */
 class AppGraphTest {
     private val config = testAppConfig(isDebugBuild = false)
@@ -48,6 +58,7 @@ class AppGraphTest {
                 module {
                     single<ObservableSettings> { MapSettings() }
                     single<SecureStore> { FakeSecureStore() }
+                    single<TaskRepository> { NoTaskRepository }
                 },
             )
         }.koin
@@ -73,10 +84,30 @@ class AppGraphTest {
         koin.get<ConsentRepository>()
         koin.get<ObserveAnalyticsConsentUseCase>()
         koin.get<SetAnalyticsConsentUseCase>()
+        koin.get<ObserveTasksUseCase>()
+        koin.get<ObserveTaskSummaryUseCase>()
+        koin.get<AddTaskUseCase>()
+        koin.get<SetTaskDoneUseCase>()
+        koin.get<DeleteTaskUseCase>()
     }
 
     @Test
     fun startup_appliesTheStoredConsent_soAnalyticsIsOffUntilTheUserOptsIn() {
         assertFalse(analytics.collectionEnabled)
+    }
+
+    private object NoTaskRepository : TaskRepository {
+        override val tasks: Flow<List<Task>> = emptyFlow()
+
+        override suspend fun add(title: String) = Unit
+
+        override suspend fun setDone(
+            id: Long,
+            done: Boolean,
+        ) = Unit
+
+        override suspend fun delete(id: Long) = Unit
+
+        override suspend fun deleteAll() = Unit
     }
 }

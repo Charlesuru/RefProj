@@ -20,6 +20,11 @@ import com.studiodraug.refproj.domain.consent.ObserveAnalyticsConsentUseCase
 import com.studiodraug.refproj.domain.consent.SetAnalyticsConsentUseCase
 import com.studiodraug.refproj.domain.onboarding.CompleteOnboardingUseCase
 import com.studiodraug.refproj.domain.onboarding.ObserveOnboardingCompletedUseCase
+import com.studiodraug.refproj.domain.tasks.AddTaskUseCase
+import com.studiodraug.refproj.domain.tasks.DeleteTaskUseCase
+import com.studiodraug.refproj.domain.tasks.ObserveTaskSummaryUseCase
+import com.studiodraug.refproj.domain.tasks.ObserveTasksUseCase
+import com.studiodraug.refproj.domain.tasks.SetTaskDoneUseCase
 import com.studiodraug.refproj.feature.home.homeModule
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
@@ -70,7 +75,12 @@ internal val domainModule: Module =
         factory { ObserveAuthStateUseCase(get()) }
         factory { ObserveCurrentUserUseCase(get()) }
         factory { LoginUseCase(get()) }
-        factory { LogoutUseCase(get()) }
+        factory { LogoutUseCase(get(), get()) }
         factory { ObserveAnalyticsConsentUseCase(get()) }
         factory { SetAnalyticsConsentUseCase(get()) }
+        factory { ObserveTasksUseCase(get()) }
+        factory { ObserveTaskSummaryUseCase(get()) }
+        factory { AddTaskUseCase(get()) }
+        factory { SetTaskDoneUseCase(get()) }
+        factory { DeleteTaskUseCase(get()) }
     }

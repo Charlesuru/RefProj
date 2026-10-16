@@ -9,6 +9,8 @@ dependencies {
     compileOnly(libs.kotlin.gradlePlugin)
     compileOnly(libs.compose.gradlePlugin)
     compileOnly(libs.compose.compiler.gradlePlugin)
+    compileOnly(libs.ksp.gradlePlugin)
+    compileOnly(libs.room.gradlePlugin)
     implementation(libs.detekt.gradlePlugin)
     implementation(libs.spotless.gradlePlugin)
 }
@@ -26,6 +28,10 @@ gradlePlugin {
         register("kmpFeature") {
             id = "refproj.kmp.feature"
             implementationClass = "KmpFeatureConventionPlugin"
+        }
+        register("kmpRoom") {
+            id = "refproj.kmp.room"
+            implementationClass = "KmpRoomConventionPlugin"
         }
         register("androidApplication") {
             id = "refproj.android.application"

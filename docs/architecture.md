@@ -56,4 +56,5 @@ Both feed an `AppConfig` into shared code at startup. Shared code never chooses 
 | iOS project | XcodeGen (generated, not committed) | 0004 |
 | DI | Koin | 0007 |
 | Storage, network, observability, feature flags | multiplatform-settings, Ktor, Kermit + Firebase (native SDKs), own flag catalogue | 0007 |
+| Local database | Room (KMP) with bundled SQLite, in `data` | 0009 |
 | Lint | ktlint (via Spotless) + Compose rules + detekt | — |

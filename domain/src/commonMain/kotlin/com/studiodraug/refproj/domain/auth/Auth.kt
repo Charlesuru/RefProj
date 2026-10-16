@@ -2,6 +2,7 @@ package com.studiodraug.refproj.domain.auth
 
 import com.studiodraug.refproj.domain.model.AppResult
 import com.studiodraug.refproj.domain.model.DataError
+import com.studiodraug.refproj.domain.tasks.TaskRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -109,8 +110,16 @@ class LoginUseCase(
     }
 }
 
+/**
+ * Signs out and deletes the user's data from the device first, so the next person on a shared
+ * device never sees it.
+ */
 class LogoutUseCase(
-    private val repository: AuthRepository,
+    private val authRepository: AuthRepository,
+    private val taskRepository: TaskRepository,
 ) {
-    suspend operator fun invoke() = repository.logout()
+    suspend operator fun invoke() {
+        taskRepository.deleteAll()
+        authRepository.logout()
+    }
 }

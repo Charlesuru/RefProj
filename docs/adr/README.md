@@ -13,3 +13,4 @@ New ADR: copy `0000-template.md`, take the next number, open a PR. Status: Propo
 | 0006 | CI/CD on GitHub Actions, public repository | Accepted |
 | 0007 | Core infrastructure: DI, navigation, storage, observability, feature flags | Accepted |
 | 0008 | License policy for dependencies | Accepted |
+| 0009 | Local database: Room (KMP) | Accepted |

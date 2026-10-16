@@ -1,6 +1,7 @@
-// Repository implementations of the domain interfaces, backed by core:storage and core:network.
+// Repository implementations of the domain interfaces, backed by core:storage, core:network and Room.
 plugins {
     alias(libs.plugins.refproj.kmp.library)
+    alias(libs.plugins.refproj.kmp.room)
 }
 
 kotlin {

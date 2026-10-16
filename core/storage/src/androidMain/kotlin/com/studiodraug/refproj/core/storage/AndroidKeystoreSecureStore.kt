@@ -4,6 +4,7 @@ import android.content.SharedPreferences
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
+import co.touchlab.kermit.Logger
 import java.security.GeneralSecurityException
 import java.security.KeyStore
 import javax.crypto.Cipher
@@ -25,6 +26,8 @@ internal class AndroidKeystoreSecureStore(
     private val preferences: SharedPreferences,
     private val ioDispatcher: CoroutineDispatcher,
 ) : SecureStore {
+    private val log = Logger.withTag("SecureStore")
+
     override suspend fun get(key: String): String? =
         withContext(ioDispatcher) {
             val stored = preferences.getString(key, null) ?: return@withContext null
@@ -40,7 +43,12 @@ internal class AndroidKeystoreSecureStore(
         key: String,
         value: String,
     ) = withContext(ioDispatcher) {
-        preferences.edit().putString(key, encrypt(key, value)).apply()
+        try {
+            preferences.edit().putString(key, encrypt(key, value)).apply()
+        } catch (e: GeneralSecurityException) {
+            // Keystore unavailable or the key cannot be created: report it, never crash (SecureStore contract).
+            log.e(e) { "Encrypting a value failed" }
+        }
     }
 
     override suspend fun remove(key: String) =

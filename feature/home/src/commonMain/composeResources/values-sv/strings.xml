@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="home_title">RefProj</string>
-    <string name="home_body">AI-accelererad projektsetup och utveckling!</string>
+    <string name="home_title">Hem</string>
+    <string name="home_greeting">Hej, %1$s!</string>
+    <string name="home_summary_title">Dina uppgifter</string>
+    <string name="home_summary_open">Öppna</string>
+    <string name="home_summary_done">Klara</string>
     <string name="home_environment">Miljö: %1$s</string>
     <string name="home_version">Version %1$s</string>
 </resources>

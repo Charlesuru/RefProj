@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tasks_title">Tasks</string>
+    <string name="tasks_new_label">New task</string>
+    <string name="tasks_add">Add</string>
+    <string name="tasks_error_blank">Enter a title</string>
+    <string name="tasks_error_too_long">At most %1$d characters</string>
+    <string name="tasks_empty_title">No tasks yet</string>
+    <string name="tasks_empty_message">Add your first task above.</string>
+    <string name="tasks_delete">Delete %1$s</string>
+</resources>

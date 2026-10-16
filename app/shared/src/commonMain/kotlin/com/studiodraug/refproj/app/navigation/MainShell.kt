@@ -21,6 +21,7 @@ import androidx.navigation3.ui.NavDisplay
 import com.studiodraug.refproj.app.shared.resources.Res
 import com.studiodraug.refproj.app.shared.resources.app_tab_home
 import com.studiodraug.refproj.app.shared.resources.app_tab_profile
+import com.studiodraug.refproj.app.shared.resources.app_tab_tasks
 import com.studiodraug.refproj.core.designsystem.component.RefNavigationBar
 import com.studiodraug.refproj.core.designsystem.component.RefNavigationItem
 import com.studiodraug.refproj.core.designsystem.icon.RefIcons
@@ -84,6 +85,7 @@ private val MainTab.label: StringResource
     get() =
         when (this) {
             MainTab.Home -> Res.string.app_tab_home
+            MainTab.Tasks -> Res.string.app_tab_tasks
             MainTab.Profile -> Res.string.app_tab_profile
         }
 
@@ -91,6 +93,7 @@ private val MainTab.label: StringResource
 private fun MainTab.icon(): ImageVector =
     when (this) {
         MainTab.Home -> RefIcons.Home
+        MainTab.Tasks -> RefIcons.Tasks
         MainTab.Profile -> RefIcons.Person
     }
 

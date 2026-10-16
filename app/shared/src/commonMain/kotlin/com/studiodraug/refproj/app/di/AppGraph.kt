@@ -30,6 +30,7 @@ import com.studiodraug.refproj.feature.home.homeModule
 import com.studiodraug.refproj.feature.login.loginModule
 import com.studiodraug.refproj.feature.onboarding.onboardingModule
 import com.studiodraug.refproj.feature.profile.profileModule
+import com.studiodraug.refproj.feature.tasks.tasksModule
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModelOf
@@ -73,6 +74,7 @@ internal fun appModules(
         onboardingModule,
         loginModule,
         homeModule,
+        tasksModule,
         profileModule,
     )
 

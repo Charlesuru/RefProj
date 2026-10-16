@@ -6,12 +6,14 @@ import androidx.navigation3.runtime.NavKey
 import com.studiodraug.refproj.core.navigation.HomeRoute
 import com.studiodraug.refproj.core.navigation.Navigator
 import com.studiodraug.refproj.core.navigation.ProfileRoute
+import com.studiodraug.refproj.core.navigation.TasksRoute
 
 /** Tabs of the logged-in shell, in display order. [route] is the root of the tab's own back stack. */
 internal enum class MainTab(
     val route: NavKey,
 ) {
     Home(HomeRoute),
+    Tasks(TasksRoute),
     Profile(ProfileRoute),
 }
 

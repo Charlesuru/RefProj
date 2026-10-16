@@ -35,6 +35,7 @@ import com.studiodraug.refproj.feature.home.HomeViewModel
 import com.studiodraug.refproj.feature.login.LoginViewModel
 import com.studiodraug.refproj.feature.onboarding.OnboardingViewModel
 import com.studiodraug.refproj.feature.profile.ProfileViewModel
+import com.studiodraug.refproj.feature.tasks.TasksViewModel
 import io.ktor.client.HttpClient
 import kotlin.test.AfterTest
 import kotlin.test.Test
@@ -104,6 +105,7 @@ class AppGraphTest {
             koin.get<OnboardingViewModel>()
             koin.get<LoginViewModel>()
             koin.get<HomeViewModel>()
+            koin.get<TasksViewModel>()
             koin.get<ProfileViewModel>()
         }
 

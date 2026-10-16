@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tasks_title">Uppgifter</string>
+    <string name="tasks_new_label">Ny uppgift</string>
+    <string name="tasks_add">Lägg till</string>
+    <string name="tasks_error_blank">Ange en titel</string>
+    <string name="tasks_error_too_long">Högst %1$d tecken</string>
+    <string name="tasks_empty_title">Inga uppgifter än</string>
+    <string name="tasks_empty_message">Lägg till din första uppgift ovan.</string>
+    <string name="tasks_delete">Ta bort %1$s</string>
+</resources>

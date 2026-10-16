@@ -110,13 +110,27 @@ latest stable toolchain still resolves a vulnerable library:
 1. **Pin** a fixed version in the `build-tool-security-pins` bundle of `gradle/libs.versions.toml` (advisory listed next
    to the version). It is applied to the build classpath (root `build.gradle.kts`) and to tool classpaths inside the
    modules (`build-logic/.../ToolClasspathPins.kt`). Verify signing, lint and both platform builds afterwards.
-2. Only if a pin is impossible, **accept the risk** in `allow-ghsas` of the dependency-review step in `ci.yml`, with the
+2. Only if a pin is impossible, **accept the risk** in `allow-ghsas` of the *Review vulnerabilities* step in `ci.yml`, with the
    reason and an exit condition in a comment, and list it below.
 3. Re-check pins and exceptions whenever AGP, Kotlin or Gradle is upgraded; drop what is no longer needed.
 
 | Accepted advisory | Where | Why it can't be pinned | Remove when |
 |---|---|---|---|
 | GHSA-r937-wjx7-w2jp (moderate) | Kotlin 2.4.10 embedded in Gradle 9.8.1, used by `build-logic`'s `kotlin-dsl` | Embedded Kotlin is part of Gradle itself | Gradle embeds Kotlin ≥ 2.4.20 |
+
+### License policy
+Every PR that adds or upgrades a dependency **that ships in an app** must use an allowed license — an allowlist of
+permissive licenses in [`.github/license-policy.yml`](../.github/license-policy.yml), checked by the *Review licenses*
+step. Tiers, rationale and the baseline: [ADR 0008](adr/0008-license-policy.md).
+
+- **Ships** = runtime scope in the dependency graph: `:app:android`'s variant runtime classpaths and `:app:shared`'s iOS
+  klibraries (`DEPENDENCY_GRAPH_RUNTIME_*` in `ci.yml`). Build and test tooling is development scope: not
+  license-checked, but still vulnerability-checked (*Review vulnerabilities*, all scopes).
+- **When it fails:** the job log lists the package and its license. Pick another library, or — for weak copyleft such as
+  MPL-2.0 used unmodified — ask the code owner for an exception in `allow-dependencies-licenses` (package URL + reason).
+  GPL, AGPL, SSPL and non-commercial licenses are never excepted.
+- **Not covered:** packages GitHub has no license data for (listed in the log, they do not fail) and Swift packages
+  (not in the graph). Check those by hand in review.
 
 ## Runners
 | Job | Runner |

@@ -164,11 +164,28 @@ jobs:
       - name: Submit Gradle dependency graph
         if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
         uses: gradle/actions/dependency-submission@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
-      - name: Review new dependencies
+        env:
+          # Scope: what ships in the apps is "runtime" (Android variant runtime classpaths, iOS framework klibraries);
+          # everything else — build-logic, Gradle plugins, lint, tests — is "development". Used by the license check.
+          DEPENDENCY_GRAPH_RUNTIME_INCLUDE_PROJECTS: "^:app:(android|shared)$"
+          DEPENDENCY_GRAPH_RUNTIME_INCLUDE_CONFIGURATIONS: "^((dev|sit|stage|prod)(Debug|Release)RuntimeClasspath|ios(Arm64|SimulatorArm64)CompileKlibraries)$"
+      # Licenses first, vulnerabilities second: both steps share one PR comment, so the more important result wins
+      # when both fail. The job log and summary always show both.
+      - name: Review licenses
         if: github.event_name == 'pull_request'
         uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
         with:
+          config-file: ./.github/license-policy.yml
+          retry-on-snapshot-warnings: true
+          comment-summary-in-pr: on-failure
+      - name: Review vulnerabilities
+        if: ${{ !cancelled() && github.event_name == 'pull_request' }}
+        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          license-check: false # .github/license-policy.yml, step above
           fail-on-severity: moderate
+          # Build tooling runs on CI and developer machines, so its vulnerabilities count too.
+          fail-on-scopes: runtime, development, unknown
           retry-on-snapshot-warnings: true
           # Accepted risks — each needs a reason and an exit condition (docs/ci-cd.md#dependency-updates):
           #   GHSA-r937-wjx7-w2jp: kotlin-gradle-plugin 2.4.10 embedded in Gradle 9.8.1 (latest) for build-logic's

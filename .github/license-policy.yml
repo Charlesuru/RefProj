@@ -1,0 +1,46 @@
+# License policy for dependencies that ship in the apps — read by the "Review licenses" step in ci.yml
+# (actions/dependency-review-action). Decision and rationale: docs/adr/0008-license-policy.md.
+#
+# Allowlist, not denylist: anything not listed here fails the pull request until someone decides.
+# "Ships" = runtime scope: resolved in :app:android's variant runtime classpaths or :app:shared's iOS klibraries
+# (DEPENDENCY_GRAPH_RUNTIME_* in ci.yml). Build and test tooling is development scope and is not checked here.
+#
+# Changing this file needs the code owner's review (.github/ is owned in CODEOWNERS).
+
+license-check: true
+vulnerability-check: false # the "Review vulnerabilities" step covers all scopes
+fail-on-scopes:
+  - runtime
+
+# Permissive licenses: attribution only, no source disclosure, compatible with App Store and Play distribution.
+# SPDX identifiers only (https://spdx.org/licenses/). An expression like "MIT OR GPL-2.0-only" passes when one
+# side is allowed; "MIT AND MPL-2.0" needs both.
+allow-licenses:
+  - Apache-2.0
+  - Apache-1.1
+  - MIT
+  - MIT-0
+  - BSD-2-Clause
+  - BSD-3-Clause
+  - ISC
+  - 0BSD
+  - Zlib
+  - BSL-1.0
+  - Unicode-3.0
+  - Unicode-DFS-2016
+  - CC0-1.0
+  - Unlicense
+
+# Per-package exceptions (purl without version = every version). Each needs a reason; remove it when the reason is gone.
+allow-dependencies-licenses:
+  # Ruby gems: fastlane and its plugins run on developer machines and CI only, never in an app. GitHub reports every
+  # gem in Gemfile.lock as runtime scope, so these tooling-only licenses (Ruby, MPL-2.0, SL, a CLA notice) need an
+  # exception. Other gems are dual-licensed with BSD-2-Clause or MIT and pass the allowlist.
+  - pkg:gem/json
+  - pkg:gem/reline
+  - pkg:gem/highline
+  - pkg:gem/rdoc
+  - pkg:gem/public_suffix
+  - pkg:gem/domain_name
+  - pkg:gem/fastlane-sirp
+  - pkg:gem/nkf

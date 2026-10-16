@@ -134,3 +134,5 @@ Owner decision: certificates repo `Charlesuru/refproj-certificates` (private) â€
 - One Firebase project for all environments (ADR 0007); revisit if PROD needs separate access control.
 - detekt 1.23.x with Kotlin-compiler pinning; move to detekt 2.x when stable.
 - Confirm the Dependabot bundler job is green after the Gemfile fix (next weekly run).
+- License policy (ADR 0008): owner to decide on a build-time license plugin (e.g. `app.cash.licensee`) that also
+  covers dependencies without GitHub license data; an open-source notices screen is still to be built (step 6 or later).

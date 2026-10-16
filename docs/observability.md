@@ -60,8 +60,9 @@ Collection is **off by default** in `AndroidManifest.xml` / `Info.plist`, so not
   `iosApp/Package.resolved`, commit both. CI builds only with the committed lockfile (`-disableAutomaticPackageResolution`).
 
 ## Known log messages
-- `SecItemCopyMatching (-34018)` in **unsigned** simulator builds (`fastlane ios build`): no keychain entitlement
-  without code signing, so Firebase Installations (and `SecureStore`) cannot use the Keychain. Signed builds and
-  runs from Xcode ("Sign to Run Locally") are not affected.
+- `SecItemCopyMatching (-34018)` in **unsigned** builds: no keychain without a code signature, so Firebase
+  Installations and `SecureStore` cannot use the Keychain. Since step 5, `fastlane ios build` signs ad hoc ("Sign to
+  Run Locally", no certificate needed), like Xcode does, so this no longer appears. If it does, `SecureStore` logs
+  the error and carries on (reads return `null`) instead of crashing.
 - Crashlytics `std::get_terminate is … kotlinHandler`: Kotlin/Native installs its own terminate handler. Uncaught
   Kotlin exceptions are still reported (`installUnhandledExceptionReporting` + the resulting crash signal).

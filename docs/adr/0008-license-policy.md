@@ -15,9 +15,12 @@ Most dependencies are build and test tooling (Kotlin compiler, AGP, Spotless, JU
 distributed. Its licenses do not create distribution obligations, and some of it is weak copyleft (EPL-2.0, LGPL-2.1,
 MPL). Until now GitHub reported every Gradle dependency as runtime scope, so tooling and app could not be told apart.
 
-Baseline on 2026-10-16 (497 Maven packages in the Android variants and iOS klibraries): 237 Apache-2.0, 1 MIT,
-1 Apache-1.1 AND Apache-2.0, 257 without license data in GitHub (mostly AndroidX, Firebase, Play services). No copyleft.
-The iOS Firebase SDK (Swift Package Manager) is Apache-2.0 and is not in GitHub's dependency graph.
+Baseline on 2026-10-16: 496 Maven packages ship (Android variants and iOS klibraries). Switching on the scopes made
+every one of them a "change", so the first run of the check reviewed all of them. Result: no copyleft; everything is
+permissive except **12 Google closed-source SDKs** pulled in by Firebase Analytics (`play-services-*`,
+`firebase-analytics`, `firebase-measurement-connector`, under the Android SDK License / Google APIs Terms), and about
+110 packages without license data in GitHub (mostly AndroidX/JetBrains lifecycle, Compose, Koin, Kermit — all Apache-2.0
+upstream). The iOS Firebase SDK (Swift Package Manager) is not in GitHub's dependency graph.
 
 ## Decision
 - **Allowlist, not denylist** — the common enterprise model ("default deny"): permissive licenses are allowed,
@@ -33,16 +36,18 @@ The iOS Firebase SDK (Swift Package Manager) is Apache-2.0 and is not in GitHub'
 | Allowed | Apache-2.0, Apache-1.1, MIT, MIT-0, BSD-2-Clause, BSD-3-Clause, ISC, 0BSD, Zlib, BSL-1.0, Unicode-3.0, Unicode-DFS-2016, CC0-1.0, Unlicense | in the allowlist |
 | Needs approval | Weak copyleft: MPL-2.0, EPL-1.0/2.0, LGPL-2.1/3.0, CDDL; anything non-standard (`LicenseRef-*`, `OTHER`) | fails; the owner may add a per-package exception with a reason (e.g. MPL-2.0 used unmodified) |
 | Not allowed | Strong and network copyleft: GPL-2.0/3.0, AGPL-3.0, SSPL; non-commercial or source-available: CC-BY-NC-*, BUSL-1.1, Commons Clause | fails; find another library |
+| Vendor (proprietary) | Closed-source SDKs licensed for redistribution in apps (Google Play services, Firebase) | per-package exception, tied to the decision that adopted the vendor |
 
-Exceptions go in `allow-dependencies-licenses` (package URL without version), each with a comment. Tooling that GitHub
-reports as runtime (all Ruby gems, because `Gemfile.lock` has no scopes) is exempted per gem.
+Exceptions go in `allow-dependencies-licenses` (package URL without version), each with a comment. Current ones: the
+12 Google SDKs above (accepted with Firebase, ADR 0007), and tooling that GitHub reports as runtime (all Ruby gems,
+because `Gemfile.lock` has no scopes), exempted per gem.
 
 ## Alternatives considered
 - **Denylist (`deny-licenses`):** fewer failures, but new or unusual licenses pass unnoticed; deprecated upstream.
 - **One policy for all scopes:** would either block normal tooling (EPL JUnit, LGPL trove4j in the Kotlin compiler) or
   force copyleft into the allowlist, weakening the app policy.
 - **A Gradle license plugin (e.g. Cash App's `licensee`)** that reads POM licenses at build time: covers all shipped
-  dependencies, not only changed ones, and the 257 packages GitHub has no data for. Adds a dependency; proposed as a
+  dependencies, not only changed ones, and the packages GitHub has no license data for. Adds a dependency; proposed as a
   follow-up for the owner to decide.
 
 ## Consequences

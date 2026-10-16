@@ -33,6 +33,23 @@ allow-licenses:
 
 # Per-package exceptions (purl without version = every version). Each needs a reason; remove it when the reason is gone.
 allow-dependencies-licenses:
+  # Google's closed-source SDKs behind Firebase Analytics: Android Software Development Kit License / Google APIs
+  # Terms of Service (reported as LicenseRef-scancode-android-sdk-2021, LicenseRef-github-OTHER or -NOASSERTION).
+  # Proprietary but licensed for distribution inside apps; accepted with the Firebase decision (ADR 0007).
+  # Remove an entry when Firebase stops pulling the package in.
+  - pkg:maven/com.google.android.gms/play-services-base
+  - pkg:maven/com.google.android.gms/play-services-basement
+  - pkg:maven/com.google.android.gms/play-services-measurement
+  - pkg:maven/com.google.android.gms/play-services-measurement-api
+  - pkg:maven/com.google.android.gms/play-services-measurement-base
+  - pkg:maven/com.google.android.gms/play-services-measurement-impl
+  - pkg:maven/com.google.android.gms/play-services-measurement-sdk
+  - pkg:maven/com.google.android.gms/play-services-measurement-sdk-api
+  - pkg:maven/com.google.android.gms/play-services-stats
+  - pkg:maven/com.google.android.gms/play-services-tasks
+  - pkg:maven/com.google.firebase/firebase-analytics
+  - pkg:maven/com.google.firebase/firebase-measurement-connector
+
   # Ruby gems: fastlane and its plugins run on developer machines and CI only, never in an app. GitHub reports every
   # gem in Gemfile.lock as runtime scope, so these tooling-only licenses (Ruby, MPL-2.0, SL, a CLA notice) need an
   # exception. Other gems are dual-licensed with BSD-2-Clause or MIT and pass the allowlist.

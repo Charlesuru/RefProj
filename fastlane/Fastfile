@@ -6,7 +6,7 @@
 #   bundle exec fastlane android build env:dev              # debug APK
 #   bundle exec fastlane android build env:sit type:release # signed if the upload key is configured
 #   bundle exec fastlane android beta env:sit               # -> Firebase App Distribution
-#   bundle exec fastlane ios build env:dev                  # simulator build, no signing
+#   bundle exec fastlane ios build env:dev                  # simulator build, signed to run locally (no certificate)
 #   bundle exec fastlane ios beta env:stage                 # -> TestFlight
 #
 # Environments: dev, sit, stage, prod. STAGE and PROD uploads require a release tag (vX.Y.Z) on HEAD.
@@ -278,7 +278,7 @@ platform :ios do
     )
   end
 
-  desc "Build for the simulator without signing. Options: env:<dev|sit|stage|prod>"
+  desc "Build for the simulator, ad-hoc signed (no certificate or team needed). Options: env:<dev|sit|stage|prod>"
   lane :build do |options|
     env = environment!(options)
     generate
@@ -290,7 +290,12 @@ platform :ios do
       "-destination", "generic/platform=iOS Simulator",
       "-derivedDataPath", File.join(ROOT, "build/ios/DerivedData"),
       "-disableAutomaticPackageResolution", # Swift packages exactly as in iosApp/Package.resolved
-      "CODE_SIGNING_ALLOWED=NO",
+      # "Sign to Run Locally": an ad-hoc signature needs no certificate, profile or team, but gives the app
+      # a keychain (an unsigned build fails every Keychain call with -34018, so SecureStore cannot work).
+      "CODE_SIGN_IDENTITY=-",
+      "CODE_SIGN_STYLE=Manual",
+      "DEVELOPMENT_TEAM=",
+      "PROVISIONING_PROFILE_SPECIFIER=",
       "MARKETING_VERSION=#{version_name}",
       "CURRENT_PROJECT_VERSION=#{build_number}",
     )

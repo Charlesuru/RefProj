@@ -47,9 +47,9 @@ private fun RefNavigationBarPreview() {
         RefNavigationBar(
             items =
                 listOf(
-                    RefNavigationItem("Home", RefIcons.Empty),
-                    RefNavigationItem("Tasks", RefIcons.ChevronRight),
-                    RefNavigationItem("Profile", RefIcons.Error),
+                    RefNavigationItem("Home", RefIcons.Home),
+                    RefNavigationItem("Tasks", RefIcons.Tasks),
+                    RefNavigationItem("Profile", RefIcons.Person),
                 ),
             selectedIndex = 0,
             onSelect = {},

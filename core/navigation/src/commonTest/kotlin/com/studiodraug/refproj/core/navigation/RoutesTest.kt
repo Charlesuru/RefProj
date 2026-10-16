@@ -14,7 +14,7 @@ class RoutesTest {
     private val serializer = PolymorphicSerializer(NavKey::class)
 
     // Add every new route here as well.
-    private val allRoutes: List<NavKey> = listOf(HomeRoute)
+    private val allRoutes: List<NavKey> = listOf(OnboardingRoute, LoginRoute, MainRoute, HomeRoute, TasksRoute, ProfileRoute)
 
     @Test
     fun everyRoute_roundTripsThroughTheRegisteredSerializers() {

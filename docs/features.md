@@ -3,6 +3,23 @@
 What the app does (step 5, ticket REF-5): a small personal task tracker. The app flow is secondary —
 it exists to show the architecture end to end.
 
+## App flow
+```
+start ──► onboarding done? ──no──► Onboarding (3 pages; the last asks for analytics consent)
+              │yes
+              ▼
+         session? ──no──► Login ──success──┐
+              │yes                         ▼
+              └──────────────────────► Tab shell: Home · Tasks · Profile
+                                         Profile ► Log out ──► Login
+```
+| Piece | Where |
+|---|---|
+| `AppViewModel`: picks `OnboardingRoute` / `LoginRoute` / `MainRoute` from onboarding + `AuthState`. Screens never navigate after login, logout or onboarding — the state changes and the root follows | `app:shared` |
+| `MainShell` + `MainTabsState`: tab bar, one back stack per tab; back returns to Home, then leaves the app; re-selecting a tab pops it to its root | `app:shared/navigation` |
+| Screen views: the route type (`home`, `tasks`, …) is logged for every top screen, never arguments | `app:shared/navigation/ScreenNames.kt` |
+| Features | `feature:onboarding`, `feature:login`, `feature:home`, `feature:tasks`, `feature:profile` |
+
 ## Session and authentication
 | Piece | Where |
 |---|---|

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="onboarding_skip">Hoppa över</string>
+    <string name="onboarding_next">Nästa</string>
+    <string name="onboarding_get_started">Kom igång</string>
+    <string name="onboarding_tasks_title">Håll koll på dina uppgifter</string>
+    <string name="onboarding_tasks_body">Skriv upp det som ska göras och bocka av det när det är klart.</string>
+    <string name="onboarding_private_title">Dina uppgifter stannar på enheten</string>
+    <string name="onboarding_private_body">Uppgifterna sparas bara på den här enheten och raderas när du loggar ut.</string>
+    <string name="onboarding_consent_title">Hjälp oss att bli bättre</string>
+    <string name="onboarding_consent_body">Dela användningsstatistik så att vi ser vilka funktioner som används. Den innehåller aldrig ditt namn eller din e-postadress. Du kan ändra valet när som helst i din profil.</string>
+    <string name="onboarding_consent_switch">Dela användningsstatistik</string>
+</resources>

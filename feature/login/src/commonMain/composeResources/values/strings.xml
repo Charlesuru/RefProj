@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="login_title">Log in</string>
+    <string name="login_subtitle">Log in to see your tasks.</string>
+    <string name="login_email">E-mail</string>
+    <string name="login_password">Password</string>
+    <string name="login_submit">Log in</string>
+    <string name="login_error_email_blank">Enter your e-mail address</string>
+    <string name="login_error_email_invalid">Enter a valid e-mail address</string>
+    <string name="login_error_password_blank">Enter your password</string>
+    <string name="login_error_credentials">Wrong e-mail or password.</string>
+    <string name="login_error_network">No connection. Check your network and try again.</string>
+    <string name="login_error_unknown">Could not log in right now. Try again later.</string>
+</resources>

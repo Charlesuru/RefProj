@@ -53,3 +53,6 @@ include(":data")
 
 // --- Features ---
 include(":feature:home")
+include(":feature:login")
+include(":feature:onboarding")
+include(":feature:profile")

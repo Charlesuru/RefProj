@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="profile_title">Profil</string>
+    <string name="profile_analytics">Dela användningsstatistik</string>
+    <string name="profile_analytics_subtitle">Innehåller aldrig ditt namn eller din e-postadress</string>
+    <string name="profile_version">Version</string>
+    <string name="profile_logout">Logga ut</string>
+    <string name="profile_logout_title">Logga ut?</string>
+    <string name="profile_logout_message">Dina uppgifter raderas från den här enheten.</string>
+</resources>

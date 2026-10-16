@@ -40,6 +40,10 @@ data class RefSizes(
     val divider: Dp = 1.dp,
     /** Content is centred and capped at this width on tablets and in landscape. */
     val contentMaxWidth: Dp = 600.dp,
+    /** Large decorative icon, e.g. on onboarding pages. */
+    val illustration: Dp = 96.dp,
+    /** One dot of a pager indicator. */
+    val pagerIndicatorDot: Dp = 8.dp,
 )
 
 /** Elevation tokens (tonal elevation in Material 3). */

@@ -10,7 +10,7 @@ or Material components that have a `Ref*` counterpart (`CLAUDE.md` §2).
 | Extended colours | `RefTheme.colors` | `success`, `warning` (+ `on…`, `…Container`) |
 | Typography | `theme/Typography.kt` → `MaterialTheme.typography` | Material 3 type scale on the system font |
 | Spacing | `RefTheme.spacing` | 4 dp grid: `xxs` 2 · `xs` 4 · `sm` 8 · `md` 12 · `lg` 16 · `xl` 24 · `xxl` 32 · `xxxl` 48 |
-| Sizes | `RefTheme.sizes` | Icons, touch target (48), button height, max content width (600) |
+| Sizes | `RefTheme.sizes` | Icons, touch target (48), button height, max content width (600), illustration (96), pager dot (8) |
 | Shapes | `MaterialTheme.shapes` | 4 / 8 / 12 / 16 / 28 dp corner radii |
 | Elevation | `RefTheme.elevation` | `none`, `low`, `medium`, `high` |
 
@@ -24,8 +24,9 @@ background, in both schemes. A palette change that breaks contrast fails the bui
 | `RefTextField` | Types `Text`, `Email`, `Password`, `Number`; `error` replaces the supporting text |
 | `RefCard` | Optional `onClick` |
 | `RefTopAppBar` | Back button when `onBack` is set |
-| `RefListItem`, `RefSwitchListItem`, `RefDivider` | Whole row is the touch target |
+| `RefListItem`, `RefSwitchListItem`, `RefCheckboxListItem`, `RefDivider` | Whole row is the touch target; a checked checkbox row is struck through |
 | `RefNavigationBar` | Bottom tabs for the logged-in shell |
+| `RefPagerIndicator` | Dots under a pager, announced as "Page X of Y" |
 | `RefLoadingState`, `RefErrorState`, `RefEmptyState` | Full-screen states; every screen uses these |
 | `RefConfirmDialog` | `destructive = true` for irreversible actions |
 | `RefSurface`, `RefContentWidth` | Screen background; centred content with a max width |

@@ -9,8 +9,28 @@ import kotlinx.serialization.modules.polymorphic
 // One key per destination. Keys are the only way features refer to each other's screens.
 // Arguments are constructor properties: `data class TaskDetailRoute(val taskId: String) : NavKey`.
 
+// --- Top level: exactly one of these is on the root back stack, chosen by the app's state ---
+
+@Serializable
+data object OnboardingRoute : NavKey
+
+@Serializable
+data object LoginRoute : NavKey
+
+/** The logged-in shell with the tab bar. Owned by `app:shared`. */
+@Serializable
+data object MainRoute : NavKey
+
+// --- Tabs of the logged-in shell: the root of each tab's own back stack ---
+
 @Serializable
 data object HomeRoute : NavKey
+
+@Serializable
+data object TasksRoute : NavKey
+
+@Serializable
+data object ProfileRoute : NavKey
 
 /**
  * Lets Navigation 3 save and restore the back stack (process death on Android, state restoration
@@ -22,7 +42,12 @@ val NavSavedStateConfiguration: SavedStateConfiguration =
         serializersModule =
             SerializersModule {
                 polymorphic(NavKey::class) {
+                    subclass(OnboardingRoute::class, OnboardingRoute.serializer())
+                    subclass(LoginRoute::class, LoginRoute.serializer())
+                    subclass(MainRoute::class, MainRoute.serializer())
                     subclass(HomeRoute::class, HomeRoute.serializer())
+                    subclass(TasksRoute::class, TasksRoute.serializer())
+                    subclass(ProfileRoute::class, ProfileRoute.serializer())
                 }
             }
     }

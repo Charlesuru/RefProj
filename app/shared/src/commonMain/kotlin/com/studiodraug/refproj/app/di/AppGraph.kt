@@ -1,5 +1,6 @@
 package com.studiodraug.refproj.app.di
 
+import com.studiodraug.refproj.app.AppViewModel
 import com.studiodraug.refproj.core.config.AppConfig
 import com.studiodraug.refproj.core.featureflags.featureFlagsModule
 import com.studiodraug.refproj.core.network.networkModule
@@ -26,8 +27,12 @@ import com.studiodraug.refproj.domain.tasks.ObserveTaskSummaryUseCase
 import com.studiodraug.refproj.domain.tasks.ObserveTasksUseCase
 import com.studiodraug.refproj.domain.tasks.SetTaskDoneUseCase
 import com.studiodraug.refproj.feature.home.homeModule
+import com.studiodraug.refproj.feature.login.loginModule
+import com.studiodraug.refproj.feature.onboarding.onboardingModule
+import com.studiodraug.refproj.feature.profile.profileModule
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
 
@@ -63,9 +68,19 @@ internal fun appModules(
         featureFlagsModule,
         dataModule,
         domainModule,
+        appModule,
         // Features
+        onboardingModule,
+        loginModule,
         homeModule,
+        profileModule,
     )
+
+/** The root of the UI. */
+internal val appModule: Module =
+    module {
+        viewModelOf(::AppViewModel)
+    }
 
 /** Use cases are stateless: a new instance per injection. */
 internal val domainModule: Module =

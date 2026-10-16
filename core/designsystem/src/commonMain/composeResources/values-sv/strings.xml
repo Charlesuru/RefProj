@@ -6,4 +6,5 @@
     <string name="designsystem_error_title">Något gick fel</string>
     <string name="designsystem_confirm">OK</string>
     <string name="designsystem_cancel">Avbryt</string>
+    <string name="designsystem_page_of">Sida %1$d av %2$d</string>
 </resources>

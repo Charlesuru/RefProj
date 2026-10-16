@@ -2,6 +2,7 @@ package com.studiodraug.refproj.app.di
 
 import com.russhwolf.settings.MapSettings
 import com.russhwolf.settings.ObservableSettings
+import com.studiodraug.refproj.app.AppViewModel
 import com.studiodraug.refproj.core.config.AppConfig
 import com.studiodraug.refproj.core.featureflags.FeatureFlagOverrides
 import com.studiodraug.refproj.core.featureflags.FeatureFlags
@@ -10,6 +11,7 @@ import com.studiodraug.refproj.core.storage.SecureStore
 import com.studiodraug.refproj.core.testing.FakeAnalyticsTracker
 import com.studiodraug.refproj.core.testing.FakeCrashReporter
 import com.studiodraug.refproj.core.testing.FakeSecureStore
+import com.studiodraug.refproj.core.testing.runViewModelTest
 import com.studiodraug.refproj.core.testing.testAppConfig
 import com.studiodraug.refproj.domain.auth.AuthRepository
 import com.studiodraug.refproj.domain.auth.LoginUseCase
@@ -29,6 +31,10 @@ import com.studiodraug.refproj.domain.tasks.ObserveTasksUseCase
 import com.studiodraug.refproj.domain.tasks.SetTaskDoneUseCase
 import com.studiodraug.refproj.domain.tasks.Task
 import com.studiodraug.refproj.domain.tasks.TaskRepository
+import com.studiodraug.refproj.feature.home.HomeViewModel
+import com.studiodraug.refproj.feature.login.LoginViewModel
+import com.studiodraug.refproj.feature.onboarding.OnboardingViewModel
+import com.studiodraug.refproj.feature.profile.ProfileViewModel
 import io.ktor.client.HttpClient
 import kotlin.test.AfterTest
 import kotlin.test.Test
@@ -90,6 +96,16 @@ class AppGraphTest {
         koin.get<SetTaskDoneUseCase>()
         koin.get<DeleteTaskUseCase>()
     }
+
+    @Test
+    fun graph_createsEveryViewModel() =
+        runViewModelTest {
+            koin.get<AppViewModel>()
+            koin.get<OnboardingViewModel>()
+            koin.get<LoginViewModel>()
+            koin.get<HomeViewModel>()
+            koin.get<ProfileViewModel>()
+        }
 
     @Test
     fun startup_appliesTheStoredConsent_soAnalyticsIsOffUntilTheUserOptsIn() {

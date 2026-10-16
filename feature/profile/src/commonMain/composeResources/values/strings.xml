@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="profile_title">Profile</string>
+    <string name="profile_analytics">Share usage statistics</string>
+    <string name="profile_analytics_subtitle">Never contains your name or e-mail address</string>
+    <string name="profile_version">Version</string>
+    <string name="profile_logout">Log out</string>
+    <string name="profile_logout_title">Log out?</string>
+    <string name="profile_logout_message">Your tasks will be deleted from this device.</string>
+</resources>

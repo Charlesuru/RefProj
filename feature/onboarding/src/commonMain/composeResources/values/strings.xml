@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_get_started">Get started</string>
+    <string name="onboarding_tasks_title">Keep track of your tasks</string>
+    <string name="onboarding_tasks_body">Write down what needs doing and tick it off when it is done.</string>
+    <string name="onboarding_private_title">Your tasks stay on your device</string>
+    <string name="onboarding_private_body">Tasks are stored only on this device and deleted when you log out.</string>
+    <string name="onboarding_consent_title">Help us improve</string>
+    <string name="onboarding_consent_body">Share usage statistics so we can see which features are used. They never contain your name or e-mail address. You can change this at any time in your profile.</string>
+    <string name="onboarding_consent_switch">Share usage statistics</string>
+</resources>

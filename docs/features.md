@@ -31,3 +31,12 @@ Analytics is **opt-in**: off until the user turns it on. See [observability.md](
 | `ConsentRepository`, `ObserveAnalyticsConsentUseCase`, `SetAnalyticsConsentUseCase` | `domain/consent` |
 | `ConsentRepositoryImpl`: choice in `KeyValueStore`, applied to analytics at startup and on change | `data/consent` |
 | `RestrictedAnalyticsTracker`: never collects in debug builds | `core:observability` |
+
+## Tasks
+| Piece | Where |
+|---|---|
+| `Task`, `TaskSummary`, `TaskRepository`, add (trim, 1–200 characters) / complete / delete use cases | `domain/tasks` |
+| `TaskRepositoryImpl` over Room (`TaskDao`, `RefProjDatabase`); open tasks first, newest first | `data/tasks`, `data/database` |
+
+Tasks are stored on the device only. `LogoutUseCase` deletes them before signing out, so the next person on a shared
+device never sees them. Database decision and migration rules: [ADR 0009](adr/0009-local-database-room.md).

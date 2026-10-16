@@ -15,8 +15,9 @@
         android:supportsRtl="true"
         android:theme="@android:style/Theme.Material.Light.NoActionBar">
 
-        <!-- Firebase collects nothing until the app enables it at startup (release builds only,
-             FirebaseObservability). No advertising: ad storage and personalisation are denied. -->
+        <!-- Firebase collects nothing until the app enables it: Crashlytics at startup in release builds
+             (FirebaseObservability), Analytics only with the user's consent (opt-in, release builds).
+             No advertising: ad storage and personalisation are denied. -->
         <meta-data android:name="firebase_crashlytics_collection_enabled" android:value="false" />
         <meta-data android:name="firebase_analytics_collection_enabled" android:value="false" />
         <meta-data android:name="google_analytics_adid_collection_enabled" android:value="false" />

@@ -78,7 +78,8 @@ targets:
         CADisableMinimumFrameDurationOnPhone: true
         ITSAppUsesNonExemptEncryption: false
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
-        # Firebase collects nothing until FirebaseObservability.swift enables it (release builds only).
+        # Firebase collects nothing until the app enables it: Crashlytics in release builds (FirebaseObservability.swift),
+        # Analytics only with the user's consent (opt-in, release builds).
         # No advertising: ad storage, ad user data and personalisation are denied; no IDFA (AdSupport not linked).
         FirebaseCrashlyticsCollectionEnabled: false
         FIREBASE_ANALYTICS_COLLECTION_ENABLED: false

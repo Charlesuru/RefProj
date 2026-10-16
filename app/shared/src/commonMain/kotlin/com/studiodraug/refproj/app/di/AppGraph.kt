@@ -8,9 +8,16 @@ import com.studiodraug.refproj.core.observability.CrashReporter
 import com.studiodraug.refproj.core.observability.Logging
 import com.studiodraug.refproj.core.observability.NoOpAnalyticsTracker
 import com.studiodraug.refproj.core.observability.NoOpCrashReporter
+import com.studiodraug.refproj.core.observability.RestrictedAnalyticsTracker
 import com.studiodraug.refproj.core.observability.observabilityModule
 import com.studiodraug.refproj.core.storage.storageModule
 import com.studiodraug.refproj.data.dataModule
+import com.studiodraug.refproj.domain.auth.LoginUseCase
+import com.studiodraug.refproj.domain.auth.LogoutUseCase
+import com.studiodraug.refproj.domain.auth.ObserveAuthStateUseCase
+import com.studiodraug.refproj.domain.auth.ObserveCurrentUserUseCase
+import com.studiodraug.refproj.domain.consent.ObserveAnalyticsConsentUseCase
+import com.studiodraug.refproj.domain.consent.SetAnalyticsConsentUseCase
 import com.studiodraug.refproj.domain.onboarding.CompleteOnboardingUseCase
 import com.studiodraug.refproj.domain.onboarding.ObserveOnboardingCompletedUseCase
 import com.studiodraug.refproj.feature.home.homeModule
@@ -44,7 +51,8 @@ internal fun appModules(
 ): List<Module> =
     listOf(
         module { single { config } },
-        observabilityModule(crashReporter, analyticsTracker),
+        // Analytics collects only with the user's consent, and never in debug builds.
+        observabilityModule(crashReporter, RestrictedAnalyticsTracker(analyticsTracker, collectionAllowed = !config.isDebugBuild)),
         storageModule,
         networkModule,
         featureFlagsModule,
@@ -59,4 +67,10 @@ internal val domainModule: Module =
     module {
         factory { ObserveOnboardingCompletedUseCase(get()) }
         factory { CompleteOnboardingUseCase(get()) }
+        factory { ObserveAuthStateUseCase(get()) }
+        factory { ObserveCurrentUserUseCase(get()) }
+        factory { LoginUseCase(get()) }
+        factory { LogoutUseCase(get()) }
+        factory { ObserveAnalyticsConsentUseCase(get()) }
+        factory { SetAnalyticsConsentUseCase(get()) }
     }

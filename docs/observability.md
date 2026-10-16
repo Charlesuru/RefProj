@@ -41,13 +41,16 @@ flowchart LR
 ## When data is collected
 | Build | Crashlytics | Analytics |
 |---|---|---|
-| Debug (any environment) | off | off |
-| Release, DEV/SIT/STAGE | on | on |
-| Release, PROD | on | on (consent prompt: open item for the onboarding feature) |
+| Debug (any environment) | off | off (even with consent) |
+| Release, any environment | on | **only with the user's consent** (opt-in) |
 | No Firebase config (PR checks, forks) | not initialised (no-op) | not initialised (no-op) |
 
-Collection is **off by default** in `AndroidManifest.xml` / `Info.plist` and switched on at startup by
-`FirebaseObservability` (Kotlin on Android, Swift on iOS), so nothing is sent before the app decides.
+Collection is **off by default** in `AndroidManifest.xml` / `Info.plist`, so nothing is sent before the app decides:
+- **Crashlytics** is switched on at startup by `FirebaseObservability` (Kotlin on Android, Swift on iOS) in release builds.
+- **Analytics** is opt-in (GDPR). The user chooses on the last onboarding page and can change it in Profile.
+  `ConsentRepositoryImpl` stores the choice and applies it at startup (Koin `createdAtStart`) and on every change;
+  `RestrictedAnalyticsTracker` (wired in `AppGraph`) keeps it off in debug builds whatever the choice. Re-applying
+  at every start also overrides a value the Firebase SDK persisted from an older build.
 
 ## Versions
 - Android: `firebase-bom`, `firebase-crashlytics-gradle`, `google-services` in `gradle/libs.versions.toml` (Dependabot).

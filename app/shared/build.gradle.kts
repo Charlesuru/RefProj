@@ -35,6 +35,7 @@ kotlin {
             implementation(projects.feature.login)
             implementation(projects.feature.onboarding)
             implementation(projects.feature.profile)
+            implementation(projects.feature.tasks)
             implementation(project.dependencies.platform(libs.koin.bom))
             implementation(libs.koin.core)
             implementation(libs.koin.compose)

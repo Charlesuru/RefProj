@@ -5,6 +5,7 @@ import androidx.navigation3.runtime.NavKey
 import com.studiodraug.refproj.core.navigation.HomeRoute
 import com.studiodraug.refproj.core.navigation.LoginRoute
 import com.studiodraug.refproj.core.navigation.ProfileRoute
+import com.studiodraug.refproj.core.navigation.TasksRoute
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -70,8 +71,16 @@ class MainTabsStateTest {
     }
 
     @Test
+    fun switchingBetweenNonStartTabs_keepsHomeUnderneath() {
+        tabs.select(MainTab.Tasks)
+        tabs.select(MainTab.Profile)
+        assertEquals(listOf(HomeRoute, ProfileRoute), tabs.backStack)
+    }
+
+    @Test
     fun screenNames_areTheRouteTypeWithoutSuffix() {
         assertEquals("home", screenName(HomeRoute))
+        assertEquals("tasks", screenName(TasksRoute))
         assertEquals("profile", screenName(ProfileRoute))
     }
 }

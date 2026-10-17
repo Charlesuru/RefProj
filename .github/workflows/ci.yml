@@ -20,6 +20,31 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # Docs-only pull requests skip the build, test and dependency jobs (scripts/ci/changes.sh has the allowlist).
+  # Pushes to main and manual runs always run everything.
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      code: ${{ steps.detect.outputs.code }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: github.event_name == 'pull_request'
+        with:
+          fetch-depth: 0 # the diff needs the merge base
+          persist-credentials: false
+      - id: detect
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == pull_request ]]; then
+            scripts/ci/changes.sh "$BASE_SHA" "$HEAD_SHA"
+          else
+            echo "code=true" >> "$GITHUB_OUTPUT"
+          fi
+
   secret-scan:
     name: Secret scan (gitleaks)
     runs-on: ubuntu-24.04
@@ -79,6 +104,8 @@ jobs:
 
   test-android:
     name: Test (Android host)
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -98,6 +125,8 @@ jobs:
 
   build-android:
     name: Build (Android)
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -121,6 +150,8 @@ jobs:
 
   ios:
     name: Test + build (iOS)
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     # Always GitHub-hosted: pull request code must never run on a self-hosted runner (docs/ci-cd.md).
     runs-on: macos-26
     timeout-minutes: 60
@@ -146,6 +177,8 @@ jobs:
 
   dependencies:
     name: Dependency graph + review
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     permissions:
@@ -196,7 +229,7 @@ jobs:
   result:
     name: CI result
     if: always()
-    needs: [secret-scan, workflow-lint, lint, test-android, build-android, ios, dependencies]
+    needs: [changes, secret-scan, workflow-lint, lint, test-android, build-android, ios, dependencies]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:

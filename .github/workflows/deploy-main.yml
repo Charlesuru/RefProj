@@ -6,7 +6,7 @@ name: Deploy DEV
 on:
   push:
     branches: [main]
-    paths-ignore:
+    paths-ignore: # keep in sync with the allowlist in scripts/ci/changes.sh
       - "**.md"
       - "docs/**"
       - ".github/ISSUE_TEMPLATE/**"

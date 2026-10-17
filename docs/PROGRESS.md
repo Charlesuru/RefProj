@@ -131,6 +131,12 @@ Owner decision: certificates repo `Charlesuru/refproj-certificates` (private) â€
       `test@example.com` / `Password1` (public demo values of the fake backend, `docs/features.md`)
 - [ ] Optional: Firebase DebugView with a release build to see `tutorial_complete`, `login`, `task_added` after opting in
 
+## Between steps â€” REF-6 (CI skips build/test for docs-only PRs)
+- `ci.yml` job *Detect changes* (`scripts/ci/changes.sh`) skips Android/iOS test + build and dependency review when every
+  changed file is docs; secret scan, workflow lint and lint still run. `docs/ci-cd.md#docs-only-pull-requests`.
+- Verified locally: the script reports docs-only for `130a958` (docs only), code for `12d9b76`, code for an empty diff.
+- [ ] Owner: after merge, check that the next docs-only PR shows the four jobs as *skipped* and `CI result` green
+
 ## Open items / decisions pending
 - Play Console moved *App integrity* to the *Protected with Play* page; the signing-certificate view was not found there.
   Upload-key registration is instead proven by the successful API upload above.

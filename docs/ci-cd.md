@@ -9,11 +9,13 @@ use locally (`bundle exec fastlane …`), so there is no CI-only build logic. De
 flowchart LR
     subgraph PR["Pull request → main"]
         direction TB
+        C[Detect changes]
         S[Secret scan<br/>gitleaks] & W[Workflow lint<br/>actionlint · zizmor] & L[Lint<br/>spotless · detekt → SARIF]
         TA[Test Android] & BA[Build Android<br/>dev APK · prod AAB/R8] & I[iOS<br/>sim tests · sim build]
         D[Dependency graph<br/>+ review]
         R{{CI result}}
-        S & W & L & TA & BA & I & D --> R
+        C -. "code changed" .-> TA & BA & I & D
+        C & S & W & L & TA & BA & I & D --> R
     end
 
     R -- "human review<br/>rebase-merge" --> M[(main)]
@@ -42,6 +44,18 @@ flowchart LR
 
 Where each environment's build goes is defined in [ADR 0005](adr/0005-release-tooling.md#distribution-per-environment).
 **Nothing reaches end users without a human:** Play rollout and App Review submission happen in the store consoles.
+
+### Docs-only pull requests
+A pull request that only changes documentation skips **Test (Android host)**, **Build (Android)**, **Test + build (iOS)**
+and **Dependency graph + review**; they show as *skipped* and `CI result` still passes. Secret scan, workflow lint and
+lint (Spotless also checks `*.md`) always run. The job **Detect changes** runs
+[`scripts/ci/changes.sh`](../scripts/ci/changes.sh), which only reports *docs-only* when **every** changed file
+matches the allowlist (`*.md`, `docs/**`, `.github/ISSUE_TEMPLATE/**`, the same as `deploy-main.yml`'s
+`paths-ignore`). Anything else runs the full pipeline; so do pushes to `main` and manual runs.
+
+The workflow itself is never filtered with `paths`/`paths-ignore`: `CI result` is a required check, and a workflow
+that does not start never reports it, so the pull request could not be merged. `CI result` also fails if
+*Detect changes* fails, so a broken detection can never skip the checks silently.
 
 ## Releasing
 1. Make sure `main` is green and DEV/SIT have been tested (run *Deploy SIT* manually if the nightly build is too old).

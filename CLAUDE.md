@@ -99,6 +99,7 @@ Stop and ask the user (in Swedish, with step-by-step instructions) when:
 | `fastlane/` | Build/test/upload lanes for both platforms — `bundle exec fastlane lanes` |
 | `.github/` | CI/CD workflows, Dependabot, CODEOWNERS, PR template, repo settings as code — see `docs/ci-cd.md` |
 | `.githooks/`, `scripts/` | Git hooks (gitleaks, format, commit-msg), `setup.sh`, CI helpers (`scripts/ci`), GitHub setup (`scripts/github`) |
+| `.claude/` | Claude Code agents: `repo-guide` answers questions about the repo, read-only (`claude --agent repo-guide`) |
 | `config/detekt` | Static analysis rules |
 | `docs/` | Architecture, ADRs, runbooks, progress log |
 

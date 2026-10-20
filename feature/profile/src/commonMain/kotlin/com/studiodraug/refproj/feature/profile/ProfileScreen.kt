@@ -29,6 +29,7 @@ import com.studiodraug.refproj.feature.profile.resources.profile_analytics_subti
 import com.studiodraug.refproj.feature.profile.resources.profile_logout
 import com.studiodraug.refproj.feature.profile.resources.profile_logout_message
 import com.studiodraug.refproj.feature.profile.resources.profile_logout_title
+import com.studiodraug.refproj.feature.profile.resources.profile_test
 import com.studiodraug.refproj.feature.profile.resources.profile_title
 import com.studiodraug.refproj.feature.profile.resources.profile_version
 import org.jetbrains.compose.resources.stringResource
@@ -53,6 +54,7 @@ fun ProfileScreen(
                         .padding(horizontal = RefTheme.spacing.screenHorizontal, vertical = RefTheme.spacing.lg),
                 verticalArrangement = Arrangement.spacedBy(RefTheme.spacing.lg),
             ) {
+                Text(text = stringResource(Res.string.profile_test))
                 RefCard(modifier = Modifier.fillMaxWidth()) {
                     Text(text = state.displayName, style = MaterialTheme.typography.titleLarge)
                     Text(

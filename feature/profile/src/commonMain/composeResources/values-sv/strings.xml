@@ -7,4 +7,5 @@
     <string name="profile_logout">Logga ut</string>
     <string name="profile_logout_title">Logga ut?</string>
     <string name="profile_logout_message">Dina uppgifter raderas från den här enheten.</string>
+    <string name="profile_test">Min header</string>
 </resources>

@@ -137,6 +137,14 @@ Owner decision: certificates repo `Charlesuru/refproj-certificates` (private) �
 - Verified locally: the script reports docs-only for `130a958` (docs only), code for `12d9b76`, code for an empty diff.
 - [ ] Owner: after merge, check that the next docs-only PR shows the four jobs as *skipped* and `CI result` green
 
+## Between steps — REF-7 (read-only repo-guide agent)
+- `.claude/agents/repo-guide.md`: a Q&A agent run as its own session (`claude --agent repo-guide`), so it can be
+  `/clear`ed independently of the working session. It overrides the session protocol in CLAUDE.md §0 and never
+  changes anything: tools are `Read`, `Grep`, `Glob`, `Bash`, and a `PreToolUse` hook
+  (`.claude/hooks/read-only-git.sh`) only lets single read-only git commands through.
+- Verified locally: the hook allows `git log/blame/status`, blocks writes, chaining, pipes, substitution,
+  `git -c …`, `--output` and `grep -O`; the agent answered a history question with sources and refused to create files.
+
 ## Open items / decisions pending
 - Play Console moved *App integrity* to the *Protected with Play* page; the signing-certificate view was not found there.
   Upload-key registration is instead proven by the successful API upload above.

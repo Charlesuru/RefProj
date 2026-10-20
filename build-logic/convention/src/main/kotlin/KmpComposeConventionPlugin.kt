@@ -7,6 +7,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.dependencies
 import org.jetbrains.compose.ComposeExtension
 import org.jetbrains.compose.resources.ResourcesExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -35,6 +36,12 @@ class KmpComposeConventionPlugin : Plugin<Project> {
                     implementation(libs.lib("compose-components-resources"))
                     implementation(libs.lib("compose-ui-tooling-preview"))
                 }
+            }
+
+            dependencies {
+                // Android Studio renders @Preview with the module's own Android runtime classpath, so the
+                // renderer (ui-tooling) must be there. It is not exported to consumers or the release app.
+                add("androidRuntimeClasspath", libs.lib("compose-ui-tooling"))
             }
 
             extensions.configure<ComposeExtension> {

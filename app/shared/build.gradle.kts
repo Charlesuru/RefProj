@@ -4,6 +4,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 // It is the only module the iOS app links (as the `Shared` framework).
 plugins {
     alias(libs.plugins.refproj.kmp.compose)
+    alias(libs.plugins.roborazzi)
 }
 
 kotlin {
@@ -46,5 +47,15 @@ kotlin {
         commonTest.dependencies {
             implementation(projects.core.testing)
         }
+        getByName("androidHostTest").dependencies {
+            implementation(libs.roborazzi)
+            implementation(libs.roborazzi.compose)
+        }
     }
+}
+
+// Screenshot tests (ScreenCatalogScreenshotTest): reference images are committed next to the test.
+// Record: ./gradlew :app:shared:recordRoborazziAndroidHostTest   Verify (CI): ./gradlew :app:shared:verifyRoborazziAndroidHostTest
+roborazzi {
+    outputDir.set(layout.projectDirectory.dir("src/androidHostTest/screenshots"))
 }

@@ -27,6 +27,7 @@ plugins {
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.room) apply false
     alias(libs.plugins.kover) apply false
+    alias(libs.plugins.roborazzi) apply false
     alias(libs.plugins.refproj.quality)
     alias(libs.plugins.refproj.coverage)
 }

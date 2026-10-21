@@ -1,14 +1,17 @@
 package com.studiodraug.refproj.data
 
+import com.studiodraug.refproj.core.config.AppConfig
 import com.studiodraug.refproj.data.auth.AuthApi
 import com.studiodraug.refproj.data.auth.AuthRepositoryImpl
 import com.studiodraug.refproj.data.auth.FakeAuthApi
+import com.studiodraug.refproj.data.auth.FakeAuthTestAccount
 import com.studiodraug.refproj.data.consent.ConsentRepositoryImpl
 import com.studiodraug.refproj.data.database.RefProjDatabase
 import com.studiodraug.refproj.data.database.databaseModule
 import com.studiodraug.refproj.data.onboarding.OnboardingRepositoryImpl
 import com.studiodraug.refproj.data.tasks.TaskRepositoryImpl
 import com.studiodraug.refproj.domain.auth.AuthRepository
+import com.studiodraug.refproj.domain.auth.TestAccountProvider
 import com.studiodraug.refproj.domain.consent.ConsentRepository
 import com.studiodraug.refproj.domain.onboarding.OnboardingRepository
 import com.studiodraug.refproj.domain.tasks.TaskRepository
@@ -23,6 +26,10 @@ val dataModule: Module =
         single<OnboardingRepository> { OnboardingRepositoryImpl(get()) }
         single<AuthApi> { FakeAuthApi() }
         single<AuthRepository> { AuthRepositoryImpl(get(), get(), get(), get(), get()) }
+        // Debug tools only: never a test account in a PROD release build.
+        single<TestAccountProvider> {
+            if (get<AppConfig>().isDebugMenuEnabled) FakeAuthTestAccount else TestAccountProvider { null }
+        }
         // Created at startup: applies the stored consent to analytics before anything is logged.
         single<ConsentRepository>(createdAtStart = true) { ConsentRepositoryImpl(get(), get()) }
         single<TaskRepository> { TaskRepositoryImpl(get<RefProjDatabase>().taskDao(), Clock.System) }

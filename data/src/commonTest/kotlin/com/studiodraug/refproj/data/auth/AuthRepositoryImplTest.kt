@@ -48,6 +48,13 @@ class AuthRepositoryImplTest {
         }
 
     @Test
+    fun testAccount_isAcceptedByTheFakeBackend() =
+        runTest {
+            val account = FakeAuthTestAccount.testAccount()
+            assertIs<AppResult.Success<*>>(repository().login(account.email, account.password))
+        }
+
+    @Test
     fun login_withWrongPassword_isUnauthorized_andStoresNothing() =
         runTest {
             val result = repository().login(FakeAuthApi.TEST_EMAIL, "wrong")

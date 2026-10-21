@@ -8,6 +8,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(projects.domain)
+            implementation(projects.core.config)
             implementation(projects.core.network)
             implementation(projects.core.storage)
             implementation(projects.core.observability)

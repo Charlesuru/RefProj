@@ -1,6 +1,8 @@
 package com.studiodraug.refproj.domain.auth
 
 import app.cash.turbine.test
+import com.studiodraug.refproj.domain.FakeAuthRepository
+import com.studiodraug.refproj.domain.TEST_USER
 import com.studiodraug.refproj.domain.model.AppResult
 import com.studiodraug.refproj.domain.model.DataError
 import com.studiodraug.refproj.domain.tasks.FakeTaskRepository
@@ -8,8 +10,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.test.runTest
 
 // UNIT TEST
@@ -43,9 +43,9 @@ class AuthUseCasesTest {
     @Test
     fun login_passesBackendResultsThrough() =
         runTest {
-            assertEquals(LoginResult.Success(USER), login(USER.email, "secret"))
+            assertEquals(LoginResult.Success(TEST_USER), login(TEST_USER.email, "secret"))
             repository.nextResult = AppResult.Failure(DataError.Unauthorized)
-            assertEquals(LoginResult.Failure(DataError.Unauthorized), login(USER.email, "wrong"))
+            assertEquals(LoginResult.Failure(DataError.Unauthorized), login(TEST_USER.email, "wrong"))
         }
 
     @Test
@@ -53,8 +53,8 @@ class AuthUseCasesTest {
         runTest {
             ObserveCurrentUserUseCase(repository)().test {
                 assertNull(awaitItem())
-                login(USER.email, "secret")
-                assertEquals(USER, awaitItem())
+                login(TEST_USER.email, "secret")
+                assertEquals(TEST_USER, awaitItem())
                 LogoutUseCase(repository, tasks)()
                 assertNull(awaitItem())
             }
@@ -63,34 +63,10 @@ class AuthUseCasesTest {
     @Test
     fun logout_deletesTheUsersTasks() =
         runTest {
-            login(USER.email, "secret")
+            login(TEST_USER.email, "secret")
             tasks.add("Private")
             LogoutUseCase(repository, tasks)()
             assertTrue(tasks.tasks.value.isEmpty())
             assertEquals(AuthState.SignedOut, repository.authState.value)
         }
-
-    private class FakeAuthRepository : AuthRepository {
-        private val state = MutableStateFlow<AuthState>(AuthState.SignedOut)
-        override val authState: StateFlow<AuthState> = state
-        val loginCalls = mutableListOf<Pair<String, String>>()
-        var nextResult: AppResult<User> = AppResult.Success(USER)
-
-        override suspend fun login(
-            email: String,
-            password: String,
-        ): AppResult<User> {
-            loginCalls += email to password
-            (nextResult as? AppResult.Success)?.let { state.value = AuthState.SignedIn(it.value) }
-            return nextResult
-        }
-
-        override suspend fun logout() {
-            state.value = AuthState.SignedOut
-        }
-    }
-
-    private companion object {
-        val USER = User(id = "u1", displayName = "Ada", email = "ada@example.com")
-    }
 }

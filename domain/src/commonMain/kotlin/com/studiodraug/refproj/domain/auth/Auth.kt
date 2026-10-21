@@ -110,6 +110,31 @@ class LoginUseCase(
     }
 }
 
+/** An e-mail address and password. [toString] hides the password, so it never ends up in a log. */
+data class Credentials(
+    val email: String,
+    val password: String,
+) {
+    override fun toString(): String = "Credentials(email=$email, password=***)"
+}
+
+/**
+ * The test account of the current environment, for debug tools (pre-filled login, "sign in as test user").
+ * Implemented in the data layer, next to the backend that knows the account.
+ *
+ * SECURITY: returns `null` whenever the debug menu is disabled, i.e. always in a PROD release build.
+ */
+fun interface TestAccountProvider {
+    fun testAccount(): Credentials?
+}
+
+/** The environment's test account, or `null` when there is none or debug tools are disabled. */
+class GetTestAccountUseCase(
+    private val provider: TestAccountProvider,
+) {
+    operator fun invoke(): Credentials? = provider.testAccount()
+}
+
 /**
  * Signs out and deletes the user's data from the device first, so the next person on a shared
  * device never sees it.

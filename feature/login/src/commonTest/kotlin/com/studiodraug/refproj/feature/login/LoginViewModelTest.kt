@@ -5,7 +5,9 @@ import com.studiodraug.refproj.core.testing.FakeAnalyticsTracker
 import com.studiodraug.refproj.core.testing.runViewModelTest
 import com.studiodraug.refproj.domain.auth.AuthRepository
 import com.studiodraug.refproj.domain.auth.AuthState
+import com.studiodraug.refproj.domain.auth.Credentials
 import com.studiodraug.refproj.domain.auth.EmailError
+import com.studiodraug.refproj.domain.auth.GetTestAccountUseCase
 import com.studiodraug.refproj.domain.auth.LoginUseCase
 import com.studiodraug.refproj.domain.auth.PasswordError
 import com.studiodraug.refproj.domain.auth.User
@@ -23,7 +25,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 class LoginViewModelTest {
     private val repository = FakeAuthRepository()
     private val analytics = FakeAnalyticsTracker()
-    private val viewModel by lazy { LoginViewModel(LoginUseCase(repository), analytics) }
+    private var testAccount: Credentials? = null
+    private val viewModel by lazy { LoginViewModel(LoginUseCase(repository), analytics, GetTestAccountUseCase { testAccount }) }
 
     private fun enter(
         email: String,
@@ -32,6 +35,20 @@ class LoginViewModelTest {
         viewModel.onAction(LoginAction.EmailChanged(email))
         viewModel.onAction(LoginAction.PasswordChanged(password))
     }
+
+    @Test
+    fun withoutATestAccount_theFormStartsEmpty() =
+        runViewModelTest {
+            assertEquals(LoginUiState(), viewModel.state.value)
+        }
+
+    @Test
+    fun withATestAccount_theFormStartsFilledIn() =
+        runViewModelTest {
+            testAccount = Credentials("test@example.com", "Password1")
+            assertEquals("test@example.com", viewModel.state.value.email)
+            assertEquals("Password1", viewModel.state.value.password)
+        }
 
     @Test
     fun emptyFields_showFieldErrors_withoutCallingTheBackend() =

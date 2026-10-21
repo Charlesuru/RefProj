@@ -22,6 +22,10 @@ flowchart LR
 - `Warn` and up become Crashlytics breadcrumbs; `Error` with an exception becomes a non-fatal report.
 - HTTP: debug builds log request lines and headers (never bodies) with `Authorization`/cookies redacted;
   release builds log no requests (`HttpClientTest` checks both).
+- With the debug menu enabled (never in a PROD release build) every line also goes to `LogBuffer`: the last 500 lines,
+  in memory only, shown in the debug menu's log viewer. `LoggingAnalyticsTracker` logs every analytics call there too
+  (tag `Analytics`; event names and parameters, never the user ID), so testers see what would be sent — debug builds
+  never send analytics. See [debug-menu.md](debug-menu.md).
 - **Never log secrets, tokens or personal data.** Logs end up in crash reports.
 
 ## Crash reporting
@@ -31,6 +35,9 @@ flowchart LR
 | Kotlin crashes | Native JVM stack traces | `installUnhandledExceptionReporting` records the Kotlin exception with its Kotlin stack before the app terminates |
 | Symbols | R8 mapping uploaded by the Crashlytics Gradle plugin (release builds with Firebase config) | dSYM (includes the static Kotlin framework) uploaded by the *Upload symbols to Crashlytics* build phase (release builds) |
 | Custom keys | `environment` | `environment` |
+
+Test the pipeline from the debug menu: *Send a non-fatal error* and *Crash the app* (release builds of SIT/STAGE
+report them; the crash arrives on the next start).
 
 ## Analytics
 - Events are `AnalyticsEvent(name, parameters)`, validated against Firebase's naming limits at creation.

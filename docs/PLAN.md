@@ -74,7 +74,7 @@ Repo, modules, version catalog, convention plugins, 4 environments (Android flav
 ### Step 5 — Features (model: Sonnet)
 App concept: a simple personal task/habit tracker. Onboarding → login (fake auth backend, session persisted) → tab shell (e.g. Home, Tasks, Profile). One module per feature.
 
-### Step 6 — Debug menu (model: Sonnet)
+### Step 6 — Debug menu ✅ (model: Opus, owner's choice)
 `feature:debug`, only in non-PROD/debug builds: feature flag toggles, environment info, jump to state (logged in / onboarding), pre-filled test user, in-app screen catalog/preview, log viewer, crash test button, clear data.
 
 ### Step 7 — Tests (model: Sonnet)

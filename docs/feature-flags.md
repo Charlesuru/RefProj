@@ -17,6 +17,9 @@ NEW_CHECKOUT(
     enabledByDefaultIn = setOf(DEV, SIT),       // never PROD
 ),
 ```
+Testers flip a flag per device in the [debug menu](debug-menu.md) (*Feature flags*); the menu shows each flag's
+value and where it comes from, and removes overrides one by one or all at once.
+
 Read it in a ViewModel with `featureFlags.observe(FeatureFlag.NEW_CHECKOUT)` (reacts to overrides and remote
 changes) or `isEnabled(...)` for a one-off check. Gate the entry point (tab, button, route), not every line.
 

@@ -7,6 +7,7 @@ import com.studiodraug.refproj.core.config.AppConfig
 import com.studiodraug.refproj.core.config.AppEnvironment
 import com.studiodraug.refproj.core.featureflags.FeatureFlagOverrides
 import com.studiodraug.refproj.core.featureflags.FeatureFlags
+import com.studiodraug.refproj.core.navigation.NavEntryInstaller
 import com.studiodraug.refproj.core.observability.LogBuffer
 import com.studiodraug.refproj.core.storage.KeyValueStore
 import com.studiodraug.refproj.core.storage.SecureStore
@@ -38,6 +39,8 @@ import com.studiodraug.refproj.domain.tasks.ObserveTasksUseCase
 import com.studiodraug.refproj.domain.tasks.SetTaskDoneUseCase
 import com.studiodraug.refproj.domain.tasks.Task
 import com.studiodraug.refproj.domain.tasks.TaskRepository
+import com.studiodraug.refproj.feature.debug.DebugLogsViewModel
+import com.studiodraug.refproj.feature.debug.DebugViewModel
 import com.studiodraug.refproj.feature.home.HomeViewModel
 import com.studiodraug.refproj.feature.login.LoginViewModel
 import com.studiodraug.refproj.feature.onboarding.OnboardingViewModel
@@ -53,6 +56,7 @@ import kotlin.test.assertSame
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import org.koin.core.Koin
+import org.koin.core.qualifier.named
 import org.koin.dsl.koinApplication
 import org.koin.dsl.module
 
@@ -125,6 +129,7 @@ class AppGraphTest {
             val graph = graph(testAppConfig(environment, isDebugBuild = false), LogBuffer())
             assertNotNull(graph.get<TestAccountProvider>().testAccount(), "$environment")
             assertNotNull(graph.getOrNull<LogBuffer>(), "$environment")
+            assertNotNull(graph.getOrNull<NavEntryInstaller>(named("debug")), "$environment")
         }
     }
 
@@ -134,6 +139,14 @@ class AppGraphTest {
 
         assertNull(graph.get<TestAccountProvider>().testAccount())
         assertNull(graph.getOrNull<LogBuffer>())
+        assertNull(graph.getOrNull<NavEntryInstaller>(named("debug")))
+    }
+
+    @Test
+    fun prodDebugBuild_hasTheDebugMenu() {
+        val graph = graph(testAppConfig(AppEnvironment.PROD, isDebugBuild = true), LogBuffer())
+
+        assertNotNull(graph.getOrNull<NavEntryInstaller>(named("debug")))
     }
 
     @Test
@@ -145,6 +158,8 @@ class AppGraphTest {
             koin.get<HomeViewModel>()
             koin.get<TasksViewModel>()
             koin.get<ProfileViewModel>()
+            koin.get<DebugViewModel>()
+            koin.get<DebugLogsViewModel>()
         }
 
     @Test

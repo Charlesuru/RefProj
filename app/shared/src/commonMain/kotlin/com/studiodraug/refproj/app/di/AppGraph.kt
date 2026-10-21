@@ -32,6 +32,7 @@ import com.studiodraug.refproj.domain.tasks.DeleteTaskUseCase
 import com.studiodraug.refproj.domain.tasks.ObserveTaskSummaryUseCase
 import com.studiodraug.refproj.domain.tasks.ObserveTasksUseCase
 import com.studiodraug.refproj.domain.tasks.SetTaskDoneUseCase
+import com.studiodraug.refproj.feature.debug.debugModule
 import com.studiodraug.refproj.feature.home.homeModule
 import com.studiodraug.refproj.feature.login.loginModule
 import com.studiodraug.refproj.feature.onboarding.onboardingModule
@@ -69,7 +70,7 @@ internal fun appModules(
     analyticsTracker: AnalyticsTracker,
     logBuffer: LogBuffer? = null,
 ): List<Module> =
-    listOf(
+    listOfNotNull(
         module { single { config } },
         observabilityModule(crashReporter, appAnalyticsTracker(config, analyticsTracker), logBuffer),
         storageModule,
@@ -84,6 +85,8 @@ internal fun appModules(
         homeModule,
         tasksModule,
         profileModule,
+        // Debug menu: never in a PROD release build (ADR 0010).
+        debugModule.takeIf { config.isDebugMenuEnabled },
     )
 
 /**

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="debug_title">Debugmeny</string>
+    <string name="debug_badge_description">Öppna debugmenyn</string>
+
+    <string name="debug_section_environment">Miljö</string>
+    <string name="debug_environment">Miljö</string>
+    <string name="debug_version">Version</string>
+    <string name="debug_build_type">Byggtyp</string>
+    <string name="debug_build_type_debug">Debug</string>
+    <string name="debug_build_type_release">Release</string>
+    <string name="debug_api_base_url">API-bas-URL</string>
+    <string name="debug_device">Enhet</string>
+
+    <string name="debug_section_flags">Feature flags</string>
+    <string name="debug_flag_subtitle">%1$s · %2$s</string>
+    <string name="debug_flag_source_default">Standardvärde för miljön</string>
+    <string name="debug_flag_source_remote">Fjärrvärde</string>
+    <string name="debug_flag_source_override">Ändrad på den här enheten</string>
+    <string name="debug_flag_remove_override">Ta bort ändring</string>
+    <string name="debug_flags_remove_all_overrides">Ta bort alla ändringar</string>
+
+    <string name="debug_section_state">Appens läge</string>
+    <string name="debug_show_onboarding">Visa introduktionen</string>
+    <string name="debug_show_onboarding_subtitle">Du förblir inloggad</string>
+    <string name="debug_sign_in_test">Logga in som testanvändare</string>
+    <string name="debug_no_test_account">Inget testkonto i den här miljön</string>
+    <string name="debug_sign_in_failed">Inloggningen med testkontot misslyckades. Se loggarna.</string>
+    <string name="debug_sign_out">Logga ut</string>
+    <string name="debug_clear_data">Rensa all data</string>
+    <string name="debug_clear_data_subtitle">Uppgifter, session, introduktion, samtycke och flaggändringar</string>
+    <string name="debug_clear_data_title">Rensa all data?</string>
+    <string name="debug_clear_data_message">Appen återgår till läget efter en ny installation.</string>
+    <string name="debug_clear">Rensa</string>
+
+    <string name="debug_section_tools">Verktyg</string>
+    <string name="debug_logs">Loggar</string>
+    <string name="debug_logs_subtitle">De senaste loggraderna i den här sessionen</string>
+    <string name="debug_non_fatal">Skicka ett icke-kritiskt fel</string>
+    <string name="debug_non_fatal_sent">Felet har skickats. Releasebyggen rapporterar det till Crashlytics.</string>
+    <string name="debug_crash">Krascha appen</string>
+    <string name="debug_crash_title">Krascha appen?</string>
+    <string name="debug_crash_message">Appen stängs direkt. Releasebyggen rapporterar kraschen till Crashlytics vid nästa start.</string>
+    <string name="debug_crash_confirm">Krascha</string>
+
+    <string name="debug_logs_empty_title">Inga loggrader</string>
+    <string name="debug_logs_empty_message">Rader på den valda nivån eller högre visas här.</string>
+    <string name="debug_level_debug">Debug</string>
+    <string name="debug_level_info">Info</string>
+    <string name="debug_level_warn">Varning</string>
+    <string name="debug_level_error">Fel</string>
+</resources>

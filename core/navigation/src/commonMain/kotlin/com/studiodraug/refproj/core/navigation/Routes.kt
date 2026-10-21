@@ -32,6 +32,17 @@ data object TasksRoute : NavKey
 @Serializable
 data object ProfileRoute : NavKey
 
+// --- Debug menu: pushed on top of the current top-level destination. Never installed in a PROD release build ---
+
+/** Marks the debug menu's screens: the app hides the debug badge on them and does not report them to analytics. */
+interface DebugDestination : NavKey
+
+@Serializable
+data object DebugRoute : DebugDestination
+
+@Serializable
+data object DebugLogsRoute : DebugDestination
+
 /**
  * Lets Navigation 3 save and restore the back stack (process death on Android, state restoration
  * on iOS). Non-Android platforms have no reflection, so **every route must be registered here**;
@@ -48,6 +59,8 @@ val NavSavedStateConfiguration: SavedStateConfiguration =
                     subclass(HomeRoute::class, HomeRoute.serializer())
                     subclass(TasksRoute::class, TasksRoute.serializer())
                     subclass(ProfileRoute::class, ProfileRoute.serializer())
+                    subclass(DebugRoute::class, DebugRoute.serializer())
+                    subclass(DebugLogsRoute::class, DebugLogsRoute.serializer())
                 }
             }
     }

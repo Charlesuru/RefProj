@@ -15,5 +15,11 @@ kotlin {
             api(libs.kotlin.test)
             api(libs.turbine)
         }
+        androidMain.dependencies {
+            // PlatformTest: Robolectric runner and the application Context for host tests.
+            api(libs.junit4)
+            api(libs.robolectric)
+            api(libs.androidx.test.core)
+        }
     }
 }

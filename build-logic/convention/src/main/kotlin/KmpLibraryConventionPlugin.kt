@@ -9,7 +9,9 @@ import com.studiodraug.refproj.buildlogic.version
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
+import org.gradle.api.tasks.testing.Test
 import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
@@ -47,6 +49,13 @@ class KmpLibraryConventionPlugin : Plugin<Project> {
                     implementation(libs.lib("kotlin-test"))
                     implementation(libs.lib("kotlinx-coroutines-test"))
                 }
+            }
+
+            tasks.withType<Test>().configureEach {
+                // Robolectric (PlatformTest) reaches into FileDescriptor internals, which JDK 17+ does not
+                // export. Host tests run on the Gradle daemon's JDK (gradle/gradle-daemon-jvm.properties).
+                // It also loads its native SQLite/graphics runtime, a restricted method since JDK 24.
+                jvmArgs("--add-exports=java.base/jdk.internal.access=ALL-UNNAMED", "--enable-native-access=ALL-UNNAMED")
             }
         }
 }

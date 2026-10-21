@@ -1,9 +1,8 @@
 package com.studiodraug.refproj.data.tasks
 
-import androidx.room.Room
 import app.cash.turbine.test
-import com.studiodraug.refproj.data.database.RefProjDatabase
-import com.studiodraug.refproj.data.database.buildWithDefaults
+import com.studiodraug.refproj.core.testing.PlatformTest
+import com.studiodraug.refproj.data.database.inMemoryTestDatabase
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -16,12 +15,9 @@ import kotlinx.coroutines.test.runTest
 
 // INTEGRATION TEST
 
-/**
- * Repository against a real Room database (in memory, bundled SQLite) on the iOS simulator.
- * Android needs a `Context` for Room, so the Android run happens on a device (step 7).
- */
-class TaskRepositoryImplTest {
-    private val database = Room.inMemoryDatabaseBuilder<RefProjDatabase>().buildWithDefaults()
+/** Repository against a real Room database in memory: generated DAO, SQL, schema and the Flow invalidation. */
+class TaskRepositoryImplTest : PlatformTest() {
+    private val database = inMemoryTestDatabase()
     private var now = Instant.fromEpochMilliseconds(1_000)
     private val clock =
         object : Clock {

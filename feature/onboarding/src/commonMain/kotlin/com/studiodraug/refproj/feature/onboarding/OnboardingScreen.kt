@@ -23,6 +23,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.studiodraug.refproj.core.designsystem.component.RefButton
@@ -80,7 +81,7 @@ fun OnboardingScreen(
                         RefButton(
                             text = stringResource(Res.string.onboarding_skip),
                             onClick = { scope.launch { pagerState.animateScrollToPage(pages.lastIndex) } },
-                            modifier = Modifier.align(Alignment.CenterEnd),
+                            modifier = Modifier.align(Alignment.CenterEnd).testTag(OnboardingTestTags.SKIP),
                             style = RefButtonStyle.Tertiary,
                         )
                     }
@@ -93,7 +94,7 @@ fun OnboardingScreen(
                     RefButton(
                         text = stringResource(Res.string.onboarding_get_started),
                         onClick = { onAction(OnboardingAction.Finish) },
-                        modifier = Modifier.fillMaxWidth().padding(top = RefTheme.spacing.xl),
+                        modifier = Modifier.fillMaxWidth().padding(top = RefTheme.spacing.xl).testTag(OnboardingTestTags.FINISH),
                         loading = state.isFinishing,
                     )
                 } else {
@@ -159,4 +160,10 @@ private fun OnboardingPage.icon(): ImageVector =
 @Composable
 private fun OnboardingScreenPreview() {
     RefTheme { OnboardingScreen(state = OnboardingUiState(), onAction = {}) }
+}
+
+/** Stable IDs for UI automation (end-to-end tests): independent of the language, never shown to users. */
+object OnboardingTestTags {
+    const val SKIP = "onboarding.skip"
+    const val FINISH = "onboarding.finish"
 }

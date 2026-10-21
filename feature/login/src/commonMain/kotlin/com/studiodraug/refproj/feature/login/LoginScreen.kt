@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
@@ -76,7 +77,7 @@ fun LoginScreen(
                     value = state.email,
                     onValueChange = { onAction(LoginAction.EmailChanged(it)) },
                     label = stringResource(Res.string.login_email),
-                    modifier = Modifier.padding(top = RefTheme.spacing.lg),
+                    modifier = Modifier.padding(top = RefTheme.spacing.lg).testTag(LoginTestTags.EMAIL),
                     type = RefTextFieldType.Email,
                     error = state.emailError?.let { stringResource(it.message()) },
                     enabled = !state.isLoading,
@@ -87,6 +88,7 @@ fun LoginScreen(
                     value = state.password,
                     onValueChange = { onAction(LoginAction.PasswordChanged(it)) },
                     label = stringResource(Res.string.login_password),
+                    modifier = Modifier.testTag(LoginTestTags.PASSWORD),
                     type = RefTextFieldType.Password,
                     error = state.passwordError?.let { stringResource(it.message()) },
                     enabled = !state.isLoading,
@@ -104,7 +106,7 @@ fun LoginScreen(
                 RefButton(
                     text = stringResource(Res.string.login_submit),
                     onClick = submit,
-                    modifier = Modifier.fillMaxWidth().padding(top = RefTheme.spacing.sm),
+                    modifier = Modifier.fillMaxWidth().padding(top = RefTheme.spacing.sm).testTag(LoginTestTags.SUBMIT),
                     loading = state.isLoading,
                 )
             }
@@ -139,4 +141,11 @@ private fun LoginScreenPreview() {
             onAction = {},
         )
     }
+}
+
+/** Stable IDs for UI automation (end-to-end tests): independent of the language, never shown to users. */
+object LoginTestTags {
+    const val EMAIL = "login.email"
+    const val PASSWORD = "login.password"
+    const val SUBMIT = "login.submit"
 }

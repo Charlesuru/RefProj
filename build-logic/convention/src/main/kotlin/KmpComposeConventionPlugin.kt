@@ -36,6 +36,15 @@ class KmpComposeConventionPlugin : Plugin<Project> {
                     implementation(libs.lib("compose-components-resources"))
                     implementation(libs.lib("compose-ui-tooling-preview"))
                 }
+                // UI tests (runComposeUiTest) in commonTest run on the iOS simulator and, under Robolectric
+                // (PlatformTest), on the Android host. The host needs an activity to host the composition.
+                sourceSets.getByName("commonTest").dependencies {
+                    implementation(libs.lib("compose-ui-test"))
+                    implementation(project(":core:testing"))
+                }
+                sourceSets.getByName("androidHostTest").dependencies {
+                    implementation(libs.lib("androidx-compose-ui-test-manifest"))
+                }
             }
 
             dependencies {

@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
@@ -35,7 +36,7 @@ fun DebugMenuBadge(
     Surface(
         onClick = onClick,
         modifier =
-            modifier.semantics {
+            modifier.testTag(DebugTestTags.BADGE).semantics {
                 contentDescription = description
                 role = Role.Button
             },

@@ -13,6 +13,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
@@ -83,7 +84,7 @@ fun DebugScreen(
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize().testTag(DebugTestTags.MENU),
         topBar = { RefTopAppBar(title = stringResource(Res.string.debug_title), onBack = onBack) },
         containerColor = MaterialTheme.colorScheme.background,
     ) { padding ->
@@ -308,4 +309,10 @@ private fun DebugScreenPreview() {
             onBack = {},
         )
     }
+}
+
+/** Stable IDs for UI automation (end-to-end tests): independent of the language, never shown to users. */
+object DebugTestTags {
+    const val BADGE = "debug.badge"
+    const val MENU = "debug.menu"
 }

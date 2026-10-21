@@ -9,6 +9,8 @@ ksp = "2.3.12"
 agp = "9.4.1"
 compose-multiplatform = "1.12.1"
 compose-material3 = "1.9.0"
+# Jetpack Compose artifact that Compose Multiplatform 1.12 builds on; only ui-test-manifest is used directly.
+androidx-compose = "1.12.1"
 
 # --- Android SDK levels ---
 android-compileSdk = "37"
@@ -105,6 +107,7 @@ compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "compose-mu
 compose-ui-tooling-preview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "compose-multiplatform" }
 compose-ui-tooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "compose-multiplatform" }
 compose-ui-test = { module = "org.jetbrains.compose.ui:ui-test", version.ref = "compose-multiplatform" }
+androidx-compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "androidx-compose" }
 compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "compose-multiplatform" }
 compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "compose-material3" }
 

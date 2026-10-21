@@ -34,7 +34,9 @@ class KmpLibraryConventionPlugin : Plugin<Project> {
                     namespace = derivedNamespace
                     compileSdk = libs.version("android-compileSdk").toInt()
                     minSdk = libs.version("android-minSdk").toInt()
-                    withHostTest {}
+                    // Robolectric tests (PlatformTest) need the merged manifest and resources, e.g. UI tests
+                    // reading Compose resources. Host tests can only be enabled once, so it is set for every module.
+                    withHostTest { isIncludeAndroidResources = true }
                     compilerOptions.jvmTarget.set(JvmTarget.JVM_17)
                 }
 

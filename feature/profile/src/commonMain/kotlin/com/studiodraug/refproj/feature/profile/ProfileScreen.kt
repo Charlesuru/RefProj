@@ -12,6 +12,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import com.studiodraug.refproj.core.designsystem.component.RefButton
 import com.studiodraug.refproj.core.designsystem.component.RefButtonStyle
@@ -74,7 +75,7 @@ fun ProfileScreen(
                 RefButton(
                     text = stringResource(Res.string.profile_logout),
                     onClick = { onAction(ProfileAction.LogoutClicked) },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().testTag(ProfileTestTags.LOGOUT),
                     style = RefButtonStyle.Destructive,
                     loading = state.isLoggingOut,
                 )
@@ -103,4 +104,9 @@ private fun ProfileScreenPreview() {
             onAction = {},
         )
     }
+}
+
+/** Stable IDs for UI automation (end-to-end tests): independent of the language, never shown to users. */
+object ProfileTestTags {
+    const val LOGOUT = "profile.logout"
 }

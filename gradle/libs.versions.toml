@@ -156,6 +156,7 @@ detekt-gradlePlugin = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plug
 spotless-gradlePlugin = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
 ksp-gradlePlugin = { module = "com.google.devtools.ksp:symbol-processing-gradle-plugin", version.ref = "ksp" }
 room-gradlePlugin = { module = "androidx.room:room-gradle-plugin", version.ref = "room" }
+kover-gradlePlugin = { module = "org.jetbrains.kotlinx:kover-gradle-plugin", version.ref = "kover" }
 
 # App runtime security pins (see [versions])
 guava-android = { module = "com.google.guava:guava", version.ref = "guava-android" }
@@ -206,3 +207,4 @@ refproj-kmp-feature = { id = "refproj.kmp.feature" }
 refproj-kmp-room = { id = "refproj.kmp.room" }
 refproj-android-application = { id = "refproj.android.application" }
 refproj-quality = { id = "refproj.quality" }
+refproj-coverage = { id = "refproj.coverage" }

@@ -51,7 +51,7 @@ STAGE/PROD uploads require a `vX.Y.Z` tag. Versioning, signing and distribution:
 ## Quality checks
 ```bash
 ./gradlew spotlessApply                 # format
-./gradlew spotlessCheck detekt allTests # what CI runs
+./gradlew spotlessCheck detekt allTests koverVerify # what CI runs
 ```
 
 ## CI/CD

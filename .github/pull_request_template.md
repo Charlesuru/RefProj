@@ -8,7 +8,7 @@ REF-
 
 ## How it was tested
 <!-- Commands run, devices/simulators, screenshots for UI changes. -->
-- [ ] `./gradlew spotlessCheck detekt allTests :app:android:assembleDevDebug`
+- [ ] `./gradlew spotlessCheck detekt allTests koverVerify :app:android:assembleDevDebug`
 - [ ] iOS built and run (`bundle exec fastlane ios build env:dev` or Xcode)
 
 ## Checklist

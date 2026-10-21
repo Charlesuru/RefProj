@@ -11,7 +11,7 @@ flowchart LR
         direction TB
         C[Detect changes]
         S[Secret scan<br/>gitleaks] & W[Workflow lint<br/>actionlint · zizmor] & L[Lint<br/>spotless · detekt → SARIF]
-        TA[Test Android] & BA[Build Android<br/>dev APK · prod AAB/R8] & I[iOS<br/>sim tests · sim build]
+        TA[Test Android<br/>host · arch · screenshots · coverage] & BA[Build Android<br/>dev APK · prod AAB/R8] & I[iOS<br/>sim tests · sim build]
         D[Dependency graph<br/>+ review]
         R{{CI result}}
         C -. "code changed" .-> TA & BA & I & D
@@ -37,6 +37,7 @@ flowchart LR
 | [`ci.yml`](../.github/workflows/ci.yml) | every PR (also stacked PRs), push to `main` | Quality gate; the required check is **`CI result`** | none |
 | [`deploy-main.yml`](../.github/workflows/deploy-main.yml) | push to `main` (code changes, not docs) | DEV, both platforms | `dev` |
 | [`deploy-sit.yml`](../.github/workflows/deploy-sit.yml) | 02:00 UTC Mon–Fri (skipped if `main` is already in SIT), or manual | SIT, both platforms | `sit` |
+| [`device-tests.yml`](../.github/workflows/device-tests.yml) | 01:30 UTC Mon–Fri, or manual | On-device Android tests on a managed emulator ([testing.md](testing.md#on-device-tests)) | none |
 | [`deploy-pr.yml`](../.github/workflows/deploy-pr.yml) | label **`deploy:dev`** on a PR, and every push to it while labelled | DEV preview of the PR (merged into its base), both platforms | `dev` |
 | [`release.yml`](../.github/workflows/release.yml) | tag `vX.Y.Z` on `main` | STAGE → PROD (each needs approval), then a GitHub release | `stage`, `prod` |
 | [`store-release.yml`](../.github/workflows/store-release.yml) | manual, run **from a tag** | Play production draft / App Store Connect upload | `prod` |

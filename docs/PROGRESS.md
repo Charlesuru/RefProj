@@ -2,8 +2,8 @@
 
 Read at the start of every AI session (after `docs/PLAN.md`). Update at the end of every step.
 
-**Next action:** owner merges the step-6 stack (REF-10, four PRs; rebase, one by one; AI restacks), then
-step 7 — tests (model: Sonnet).
+**Next action:** owner merges the step-7 stack (REF-11, PRs #31–#36 + docs; rebase, one by one; owner restacks), then
+step 8 — Jira + AI workflow (model: Opus).
 Detailed step logs: `docs/log/`.
 
 | Step | Scope | Status |
@@ -14,7 +14,7 @@ Detailed step logs: `docs/log/`.
 | 4 | Core: design system, Koin, Nav3, feature flags, observability (Firebase), localisation, domain/data | ✅ Done 2026-10-15 (PRs #8–#15) |
 | 5 | Features: onboarding, login, tabbed logged-in shell | ✅ Done 2026-10-16 (PRs #18–#22, awaiting merge) |
 | 6 | Debug menu | ✅ Done 2026-10-21 (REF-10, four stacked PRs, awaiting merge) |
-| 7 | Tests: unit, integration, UI, screenshot, architecture + coverage | |
+| 7 | Tests: unit, integration, UI, screenshot, architecture + coverage | ✅ Done 2026-10-21 (REF-11, seven stacked PRs, awaiting merge) |
 | 8 | Jira integration + AI workflow (spec → ticket → code → PR → AI review) | |
 | 9 | Final summary & docs | |
 
@@ -158,6 +158,22 @@ Owner decision: certificates repo `Charlesuru/refproj-certificates` (private) �
       *Sign in as test user* and the screen catalog on iOS (not clicked through by the AI)
 - [ ] Optional: SIT release build → *Crash the app*, reopen the app, check that the crash shows up in Crashlytics
 
+## Step 7 — verified
+- Stacked PRs (REF-11): #31 Kover → #32 architecture → #33 integration → #34 device tests → #35 UI → #36 screenshots →
+  docs. Log: [step-7-tests.md](log/step-7-tests.md), decision: ADR 0011, guide: [testing.md](testing.md).
+- Gates green on every branch. 53 labelled test classes; 229 Android host + 157 iOS simulator + 18 architecture tests,
+  5 device tests. Coverage 89 % total, floors per module in `config/kover/coverage-floors.properties`.
+- UI tests and the end-to-end `AppFlowTest` run on the iOS simulator too: closes the step-6 gap "iOS not clicked through".
+- CI green on every PR; screenshot references recorded on macOS match Linux CI byte for byte (no tolerance needed).
+- Device tests green on the local emulator and on a Gradle Managed Device; the nightly workflow runs first after merge.
+- Android DEV and iOS DEV launched and run after the changes (Android: login, task survives restart).
+
+## Step 7 — owner checklist
+- [ ] Merge #31 (done) → #36, then the docs PR (**Rebase and merge**), one at a time; restack the next branch after each merge
+- [ ] Check the **Test (Android host)** job summary on a PR: the coverage table
+- [ ] After merge: Actions → **Device tests** → *Run workflow* once on `main`, check it is green (then nightly Mon–Fri)
+- [ ] Optional: open a screenshot test failure artifact once (`test-reports-android`) to see actual/diff images
+
 ## Open items / decisions pending
 - Play Console moved *App integrity* to the *Protected with Play* page; the signing-certificate view was not found there.
   Upload-key registration is instead proven by the successful API upload above.
@@ -173,16 +189,20 @@ Owner decision: certificates repo `Charlesuru/refproj-certificates` (private) �
 - Auth backend is `FakeAuthApi`: replace with a Ktor `AuthApi` when a backend exists; the token is not yet attached to
   HTTP requests (no API needs it). The test account reaches the debug tools through
   `TestAccountProvider` (step 6); a real backend's test accounts must come from a non-PROD source (ADR 0010).
-- Room: Android on-device database tests and a first migration test (step 7).
-- Debug menu: the iOS flow has not been clicked through by the AI (no simulator UI automation); covered in step 7 by
-  UI tests. Debug screens pushed on the root back stack are not restored after process death (by design).
+- Room: on-device tests and the migration test exist (step 7). The Android migration helper is not used: the KMP
+  Android library plugin does not package schemas as test assets; migrations are tested on iOS with the same schemas.
+- Debug menu: debug screens pushed on the root back stack are not restored after process death (by design). The iOS
+  flow is covered by `AppFlowTest` on the simulator (step 7).
 - Local tooling: run Gradle outside Claude Code's sandbox — a sandboxed daemon quarantines Kotlin/Native test binaries
   and Gatekeeper blocks them (step-6 log).
 - Nav3: a tab's ViewModels are recreated when returning to it (state rebuilt from repositories); revisit if a screen
   needs to keep transient state across tab switches.
 - Firebase iOS SDK is updated manually (Dependabot cannot read XcodeGen specs) — `docs/observability.md#versions`.
 - App runtime security pin Guava 33.7.2-android: drop when Firebase Analytics requires ≥ 32.
-- Secure storage (`AndroidKeystoreSecureStore`, `KeychainSecureStore`) needs on-device tests (step 7).
+- Secure storage: Android Keystore tested on a device (nightly). The real iOS Keychain cannot run in the simulator
+  test process; needs an app-hosted test (XCUITest target) if it should be automated (`docs/testing.md#known-gaps`).
+- Coverage floors are raised by hand (ratchet as a review rule); consider automating with a bot comment later.
+- Robolectric emulates up to API 36; bump `ROBOLECTRIC_SDK` (core:testing) with Robolectric upgrades.
 - One Firebase project for all environments (ADR 0007); revisit if PROD needs separate access control.
 - detekt 1.23.x with Kotlin-compiler pinning; move to detekt 2.x when stable.
 - Confirm the Dependabot bundler job is green after the Gemfile fix (next weekly run).

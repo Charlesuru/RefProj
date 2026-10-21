@@ -40,4 +40,5 @@ Strings used by components (`Back`, `Try again`, …) are in this module's `comp
 1. Only when two features need it, or it encodes a design decision (spacing, states, accessibility).
 2. Build it on Material 3, expose a small API, take `modifier: Modifier = Modifier` as the first optional parameter.
 3. Add a `@Preview` covering its variants (light/dark previews come from the IDE).
-4. Screenshot tests for components arrive in plan step 7 (Roborazzi).
+4. Add a sample to the design system gallery (`DesignSystemPreviews.kt`): it shows in the screen catalog and gets
+   screenshot tests automatically (`docs/testing.md#screenshot-tests`).

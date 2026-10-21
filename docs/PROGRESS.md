@@ -2,8 +2,8 @@
 
 Read at the start of every AI session (after `docs/PLAN.md`). Update at the end of every step.
 
-**Next action:** owner merges the step-5 stack #18 → #19 → #20 → #21 → #22 (rebase, one by one; AI restacks), then
-step 6 — debug menu (model: Sonnet).
+**Next action:** owner merges the step-6 stack (REF-10, four PRs; rebase, one by one; AI restacks), then
+step 7 — tests (model: Sonnet).
 Detailed step logs: `docs/log/`.
 
 | Step | Scope | Status |
@@ -13,7 +13,7 @@ Detailed step logs: `docs/log/`.
 | 3 | CI/CD (GitHub Actions → later self-hosted Mac runner) | ✅ Done 2026-10-14 (PRs #2–#5) |
 | 4 | Core: design system, Koin, Nav3, feature flags, observability (Firebase), localisation, domain/data | ✅ Done 2026-10-15 (PRs #8–#15) |
 | 5 | Features: onboarding, login, tabbed logged-in shell | ✅ Done 2026-10-16 (PRs #18–#22, awaiting merge) |
-| 6 | Debug menu | |
+| 6 | Debug menu | ✅ Done 2026-10-21 (REF-10, four stacked PRs, awaiting merge) |
 | 7 | Tests: unit, integration, UI, screenshot, architecture + coverage | |
 | 8 | Jira integration + AI workflow (spec → ticket → code → PR → AI review) | |
 | 9 | Final summary & docs | |
@@ -125,8 +125,8 @@ Owner decision: certificates repo `Charlesuru/refproj-certificates` (private) �
 - Not exercised: the iOS flow clicked through by hand (no UI automation here), Analytics events in Firebase DebugView.
 
 ## Step 5 — owner checklist
-- [ ] Merge #18 → #19 → #20 → #21 → #22 (**Rebase and merge**), one at a time; ask the AI to restack after each merge
-- [ ] Watch the CI iOS job on #18: first CI run of the ad-hoc signed simulator build
+- [x] Merge #18 → #19 → #20 → #21 → #22 (**Rebase and merge**), one at a time — merged 2026-10-16/17
+- [x] Watch the CI iOS job on #18: first CI run of the ad-hoc signed simulator build
 - [ ] Try the flow on a device (DEV build from App Distribution / TestFlight after merge): test account
       `test@example.com` / `Password1` (public demo values of the fake backend, `docs/features.md`)
 - [ ] Optional: Firebase DebugView with a release build to see `tutorial_complete`, `login`, `task_added` after opting in
@@ -145,6 +145,19 @@ Owner decision: certificates repo `Charlesuru/refproj-certificates` (private) �
 - Verified locally: the hook allows `git log/blame/status`, blocks writes, chaining, pipes, substitution,
   `git -c …`, `--output` and `grep -O`; the agent answered a history question with sources and refused to create files.
 
+## Step 6 — verified
+- Stacked PRs (REF-10): foundations → `feature:debug` → screen catalog → docs. Log:
+  [step-6-debug-menu.md](log/step-6-debug-menu.md), decision: ADR 0010, guide: [debug-menu.md](debug-menu.md).
+- Gates green on every branch. `AppGraphTest` proves a PROD release graph has no debug tools.
+- Android DEV (emulator): every menu item exercised, incl. the test crash. Android PROD release (R8): no badge, empty
+  login. iOS DEV (simulator): launches with the badge; not clicked through (no UI automation here).
+
+## Step 6 — owner checklist
+- [ ] Merge the four REF-10 PRs in order (**Rebase and merge**), one at a time; ask the AI to restack after each merge
+- [ ] On a device (DEV from App Distribution / TestFlight after merge): open the menu via the `DEV` tab, try
+      *Sign in as test user* and the screen catalog on iOS (not clicked through by the AI)
+- [ ] Optional: SIT release build → *Crash the app*, reopen the app, check that the crash shows up in Crashlytics
+
 ## Open items / decisions pending
 - Play Console moved *App integrity* to the *Protected with Play* page; the signing-certificate view was not found there.
   Upload-key registration is instead proven by the successful API upload above.
@@ -158,9 +171,13 @@ Owner decision: certificates repo `Charlesuru/refproj-certificates` (private) �
   Play also needs a 512 px store icon before the first production release.
 - Analytics consent: resolved in step 5 (opt-in). A privacy policy text/link is still needed before the first PROD release.
 - Auth backend is `FakeAuthApi`: replace with a Ktor `AuthApi` when a backend exists; the token is not yet attached to
-  HTTP requests (no API needs it). Step 6 debug menu: pre-fill the test account (credentials live in `data`; expose them
-  via a debug-only binding, not to features directly).
+  HTTP requests (no API needs it). The test account reaches the debug tools through
+  `TestAccountProvider` (step 6); a real backend's test accounts must come from a non-PROD source (ADR 0010).
 - Room: Android on-device database tests and a first migration test (step 7).
+- Debug menu: the iOS flow has not been clicked through by the AI (no simulator UI automation); covered in step 7 by
+  UI tests. Debug screens pushed on the root back stack are not restored after process death (by design).
+- Local tooling: run Gradle outside Claude Code's sandbox — a sandboxed daemon quarantines Kotlin/Native test binaries
+  and Gatekeeper blocks them (step-6 log).
 - Nav3: a tab's ViewModels are recreated when returning to it (state rebuilt from repositories); revisit if a screen
   needs to keep transient state across tab switches.
 - Firebase iOS SDK is updated manually (Dependabot cannot read XcodeGen specs) — `docs/observability.md#versions`.
@@ -170,4 +187,4 @@ Owner decision: certificates repo `Charlesuru/refproj-certificates` (private) �
 - detekt 1.23.x with Kotlin-compiler pinning; move to detekt 2.x when stable.
 - Confirm the Dependabot bundler job is green after the Gemfile fix (next weekly run).
 - License policy (ADR 0008): owner to decide on a build-time license plugin (e.g. `app.cash.licensee`) that also
-  covers dependencies without GitHub license data; an open-source notices screen is still to be built (step 6 or later).
+  covers dependencies without GitHub license data; an open-source notices screen is still to be built (not part of the debug menu; later step).

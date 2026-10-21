@@ -35,6 +35,11 @@ Test account of the fake backend (public demo values, not a secret — no real b
 | `offline@example.com` | anything | Network error (to see the error state) |
 | anything else | anything | Wrong e-mail or password |
 
+With the [debug menu](debug-menu.md) enabled (never in a PROD release build) the login form starts filled in with
+the test account, and *Sign in as test user* jumps from any screen straight to the tab shell. The account reaches
+the app through `TestAccountProvider` (domain), implemented next to the fake in `data`; `feature:login` never sees
+the values.
+
 Replacing the fake: implement `AuthApi` with Ktor (`safeApiCall` in `core:network`) and bind it in `dataModule`,
 per environment if needed. Nothing above the data layer changes.
 

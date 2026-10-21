@@ -1,4 +1,5 @@
 import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
+import com.studiodraug.refproj.buildlogic.configureCoverage
 import com.studiodraug.refproj.buildlogic.derivedNamespace
 import com.studiodraug.refproj.buildlogic.lib
 import com.studiodraug.refproj.buildlogic.libs
@@ -24,6 +25,7 @@ class KmpLibraryConventionPlugin : Plugin<Project> {
             pluginManager.apply(libs.pluginId("kotlin-multiplatform"))
             pluginManager.apply(libs.pluginId("android-kmp-library"))
             pinToolClasspathSecurityVersions()
+            configureCoverage()
 
             extensions.configure<KotlinMultiplatformExtension> {
                 (this as ExtensionAware).extensions.configure<KotlinMultiplatformAndroidLibraryTarget>("android") {

@@ -60,7 +60,7 @@ Run the same gates CI runs, before you commit:
 ```bash
 ./gradlew spotlessApply                          # format
 ./gradlew spotlessCheck detekt                   # lint — zero findings
-./gradlew allTests                               # Android host + iOS simulator tests
+./gradlew allTests koverVerify                   # Android host + iOS simulator tests, coverage floors
 ./gradlew :app:android:assembleDevDebug          # Android build
 bundle exec fastlane ios build env:dev           # iOS simulator build (or run RefProj-Dev in Xcode)
 ```
@@ -197,7 +197,7 @@ Not covered by Dependabot — bump by hand in a normal PR: see [ci-cd.md → Dep
 git switch main && git pull --ff-only
 git switch -c feat/REF-123-thing
 # … edit …
-./gradlew spotlessApply spotlessCheck detekt allTests :app:android:assembleDevDebug
+./gradlew spotlessApply spotlessCheck detekt allTests koverVerify :app:android:assembleDevDebug
 git add -p && git commit -m "feat(thing): do the thing [REF-123]"        # pre-commit + commit-msg
 git push -u origin feat/REF-123-thing                                     # pre-push
 gh pr create --base main --title "REF-123: Do the thing" --fill-first     # ci.yml → CI result

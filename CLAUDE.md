@@ -54,6 +54,7 @@ Communicate with the user in **Swedish**. Write code, comments, commit messages,
 ./gradlew spotlessApply          # auto-format
 ./gradlew spotlessCheck detekt   # lint — zero findings allowed
 ./gradlew allTests               # unit + integration tests (Android host + iOS simulator)
+./gradlew koverVerify             # coverage floors per module (config/kover/coverage-floors.properties)
 ./gradlew :app:android:assembleDevDebug
 ```
 

@@ -134,9 +134,9 @@ end
 #  Cross-platform
 # ---------------------------------------------------------------------------------------------
 
-desc "Quality gate: formatting, static analysis and all tests (Android host + iOS simulator)"
+desc "Quality gate: formatting, static analysis, all tests (Android host + iOS simulator) and coverage floors"
 lane :test do
-  gradle!("spotlessCheck", "detekt", "allTests")
+  gradle!("spotlessCheck", "detekt", "allTests", "koverVerify")
 end
 
 desc "Formatting and static analysis (spotless, detekt). Writes the detekt SARIF report for CI"
@@ -172,9 +172,9 @@ platform :android do
     path
   end
 
-  desc "Run Android host unit tests"
+  desc "Run Android host tests and check the coverage floors. Reports: build/reports/kover"
   lane :test do
-    gradle!("testAndroidHostTest", ":app:android:testDevDebugUnitTest")
+    gradle!("testAndroidHostTest", ":app:android:testDevDebugUnitTest", "koverVerify", "koverXmlReport", "koverHtmlReport")
   end
 
   desc "Upload a signed build. DEV/SIT/STAGE -> Firebase App Distribution, PROD -> Play internal track"

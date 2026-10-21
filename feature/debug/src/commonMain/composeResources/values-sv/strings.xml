@@ -33,6 +33,10 @@
     <string name="debug_clear_data_message">Appen återgår till läget efter en ny installation.</string>
     <string name="debug_clear">Rensa</string>
 
+    <string name="debug_catalog">Skärmkatalog</string>
+    <string name="debug_catalog_subtitle">Alla skärmar i exempeltillstånd, och designsystemet</string>
+    <string name="debug_preview_not_found">Förhandsvisningen hittades inte</string>
+    <string name="debug_preview_not_found_message">Den kan ha bytt namn. Gå tillbaka och välj den igen.</string>
     <string name="debug_section_tools">Verktyg</string>
     <string name="debug_logs">Loggar</string>
     <string name="debug_logs_subtitle">De senaste loggraderna i den här sessionen</string>

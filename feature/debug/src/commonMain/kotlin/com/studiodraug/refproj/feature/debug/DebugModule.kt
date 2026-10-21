@@ -1,14 +1,19 @@
 package com.studiodraug.refproj.feature.debug
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.studiodraug.refproj.core.config.AppConfig
+import com.studiodraug.refproj.core.navigation.DebugCatalogRoute
 import com.studiodraug.refproj.core.navigation.DebugLogsRoute
+import com.studiodraug.refproj.core.navigation.DebugPreviewRoute
 import com.studiodraug.refproj.core.navigation.DebugRoute
 import com.studiodraug.refproj.core.navigation.NavEntryInstaller
 import com.studiodraug.refproj.core.navigation.Navigator
+import com.studiodraug.refproj.core.ui.ScreenPreviewGroup
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.factoryOf
@@ -29,6 +34,9 @@ val debugModule: Module =
         factoryOf(::AppStateShortcuts)
         viewModelOf(::DebugViewModel)
         viewModel { DebugLogsViewModel(get()) }
+        single<ScreenPreviewGroup>(named("designsystem")) { designSystemPreviews }
+        single { ScreenCatalog(getAll()) }
+        viewModelOf(::DebugCatalogViewModel)
         single<NavEntryInstaller>(named("debug")) { NavEntryInstaller { navigator -> debugEntries(navigator) } }
     }
 
@@ -40,6 +48,7 @@ private fun EntryProviderScope<NavKey>.debugEntries(navigator: Navigator) {
             state = state,
             onAction = viewModel::onAction,
             onOpenLogs = { navigator.navigate(DebugLogsRoute) },
+            onOpenCatalog = { navigator.navigate(DebugCatalogRoute) },
             onBack = { navigator.back() },
         )
     }
@@ -47,5 +56,23 @@ private fun EntryProviderScope<NavKey>.debugEntries(navigator: Navigator) {
         val viewModel = koinViewModel<DebugLogsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
         DebugLogsScreen(state = state, onAction = viewModel::onAction, onBack = { navigator.back() })
+    }
+    entry<DebugCatalogRoute> {
+        val viewModel = koinViewModel<DebugCatalogViewModel>()
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        DebugCatalogScreen(
+            state = state,
+            onOpenPreview = { group, preview -> navigator.navigate(DebugPreviewRoute(group, preview)) },
+            onBack = { navigator.back() },
+        )
+    }
+    // A container for a stateless sample screen: no ViewModel of its own.
+    entry<DebugPreviewRoute> { route ->
+        val catalog = koinInject<ScreenCatalog>()
+        DebugPreviewScreen(
+            title = "${route.group} · ${route.preview}",
+            preview = remember(route) { catalog.find(route.group, route.preview) },
+            onBack = { navigator.back() },
+        )
     }
 }

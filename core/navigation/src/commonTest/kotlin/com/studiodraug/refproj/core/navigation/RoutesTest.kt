@@ -15,7 +15,18 @@ class RoutesTest {
 
     // Add every new route here as well.
     private val allRoutes: List<NavKey> =
-        listOf(OnboardingRoute, LoginRoute, MainRoute, HomeRoute, TasksRoute, ProfileRoute, DebugRoute, DebugLogsRoute)
+        listOf(
+            OnboardingRoute,
+            LoginRoute,
+            MainRoute,
+            HomeRoute,
+            TasksRoute,
+            ProfileRoute,
+            DebugRoute,
+            DebugLogsRoute,
+            DebugCatalogRoute,
+            DebugPreviewRoute(group = "Login", preview = "Wrong password"),
+        )
 
     @Test
     fun everyRoute_roundTripsThroughTheRegisteredSerializers() {

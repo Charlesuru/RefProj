@@ -10,6 +10,8 @@ import io.ktor.client.call.body
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.MockRequestHandler
 import io.ktor.client.engine.mock.respond
+import io.ktor.client.network.sockets.ConnectTimeoutException
+import io.ktor.client.network.sockets.SocketTimeoutException
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.http.HttpHeaders
@@ -108,6 +110,18 @@ class HttpClientTest {
         runTest {
             val client = client { throw IOException("connection reset") }
             assertEquals(ApiResult.Failure(ApiError.Network), safeApiCall { client.get("items").body<Item>() })
+        }
+
+    @Test
+    fun timeouts_areTimeoutErrors() =
+        runTest {
+            listOf(
+                ConnectTimeoutException("connect timed out"),
+                SocketTimeoutException("read timed out"),
+            ).forEach { timeout ->
+                val client = client { throw timeout }
+                assertEquals(ApiResult.Failure(ApiError.Timeout), safeApiCall { client.get("items").body<Item>() }, "$timeout")
+            }
         }
 
     @Test

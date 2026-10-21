@@ -4,6 +4,7 @@ import androidx.room.ConstructedBy
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
+import androidx.room.migration.Migration
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.studiodraug.refproj.data.tasks.TaskDao
 import com.studiodraug.refproj.data.tasks.TaskEntity
@@ -14,16 +15,18 @@ import org.koin.core.module.Module
 /**
  * The app's local database (Room). Schemas are exported to `data/schemas` and committed.
  *
- * Changing an entity: bump `version` and add a migration (`addMigrations` in [buildWithDefaults], or an
- * `@AutoMigration` for simple cases). Never use destructive migration — it silently deletes user data.
+ * Changing an entity: bump [VERSION] and add a migration to [ALL_MIGRATIONS] (or an `@AutoMigration` for simple
+ * cases). The migration test runs every exported schema through them. Never use destructive migration — it
+ * silently deletes user data.
  */
-@Database(entities = [TaskEntity::class], version = 1, exportSchema = true)
+@Database(entities = [TaskEntity::class], version = RefProjDatabase.VERSION, exportSchema = true)
 @ConstructedBy(RefProjDatabaseConstructor::class)
 internal abstract class RefProjDatabase : RoomDatabase() {
     abstract fun taskDao(): TaskDao
 
     companion object {
         const val FILE_NAME = "refproj.db"
+        const val VERSION = 1
     }
 }
 
@@ -33,9 +36,13 @@ internal expect object RefProjDatabaseConstructor : RoomDatabaseConstructor<RefP
     override fun initialize(): RefProjDatabase
 }
 
-/** Shared configuration for the platform builders: bundled SQLite and queries off the main thread. */
+/** Every manual migration, oldest first. Room picks the path from the installed version to [RefProjDatabase.VERSION]. */
+internal val ALL_MIGRATIONS: List<Migration> = emptyList()
+
+/** Shared configuration for the platform builders: bundled SQLite, the migrations and queries off the main thread. */
 internal fun RoomDatabase.Builder<RefProjDatabase>.buildWithDefaults(): RefProjDatabase =
     setDriver(BundledSQLiteDriver())
+        .apply { ALL_MIGRATIONS.forEach { addMigrations(it) } }
         .setQueryCoroutineContext(Dispatchers.IO)
         .build()
 

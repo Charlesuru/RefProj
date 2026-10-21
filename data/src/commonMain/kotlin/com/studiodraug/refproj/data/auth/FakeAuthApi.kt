@@ -2,6 +2,8 @@ package com.studiodraug.refproj.data.auth
 
 import com.studiodraug.refproj.core.network.ApiError
 import com.studiodraug.refproj.core.network.ApiResult
+import com.studiodraug.refproj.domain.auth.Credentials
+import com.studiodraug.refproj.domain.auth.TestAccountProvider
 import kotlin.random.Random
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
@@ -60,4 +62,9 @@ internal class FakeAuthApi(
         private const val HEX = 16
         private val DEFAULT_LATENCY = 800.milliseconds
     }
+}
+
+/** The test account of [FakeAuthApi]. A real backend gets one test account per environment here. */
+internal object FakeAuthTestAccount : TestAccountProvider {
+    override fun testAccount(): Credentials = Credentials(FakeAuthApi.TEST_EMAIL, FakeAuthApi.TEST_PASSWORD)
 }

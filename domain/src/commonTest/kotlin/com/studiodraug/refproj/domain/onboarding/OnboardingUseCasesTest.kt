@@ -1,11 +1,10 @@
 package com.studiodraug.refproj.domain.onboarding
 
 import app.cash.turbine.test
+import com.studiodraug.refproj.domain.FakeOnboardingRepository
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.test.runTest
 
 // UNIT TEST
@@ -22,16 +21,13 @@ class OnboardingUseCasesTest {
             }
         }
 
-    private class FakeOnboardingRepository : OnboardingRepository {
-        private val state = MutableStateFlow(false)
-        override val isCompleted: StateFlow<Boolean> = state
-
-        override suspend fun markCompleted() {
-            state.value = true
+    @Test
+    fun resetting_onboarding_showsItAgain() =
+        runTest {
+            CompleteOnboardingUseCase(repository)()
+            ResetOnboardingUseCase(repository)()
+            ObserveOnboardingCompletedUseCase(repository)().test {
+                assertFalse(awaitItem())
+            }
         }
-
-        override suspend fun reset() {
-            state.value = false
-        }
-    }
 }

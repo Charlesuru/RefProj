@@ -4,8 +4,10 @@ import com.russhwolf.settings.MapSettings
 import com.russhwolf.settings.ObservableSettings
 import com.studiodraug.refproj.app.AppViewModel
 import com.studiodraug.refproj.core.config.AppConfig
+import com.studiodraug.refproj.core.config.AppEnvironment
 import com.studiodraug.refproj.core.featureflags.FeatureFlagOverrides
 import com.studiodraug.refproj.core.featureflags.FeatureFlags
+import com.studiodraug.refproj.core.observability.LogBuffer
 import com.studiodraug.refproj.core.storage.KeyValueStore
 import com.studiodraug.refproj.core.storage.SecureStore
 import com.studiodraug.refproj.core.testing.FakeAnalyticsTracker
@@ -14,16 +16,21 @@ import com.studiodraug.refproj.core.testing.FakeSecureStore
 import com.studiodraug.refproj.core.testing.runViewModelTest
 import com.studiodraug.refproj.core.testing.testAppConfig
 import com.studiodraug.refproj.domain.auth.AuthRepository
+import com.studiodraug.refproj.domain.auth.GetTestAccountUseCase
 import com.studiodraug.refproj.domain.auth.LoginUseCase
 import com.studiodraug.refproj.domain.auth.LogoutUseCase
 import com.studiodraug.refproj.domain.auth.ObserveAuthStateUseCase
 import com.studiodraug.refproj.domain.auth.ObserveCurrentUserUseCase
+import com.studiodraug.refproj.domain.auth.TestAccountProvider
 import com.studiodraug.refproj.domain.consent.ConsentRepository
 import com.studiodraug.refproj.domain.consent.ObserveAnalyticsConsentUseCase
 import com.studiodraug.refproj.domain.consent.SetAnalyticsConsentUseCase
+import com.studiodraug.refproj.domain.debug.ClearLocalDataUseCase
+import com.studiodraug.refproj.domain.debug.SignInWithTestAccountUseCase
 import com.studiodraug.refproj.domain.onboarding.CompleteOnboardingUseCase
 import com.studiodraug.refproj.domain.onboarding.ObserveOnboardingCompletedUseCase
 import com.studiodraug.refproj.domain.onboarding.OnboardingRepository
+import com.studiodraug.refproj.domain.onboarding.ResetOnboardingUseCase
 import com.studiodraug.refproj.domain.tasks.AddTaskUseCase
 import com.studiodraug.refproj.domain.tasks.DeleteTaskUseCase
 import com.studiodraug.refproj.domain.tasks.ObserveTaskSummaryUseCase
@@ -40,9 +47,12 @@ import io.ktor.client.HttpClient
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
+import org.koin.core.Koin
 import org.koin.dsl.koinApplication
 import org.koin.dsl.module
 
@@ -57,10 +67,17 @@ import org.koin.dsl.module
 class AppGraphTest {
     private val config = testAppConfig(isDebugBuild = false)
     private val analytics = FakeAnalyticsTracker()
-    private val koin =
+    private val graphs = mutableListOf<Koin>()
+    private val koin = graph(config, LogBuffer())
+
+    /** The app's graph as [startApp] builds it, with the device-only parts replaced. */
+    private fun graph(
+        config: AppConfig,
+        logBuffer: LogBuffer?,
+    ): Koin =
         koinApplication {
             allowOverride(true)
-            modules(appModules(config, FakeCrashReporter(), analytics))
+            modules(appModules(config, FakeCrashReporter(), analytics, logBuffer))
             modules(
                 module {
                     single<ObservableSettings> { MapSettings() }
@@ -68,10 +85,10 @@ class AppGraphTest {
                     single<TaskRepository> { NoTaskRepository }
                 },
             )
-        }.koin
+        }.koin.also(graphs::add)
 
     @AfterTest
-    fun tearDown() = koin.close()
+    fun tearDown() = graphs.forEach(Koin::close)
 
     @Test
     fun graph_resolvesEveryEntryPoint() {
@@ -96,6 +113,27 @@ class AppGraphTest {
         koin.get<AddTaskUseCase>()
         koin.get<SetTaskDoneUseCase>()
         koin.get<DeleteTaskUseCase>()
+        koin.get<ResetOnboardingUseCase>()
+        koin.get<GetTestAccountUseCase>()
+        koin.get<SignInWithTestAccountUseCase>()
+        koin.get<ClearLocalDataUseCase>()
+    }
+
+    @Test
+    fun debugTools_areAvailableInEveryNonProdEnvironment() {
+        AppEnvironment.entries.filterNot { it.isProduction }.forEach { environment ->
+            val graph = graph(testAppConfig(environment, isDebugBuild = false), LogBuffer())
+            assertNotNull(graph.get<TestAccountProvider>().testAccount(), "$environment")
+            assertNotNull(graph.getOrNull<LogBuffer>(), "$environment")
+        }
+    }
+
+    @Test
+    fun prodReleaseBuild_hasNoDebugTools() {
+        val graph = graph(testAppConfig(AppEnvironment.PROD, isDebugBuild = false), logBuffer = null)
+
+        assertNull(graph.get<TestAccountProvider>().testAccount())
+        assertNull(graph.getOrNull<LogBuffer>())
     }
 
     @Test

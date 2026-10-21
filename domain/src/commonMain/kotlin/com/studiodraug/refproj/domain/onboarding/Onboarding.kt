@@ -23,3 +23,10 @@ class CompleteOnboardingUseCase(
 ) {
     suspend operator fun invoke() = repository.markCompleted()
 }
+
+/** Marks onboarding as not done, so the app shows it again at once. The session is kept. Debug tool. */
+class ResetOnboardingUseCase(
+    private val repository: OnboardingRepository,
+) {
+    suspend operator fun invoke() = repository.reset()
+}

@@ -1,8 +1,10 @@
 package com.studiodraug.refproj.data.tasks
 
+import app.cash.turbine.ReceiveTurbine
 import app.cash.turbine.test
 import com.studiodraug.refproj.core.testing.PlatformTest
 import com.studiodraug.refproj.data.database.inMemoryTestDatabase
+import com.studiodraug.refproj.domain.tasks.Task
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -55,16 +57,28 @@ class TaskRepositoryImplTest : PlatformTest() {
     fun changes_areEmitted_andDeleteAllEmptiesTheTable() =
         runTest {
             repository.tasks.test {
-                assertTrue(awaitItem().isEmpty())
+                awaitUntil { it.isEmpty() }
                 repository.add("A")
-                val added = awaitItem().single()
+                val added = awaitUntil { it.size == 1 }.single()
                 repository.delete(added.id)
-                assertTrue(awaitItem().isEmpty())
+                awaitUntil { it.isEmpty() }
                 repository.add("B")
                 repository.add("C")
-                skipItems(2)
+                awaitUntil { it.size == 2 }
                 repository.deleteAll()
-                assertTrue(awaitItem().isEmpty())
+                awaitUntil { it.isEmpty() }
+                cancelAndIgnoreRemainingEvents()
             }
         }
+
+    /**
+     * Room may merge quick successive changes into one emission or repeat a state, so wait for the
+     * expected state instead of counting emissions.
+     */
+    private suspend fun ReceiveTurbine<List<Task>>.awaitUntil(expected: (List<Task>) -> Boolean): List<Task> {
+        while (true) {
+            val tasks = awaitItem()
+            if (expected(tasks)) return tasks
+        }
+    }
 }

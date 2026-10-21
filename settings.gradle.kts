@@ -58,3 +58,6 @@ include(":feature:login")
 include(":feature:onboarding")
 include(":feature:profile")
 include(":feature:tasks")
+
+// --- Tests that span the whole repository ---
+include(":tests:architecture")

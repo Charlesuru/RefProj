@@ -172,9 +172,9 @@ platform :android do
     path
   end
 
-  desc "Run Android host tests and check the coverage floors. Reports: build/reports/kover"
+  desc "Run Android host tests and architecture tests, check the coverage floors. Reports: build/reports/kover"
   lane :test do
-    gradle!("testAndroidHostTest", ":app:android:testDevDebugUnitTest", "koverVerify", "koverXmlReport", "koverHtmlReport")
+    gradle!("testAndroidHostTest", ":app:android:testDevDebugUnitTest", ":tests:architecture:test", "koverVerify", "koverXmlReport", "koverHtmlReport")
   end
 
   desc "Upload a signed build. DEV/SIT/STAGE -> Firebase App Distribution, PROD -> Play internal track"

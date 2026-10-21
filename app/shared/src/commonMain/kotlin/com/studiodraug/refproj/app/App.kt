@@ -1,11 +1,18 @@
 package com.studiodraug.refproj.app
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -15,12 +22,16 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.studiodraug.refproj.app.navigation.MainShell
 import com.studiodraug.refproj.app.navigation.screenName
+import com.studiodraug.refproj.core.config.AppConfig
 import com.studiodraug.refproj.core.designsystem.component.RefSurface
 import com.studiodraug.refproj.core.designsystem.theme.RefTheme
 import com.studiodraug.refproj.core.navigation.BackStackNavigator
+import com.studiodraug.refproj.core.navigation.DebugDestination
+import com.studiodraug.refproj.core.navigation.DebugRoute
 import com.studiodraug.refproj.core.navigation.MainRoute
 import com.studiodraug.refproj.core.navigation.NavEntryInstaller
 import com.studiodraug.refproj.core.observability.AnalyticsTracker
+import com.studiodraug.refproj.feature.debug.DebugMenuBadge
 import org.koin.compose.getKoin
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -58,24 +69,39 @@ private fun RootNavigation(
     val installers = remember(koin) { koin.getAll<NavEntryInstaller>() }
 
     val analytics = koinInject<AnalyticsTracker>()
+    val config = koinInject<AppConfig>()
     val currentRoute = backStack.last()
-    // The shell reports its own screens.
-    LaunchedEffect(currentRoute) { if (currentRoute != MainRoute) analytics.logScreenView(screenName(currentRoute)) }
+    // The shell reports its own screens; the debug menu is not product usage.
+    LaunchedEffect(currentRoute) {
+        if (currentRoute != MainRoute && currentRoute !is DebugDestination) analytics.logScreenView(screenName(currentRoute))
+    }
 
-    NavDisplay(
-        backStack = backStack,
-        modifier = modifier,
-        onBack = { navigator.back() },
-        entryDecorators =
-            listOf(
-                rememberSaveableStateHolderNavEntryDecorator(),
-                // Scopes each screen's ViewModel to its back stack entry.
-                rememberViewModelStoreNavEntryDecorator(),
-            ),
-        entryProvider =
-            entryProvider {
-                installers.forEach { installer -> with(installer) { install(navigator) } }
-                entry<MainRoute> { MainShell(installers = installers) }
-            },
-    )
+    Box(modifier = modifier) {
+        NavDisplay(
+            backStack = backStack,
+            onBack = { navigator.back() },
+            entryDecorators =
+                listOf(
+                    rememberSaveableStateHolderNavEntryDecorator(),
+                    // Scopes each screen's ViewModel to its back stack entry.
+                    rememberViewModelStoreNavEntryDecorator(),
+                ),
+            entryProvider =
+                entryProvider {
+                    installers.forEach { installer -> with(installer) { install(navigator) } }
+                    entry<MainRoute> { MainShell(installers = installers) }
+                },
+        )
+        // Never in a PROD release build: there the debug module and its routes are not even bound.
+        if (config.isDebugMenuEnabled && currentRoute !is DebugDestination) {
+            DebugMenuBadge(
+                environment = config.environment.name,
+                onClick = { navigator.navigate(DebugRoute) },
+                modifier =
+                    Modifier
+                        .align(Alignment.CenterStart)
+                        .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Start)),
+            )
+        }
+    }
 }

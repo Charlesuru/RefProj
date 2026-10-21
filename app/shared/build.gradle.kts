@@ -31,6 +31,7 @@ kotlin {
             implementation(projects.core.ui)
             implementation(projects.data)
             implementation(projects.domain)
+            implementation(projects.feature.debug)
             implementation(projects.feature.home)
             implementation(projects.feature.login)
             implementation(projects.feature.onboarding)

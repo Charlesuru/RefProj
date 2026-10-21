@@ -65,6 +65,7 @@ Details, release how-to and the security model: [docs/ci-cd.md](docs/ci-cd.md).
 - [docs/adr/](docs/adr/) — architecture decisions
 - [docs/pr-workflow.md](docs/pr-workflow.md) — one change from clone to merge: hooks, CI, review, rebase-merge
 - [docs/ci-cd.md](docs/ci-cd.md) — pipelines, releasing, runners, repository settings
+- [docs/testing.md](docs/testing.md) — test types, how to run and write them, screenshots, coverage
 - [docs/secrets.md](docs/secrets.md) — every secret, where it lives, how to rotate it
 - [SECURITY.md](SECURITY.md) — reporting a vulnerability
 - [docs/PROGRESS.md](docs/PROGRESS.md) — build-out progress

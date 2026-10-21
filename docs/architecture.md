@@ -29,6 +29,8 @@
 | `domain` is pure Kotlin | Business rules testable without any platform |
 | Only `app:shared` sees everything | Single composition root for DI and navigation |
 
+These rules are enforced by the architecture tests in `tests/architecture` ([testing.md](testing.md#architecture-tests)).
+
 ## Is every feature its own module?
 Yes. A feature = one user-facing capability (e.g. `login`, `onboarding`, `home`, `profile`).
 Benefits: parallel builds, enforced boundaries, clear code ownership, and a feature flag can
@@ -58,4 +60,5 @@ Both feed an `AppConfig` into shared code at startup. Shared code never chooses 
 | Storage, network, observability, feature flags | multiplatform-settings, Ktor, Kermit + Firebase (native SDKs), own flag catalogue | 0007 |
 | Local database | Room (KMP) with bundled SQLite, in `data` | 0009 |
 | Debug menu | `feature:debug`, bound only while `AppConfig.isDebugMenuEnabled` (never PROD release) | 0010 |
+| Tests | Shared tests on Android host (Robolectric) + iOS simulator, Konsist, Roborazzi, Kover, nightly device tests | 0011 |
 | Lint | ktlint (via Spotless) + Compose rules + detekt | — |

@@ -9,3 +9,4 @@ was fixed. Complements `docs/PROGRESS.md` (status and next action) and the ADRs 
 | 4 — Core | [step-4-core.md](step-4-core.md) |
 | 5 — Features | [step-5-features.md](step-5-features.md) |
 | 6 — Debug menu | [step-6-debug-menu.md](step-6-debug-menu.md) |
+| 7 — Tests | [step-7-tests.md](step-7-tests.md) |

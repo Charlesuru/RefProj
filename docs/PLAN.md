@@ -77,7 +77,7 @@ App concept: a simple personal task/habit tracker. Onboarding → login (fake au
 ### Step 6 — Debug menu ✅ (model: Opus, owner's choice)
 `feature:debug`, only in non-PROD/debug builds: feature flag toggles, environment info, jump to state (logged in / onboarding), pre-filled test user, in-app screen catalog/preview, log viewer, crash test button, clear data.
 
-### Step 7 — Tests (model: Sonnet)
+### Step 7 — Tests ✅ (model: Opus, owner's choice)
 Unit (commonTest), integration (repositories + Ktor MockEngine, Koin graph check), UI (Compose UI tests), screenshot (Roborazzi), architecture (Konsist), coverage (Kover) + thresholds in CI. Each test class labelled with its type.
 
 ### Step 8 — Jira + AI workflow (model: Opus)

@@ -1,0 +1,45 @@
+# On-device Android tests (src/androidDeviceTest): the Android Keystore, the bundled SQLite library and
+# file-backed databases, which the JVM host cannot run. They need an emulator, so they run once a night on
+# main instead of on every pull request (docs/testing.md#on-device-tests). A red run e-mails the
+# workflow's owner; fix it like a broken main. Run it manually (Actions → Device tests → Run workflow) too.
+name: Device tests
+
+on:
+  schedule:
+    - cron: "30 1 * * 1-5" # 01:30 UTC, Monday–Friday, before the SIT deploy
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: device-tests
+  cancel-in-progress: true
+
+jobs:
+  android:
+    name: Android device tests (managed emulator)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-build
+        with:
+          ruby: "true"
+      # Hardware acceleration for the emulator; GitHub's Linux runners support KVM.
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      # Gradle downloads the system image, boots the emulator, runs the tests and shuts it down.
+      - name: Run device tests
+        run: bundle exec fastlane android device_test
+      - if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: device-test-reports
+          path: "**/build/reports/androidTests/"
+          retention-days: 14

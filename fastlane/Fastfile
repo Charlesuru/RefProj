@@ -4,6 +4,7 @@
 #   bundle exec fastlane test                               # quality gate (format, lint, all tests)
 #   bundle exec fastlane lint                               # format + static analysis only
 #   bundle exec fastlane android build env:dev              # debug APK
+#   bundle exec fastlane android device_test                # on-device tests on a managed emulator
 #   bundle exec fastlane android build env:sit type:release # signed if the upload key is configured
 #   bundle exec fastlane android beta env:sit               # -> Firebase App Distribution
 #   bundle exec fastlane ios build env:dev                  # simulator build, signed to run locally (no certificate)
@@ -175,6 +176,19 @@ platform :android do
   desc "Run Android host tests and architecture tests, check the coverage floors. Reports: build/reports/kover"
   lane :test do
     gradle!("testAndroidHostTest", ":app:android:testDevDebugUnitTest", ":tests:architecture:test", "koverVerify", "koverXmlReport", "koverHtmlReport")
+  end
+
+  desc "Run the on-device tests on a Gradle-managed emulator (downloaded and started by Gradle; nightly in CI)"
+  lane :device_test do
+    gradle!(
+      "ciDeviceAndroidDeviceTest",
+      properties: {
+        # Software rendering: works headless (CI) and on every host GPU.
+        "android.testoptions.manageddevices.emulator.gpu" => "swiftshader_indirect",
+        # The first run downloads the system image (~1 GB).
+        "android.experimental.testOptions.managedDevices.setupTimeoutMinutes" => "20",
+      },
+    )
   end
 
   desc "Upload a signed build. DEV/SIT/STAGE -> Firebase App Distribution, PROD -> Play internal track"

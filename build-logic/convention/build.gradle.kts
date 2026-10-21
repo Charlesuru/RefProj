@@ -34,6 +34,10 @@ gradlePlugin {
             id = "refproj.kmp.room"
             implementationClass = "KmpRoomConventionPlugin"
         }
+        register("kmpDeviceTest") {
+            id = "refproj.kmp.devicetest"
+            implementationClass = "KmpDeviceTestConventionPlugin"
+        }
         register("androidApplication") {
             id = "refproj.android.application"
             implementationClass = "AndroidApplicationConventionPlugin"

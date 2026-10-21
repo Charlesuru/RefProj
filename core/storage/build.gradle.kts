@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.refproj.kmp.library)
+    alias(libs.plugins.refproj.kmp.device.test)
 }
 
 kotlin {

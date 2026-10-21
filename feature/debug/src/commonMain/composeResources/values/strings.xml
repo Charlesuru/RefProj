@@ -33,6 +33,10 @@
     <string name="debug_clear_data_message">The app returns to the state of a fresh install.</string>
     <string name="debug_clear">Clear</string>
 
+    <string name="debug_catalog">Screen catalog</string>
+    <string name="debug_catalog_subtitle">Every screen in sample states, and the design system</string>
+    <string name="debug_preview_not_found">Preview not found</string>
+    <string name="debug_preview_not_found_message">It may have been renamed. Go back and pick it again.</string>
     <string name="debug_section_tools">Tools</string>
     <string name="debug_logs">Logs</string>
     <string name="debug_logs_subtitle">The latest log lines of this session</string>

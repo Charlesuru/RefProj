@@ -43,6 +43,16 @@ data object DebugRoute : DebugDestination
 @Serializable
 data object DebugLogsRoute : DebugDestination
 
+@Serializable
+data object DebugCatalogRoute : DebugDestination
+
+/** One sample screen of the catalog, identified by its group title and name. */
+@Serializable
+data class DebugPreviewRoute(
+    val group: String,
+    val preview: String,
+) : DebugDestination
+
 /**
  * Lets Navigation 3 save and restore the back stack (process death on Android, state restoration
  * on iOS). Non-Android platforms have no reflection, so **every route must be registered here**;
@@ -61,6 +71,8 @@ val NavSavedStateConfiguration: SavedStateConfiguration =
                     subclass(ProfileRoute::class, ProfileRoute.serializer())
                     subclass(DebugRoute::class, DebugRoute.serializer())
                     subclass(DebugLogsRoute::class, DebugLogsRoute.serializer())
+                    subclass(DebugCatalogRoute::class, DebugCatalogRoute.serializer())
+                    subclass(DebugPreviewRoute::class, DebugPreviewRoute.serializer())
                 }
             }
     }

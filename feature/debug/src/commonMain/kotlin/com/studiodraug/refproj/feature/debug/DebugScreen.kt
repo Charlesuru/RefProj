@@ -36,6 +36,8 @@ import com.studiodraug.refproj.feature.debug.resources.debug_api_base_url
 import com.studiodraug.refproj.feature.debug.resources.debug_build_type
 import com.studiodraug.refproj.feature.debug.resources.debug_build_type_debug
 import com.studiodraug.refproj.feature.debug.resources.debug_build_type_release
+import com.studiodraug.refproj.feature.debug.resources.debug_catalog
+import com.studiodraug.refproj.feature.debug.resources.debug_catalog_subtitle
 import com.studiodraug.refproj.feature.debug.resources.debug_clear
 import com.studiodraug.refproj.feature.debug.resources.debug_clear_data
 import com.studiodraug.refproj.feature.debug.resources.debug_clear_data_message
@@ -76,6 +78,7 @@ fun DebugScreen(
     state: DebugUiState,
     onAction: (DebugAction) -> Unit,
     onOpenLogs: () -> Unit,
+    onOpenCatalog: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -96,7 +99,7 @@ fun DebugScreen(
                 EnvironmentSection(state.environment)
                 FlagsSection(state.flags, onAction)
                 AppStateSection(state, onAction)
-                ToolsSection(state.message, onAction, onOpenLogs)
+                ToolsSection(state.message, onAction, onOpenLogs, onOpenCatalog)
             }
         }
     }
@@ -233,8 +236,14 @@ private fun ToolsSection(
     message: DebugMessage?,
     onAction: (DebugAction) -> Unit,
     onOpenLogs: () -> Unit,
+    onOpenCatalog: () -> Unit,
 ) {
     Section(title = stringResource(Res.string.debug_section_tools)) {
+        RefListItem(
+            title = stringResource(Res.string.debug_catalog),
+            subtitle = stringResource(Res.string.debug_catalog_subtitle),
+            onClick = onOpenCatalog,
+        )
         RefListItem(
             title = stringResource(Res.string.debug_logs),
             subtitle = stringResource(Res.string.debug_logs_subtitle),
@@ -295,6 +304,7 @@ private fun DebugScreenPreview() {
                 ),
             onAction = {},
             onOpenLogs = {},
+            onOpenCatalog = {},
             onBack = {},
         )
     }

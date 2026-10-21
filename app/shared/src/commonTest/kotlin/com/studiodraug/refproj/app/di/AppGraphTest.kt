@@ -39,8 +39,10 @@ import com.studiodraug.refproj.domain.tasks.ObserveTasksUseCase
 import com.studiodraug.refproj.domain.tasks.SetTaskDoneUseCase
 import com.studiodraug.refproj.domain.tasks.Task
 import com.studiodraug.refproj.domain.tasks.TaskRepository
+import com.studiodraug.refproj.feature.debug.DebugCatalogViewModel
 import com.studiodraug.refproj.feature.debug.DebugLogsViewModel
 import com.studiodraug.refproj.feature.debug.DebugViewModel
+import com.studiodraug.refproj.feature.debug.ScreenCatalog
 import com.studiodraug.refproj.feature.home.HomeViewModel
 import com.studiodraug.refproj.feature.login.LoginViewModel
 import com.studiodraug.refproj.feature.onboarding.OnboardingViewModel
@@ -49,6 +51,7 @@ import com.studiodraug.refproj.feature.tasks.TasksViewModel
 import io.ktor.client.HttpClient
 import kotlin.test.AfterTest
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -160,7 +163,21 @@ class AppGraphTest {
             koin.get<ProfileViewModel>()
             koin.get<DebugViewModel>()
             koin.get<DebugLogsViewModel>()
+            koin.get<DebugCatalogViewModel>()
         }
+
+    @Test
+    fun screenCatalog_containsEveryFeature_andTheDesignSystem() {
+        val groups = koin.get<ScreenCatalog>().groups
+        assertEquals(
+            listOf("Design system", "Home", "Login", "Onboarding", "Profile", "Tasks"),
+            groups.map { it.title },
+        )
+        groups.forEach { group ->
+            val names = group.previews.map { it.name }
+            assertEquals(names.distinct(), names, "Duplicate preview names in ${group.title}")
+        }
+    }
 
     @Test
     fun startup_appliesTheStoredConsent_soAnalyticsIsOffUntilTheUserOptsIn() {

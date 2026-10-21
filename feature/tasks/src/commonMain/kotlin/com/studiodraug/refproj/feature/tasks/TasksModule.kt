@@ -6,6 +6,7 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.studiodraug.refproj.core.navigation.NavEntryInstaller
 import com.studiodraug.refproj.core.navigation.TasksRoute
+import com.studiodraug.refproj.core.ui.ScreenPreviewGroup
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModelOf
@@ -17,6 +18,7 @@ val tasksModule: Module =
     module {
         viewModelOf(::TasksViewModel)
         single<NavEntryInstaller>(named("tasks")) { NavEntryInstaller { tasksEntries() } }
+        single<ScreenPreviewGroup>(named("tasks")) { tasksPreviews }
     }
 
 private fun EntryProviderScope<NavKey>.tasksEntries() {

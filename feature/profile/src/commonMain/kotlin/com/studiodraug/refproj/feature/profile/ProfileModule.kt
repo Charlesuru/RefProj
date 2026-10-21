@@ -6,6 +6,7 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.studiodraug.refproj.core.navigation.NavEntryInstaller
 import com.studiodraug.refproj.core.navigation.ProfileRoute
+import com.studiodraug.refproj.core.ui.ScreenPreviewGroup
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModelOf
@@ -17,6 +18,7 @@ val profileModule: Module =
     module {
         viewModelOf(::ProfileViewModel)
         single<NavEntryInstaller>(named("profile")) { NavEntryInstaller { profileEntries() } }
+        single<ScreenPreviewGroup>(named("profile")) { profilePreviews }
     }
 
 private fun EntryProviderScope<NavKey>.profileEntries() {

@@ -14,6 +14,7 @@
 | Tests that need a real device (Keystore, Room on Android) | **Nightly CI** on an emulator, not on every PR |
 | Coverage thresholds | **Floors at the measured level per module**, ratcheted up |
 | Model | Opus (plan said Sonnet; owner's choice) |
+| Merging #32–#37 | Owner asked the AI to restack and merge after green CI. The `main` ruleset requires an extra approval for commits co-authored by Claude ("unattributed changes"), which the AI cannot give with the owner's account; owner approved **`gh pr merge --admin` for this stack only**. A one-off exception to CLAUDE.md §3 ("never merge your own PR"); revisit in step 8 when the AI gets its own GitHub identity |
 
 ## 2. What was built
 | Area | Result |

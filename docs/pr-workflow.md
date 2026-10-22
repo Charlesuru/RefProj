@@ -117,6 +117,7 @@ gh pr create --base main --title "REF-123: Add biometric unlock" --fill-first   
 | [`pr-conventions.yml`](../.github/workflows/pr-conventions.yml) — **Conventions** | **required** check: title, branch and commit subjects follow the conventions — see below |
 | Concurrency | a new push cancels the PR's running CI and starts over |
 | [`deploy-pr.yml`](../.github/workflows/deploy-pr.yml) *(optional)* | add the label **`deploy:dev`** to send the PR's build to DEV testers (Firebase App Distribution + TestFlight); every push redeploys while the label is on. Not for forks or Dependabot. Remove the label when done |
+| [`ai-review.yml`](../.github/workflows/ai-review.yml) *(optional)* | add the label **`ai-review`** for an automated Claude review: inline comments + a summary, never an approval. The label is removed after the run; add it again for a fresh review ([ai-workflow.md](ai-workflow.md#ci-review)) |
 
 ### Conventions check
 The commit-msg hook can be skipped or missing on a machine; this check cannot. It runs in seconds, also when only the
@@ -140,9 +141,9 @@ Red CI: open the failing job's log (PR → *Checks*), reproduce locally with the
   To fold a fix into an earlier commit instead: `git commit --fixup=<sha>`, then before merge
   `git rebase -i --autosquash origin/main` and `git push --force-with-lease` (only on your own branch).
 - **All review threads must be resolved** before merge (ruleset). A push dismisses earlier approvals.
-- Required approvals are currently **0**: GitHub does not let an author approve their own PR, and all PRs come from the
-  owner's account. They become 1 once the AI has its own identity (plan step 8). A human still reviews and merges —
-  never merge your own PR.
+- Required approvals are **0**: the PR author owns the code, also when the AI wrote it, and GitHub does not let an author
+  approve their own PR ([ci-cd.md → Approvals](ci-cd.md#settings-as-code)). The owner reviews the diff, the checks and
+  any AI review, then merges. In a team a colleague approves first; the AI never approves or merges.
 
 ## 8. Bring the branch up to date
 

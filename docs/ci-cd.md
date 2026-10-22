@@ -106,9 +106,11 @@ Repository settings live in [`.github/settings/`](../.github/settings/) and
 CI secrets are copied from the owner's machine by [`scripts/github/set-ci-secrets.sh`](../scripts/github/set-ci-secrets.sh);
 the full inventory is in [secrets.md](secrets.md).
 
-**Approvals:** the ruleset requires a PR but **0 approving reviews**, because GitHub does not let an author approve their
-own PR and all PRs are currently opened from the owner's account. Plan step 8 gives the AI its own GitHub identity; the
-required approvals then go to 1 (`required_approving_review_count` in `ruleset-main.json`).
+**Approvals:** the ruleset requires a PR but **0 approving reviews**. The developer who opens a PR owns its code, also
+when the AI wrote it ([ai-workflow.md](ai-workflow.md#who-owns-the-code), ADR 0012), and GitHub never lets authors
+approve their own PR — with one person on the project, a required approval could only be bypassed. A team sets
+`required_approving_review_count: 1` and `require_code_owner_review: true` in `ruleset-main.json`, so a colleague
+approves every PR. Actions can never approve (`can_approve_pull_request_reviews=false`).
 
 ## Caching
 - Gradle: `gradle/actions/setup-gradle` (dependencies, wrapper, build cache). Written from `main` only; PRs read it.

@@ -74,8 +74,11 @@ Communicate with the user in **Swedish**. Write code, comments, commit messages,
    `feat(login): add biometric unlock [REF-42]`
    Types: `feat, fix, refactor, perf, test, docs, build, ci, chore`.
 4. **PR:** title `REF-123: <summary>`, use the PR template, link the ticket, list how it was tested.
-5. **AI review** runs on every PR; a **human approves and merges**. Never merge your own PR.
+5. **AI review** on request (label `ai-review` in CI, or `/review-pr`); a **human merges** (in a team: after a colleague's approval).
 6. Never push directly to `main`. Never force-push to shared branches. Never skip hooks (`--no-verify`).
+7. **The AI is a tool; the developer owns the code.** Commits, pushes and PRs go out from the developer's account, with
+   the `Co-Authored-By: Claude` trailer; the developer reads the diff before the PR is opened. The AI never approves,
+   merges, enables auto-merge or uses `--admin`. Details: `docs/ai-workflow.md`.
 
 ## 4. When to stop and ask
 
@@ -100,7 +103,7 @@ Stop and ask the user (in Swedish, with step-by-step instructions) when:
 | `fastlane/` | Build/test/upload lanes for both platforms — `bundle exec fastlane lanes` |
 | `.github/` | CI/CD workflows, Dependabot, CODEOWNERS, PR template, repo settings as code — see `docs/ci-cd.md` |
 | `.githooks/`, `scripts/` | Git hooks (gitleaks, format, commit-msg), `setup.sh`, CI helpers (`scripts/ci`), GitHub setup (`scripts/github`) |
-| `.claude/` | Claude Code agents: `repo-guide` answers questions about the repo, read-only (`claude --agent repo-guide`) |
+| `.claude/`, `.mcp.json` | Claude Code: skills `/ticket`, `/implement`, `/review-pr` (`docs/ai-workflow.md`), agent `repo-guide` (read-only Q&A, `claude --agent repo-guide`), Atlassian MCP for Jira (`docs/jira.md`) |
 | `config/detekt` | Static analysis rules |
 | `docs/` | Architecture, ADRs, runbooks, progress log |
 

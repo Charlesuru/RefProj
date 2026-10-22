@@ -61,6 +61,7 @@ Details, release how-to and the security model: [docs/ci-cd.md](docs/ci-cd.md).
 
 ## Docs
 - [CLAUDE.md](CLAUDE.md) — rules for AI agents (and humans)
+- [docs/ai-workflow.md](docs/ai-workflow.md) — spec → Jira ticket → AI implementation → review → human merge ([docs/jira.md](docs/jira.md))
 - [docs/architecture.md](docs/architecture.md) — modules, layers, environments
 - [docs/adr/](docs/adr/) — architecture decisions
 - [docs/pr-workflow.md](docs/pr-workflow.md) — one change from clone to merge: hooks, CI, review, rebase-merge

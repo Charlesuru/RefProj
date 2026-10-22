@@ -1,0 +1,33 @@
+# Traceability gate: the pull request title, its branch and every commit name a Jira ticket in the agreed format
+# (scripts/conventions.sh). "Conventions" is a required status check next to "CI result".
+#
+# A separate workflow from ci.yml because it must also run when only the title or the base branch changes
+# (`edited`) — that must not restart the whole CI pipeline. It takes seconds and uses no secrets.
+name: PR conventions
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+permissions:
+  contents: read
+
+jobs:
+  conventions:
+    name: Conventions
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # base..head needs both commits
+          persist-credentials: false
+      - name: Title, branch and commit subjects
+        env:
+          # Untrusted input: passed as environment variables, never expanded into the script.
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: scripts/ci/check-conventions.sh "$BASE_SHA" "$HEAD_SHA"

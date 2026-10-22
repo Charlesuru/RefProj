@@ -79,7 +79,8 @@ Two hooks run automatically on every commit (installed by `setup.sh`):
 | [`pre-commit`](../.githooks/pre-commit) | before the commit is created | **gitleaks** on the staged changes (rules: [`.gitleaks.toml`](../.gitleaks.toml)); then `spotlessCheck` if any `.kt`/`.kts` file is staged | commit aborted. Secret: remove it (rotate it if real). Format: `./gradlew spotlessApply`, `git add`, commit again |
 | [`commit-msg`](../.githooks/commit-msg) | after you write the message | subject is `<type>(<scope>): <summary> [REF-123]`, ≤ 100 chars. Exempt: `Merge …`, `Revert "…"`, `fixup!`/`squash!`/`amend!` | commit aborted; fix the message |
 
-**Never** use `--no-verify`. The hooks are local only — CI re-checks secrets and lint, but not commit messages.
+**Never** use `--no-verify`. The hooks are local only — CI re-checks secrets, lint and the commit subjects
+(*Conventions*, below). Both use the same rules: [`scripts/conventions.sh`](../scripts/conventions.sh).
 
 ## 5. Push
 
@@ -112,9 +113,24 @@ gh pr create --base main --title "REF-123: Add biometric unlock" --fill-first   
 | — **Test (Android host)** · **Build (Android)** | host, architecture and screenshot tests + coverage floors (table in the job summary); DEV debug APK (downloadable artifact) + PROD release AAB with R8 (unsigned) |
 | — **Test + build (iOS)** | shared tests on the iOS simulator + DEV simulator build (macOS runner) |
 | — **Dependency graph + review** | fails on new or upgraded dependencies with a known vulnerability (any scope), or — if they ship in an app — a license outside the allowlist ([ci-cd.md → License policy](ci-cd.md#license-policy)); comments on the PR only when it fails |
-| — **CI result** | the single **required** check: green only if every job above succeeded or was skipped |
+| — **CI result** | **required** check: green only if every job above succeeded or was skipped |
+| [`pr-conventions.yml`](../.github/workflows/pr-conventions.yml) — **Conventions** | **required** check: title, branch and commit subjects follow the conventions — see below |
 | Concurrency | a new push cancels the PR's running CI and starts over |
 | [`deploy-pr.yml`](../.github/workflows/deploy-pr.yml) *(optional)* | add the label **`deploy:dev`** to send the PR's build to DEV testers (Firebase App Distribution + TestFlight); every push redeploys while the label is on. Not for forks or Dependabot. Remove the label when done |
+
+### Conventions check
+The commit-msg hook can be skipped or missing on a machine; this check cannot. It runs in seconds, also when only the
+title or the base branch is edited, and lists every result in the job summary:
+
+| Checked | Rule |
+|---|---|
+| PR title | `REF-123: <summary>` |
+| Branch | `<type>/REF-123-short-description` (lower-case words joined by `-`) |
+| Same ticket | the title and the branch name the same key |
+| Every commit in the PR | the commit-msg rule. `fixup!`/`squash!`/`amend!` commits **fail** here: fold them in before merge (§7) |
+| Merge commits | none (`main` has a linear history) |
+
+Dependabot PRs are exempt. A fixed title re-runs the check on its own (`edited`); a fixed commit needs a push.
 
 Red CI: open the failing job's log (PR → *Checks*), reproduce locally with the commands from step 3, fix, push.
 
@@ -186,7 +202,7 @@ opens PRs itself.
 | When | Mondays, weekly, for Gradle (`/` and `/build-logic`), GitHub Actions (incl. SHA pins) and Ruby gems — only releases older than 7 days (cooldown). **Security updates** arrive immediately |
 | Shape | grouped PRs (e.g. `kotlin-toolchain`, `androidx`, `actions`, `fastlane`), commit prefix `build(deps)` / `ci` |
 | Checks | the same `ci.yml` and required **CI result**; no secrets, no `deploy:dev`, no SARIF upload |
-| Not checked | commit-msg (local hook) — Dependabot subjects have no ticket key; that is accepted |
+| Not checked | naming conventions (commit-msg hook and *Conventions*) — Dependabot subjects have no ticket key; that is accepted |
 | Your part | read the changelog, check that grouped versions still fit together, then **Rebase and merge** like any PR. Behind `main`? Comment `@dependabot rebase`. Not wanted? `@dependabot ignore this major version` (or close it) |
 
 Not covered by Dependabot — bump by hand in a normal PR: see [ci-cd.md → Dependency updates](ci-cd.md#dependency-updates).

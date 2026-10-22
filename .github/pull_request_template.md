@@ -1,6 +1,7 @@
 <!-- Title: "REF-123: <summary>". Branch: <type>/REF-123-short-description. See CLAUDE.md §3. -->
 
 ## Ticket
+<!-- The Jira key also goes in the title and branch; GitHub for Jira links them. Written by the AI? Say so here. -->
 REF-
 
 ## What and why

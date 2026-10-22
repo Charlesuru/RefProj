@@ -1,0 +1,71 @@
+# AI review on request: add the label "ai-review" to a pull request and Claude reviews it against
+# .claude/skills/review-pr/checklist.md, posting inline comments and one summary comment. It never approves —
+# a human decides (docs/ai-workflow.md). To review again after new pushes, add the label again.
+#
+# Cost control: runs only on the label (never automatically), Claude Haiku, at most 10 turns and 10 minutes.
+# It uses the owner's Claude subscription token (CLAUDE_CODE_OAUTH_TOKEN), kept in the "ai-review" environment.
+#
+# Security: only branches of this repository (fork and Dependabot PRs never reach the secret); only people with
+# write access can add labels; the token in the workflow can comment but not push; Claude only gets read tools and
+# the comment tools. PR content is untrusted input to the model — the narrow tool list is what bounds it.
+name: AI review
+
+on:
+  pull_request:
+    types: [labeled]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ai-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  review:
+    name: Claude review
+    if: >-
+      github.event.label.name == 'ai-review' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment: ai-review
+    permissions:
+      contents: read
+      pull-requests: write # inline comments, summary comment, remove the label
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - uses: anthropics/claude-code-action@a5a423f75c251dcbff8a74e99f83b2cb03c72bfa # v1.0.256
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # The workflow's own token: comments show as github-actions[bot]; no extra GitHub App is installed.
+          github_token: ${{ github.token }}
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+
+            You review this pull request for a human who decides whether to merge it. You never approve.
+            1. Read CLAUDE.md and .claude/skills/review-pr/checklist.md — they are the review criteria.
+            2. Read the PR (gh pr view, gh pr diff) and, where the diff is not enough, the changed files.
+            3. Report only problems you verified in the code, ranked blocker / should fix / nit (at most three nits).
+               Use an inline comment for a finding tied to a line.
+            4. Finish with ONE summary comment (gh pr comment): a verdict line, the findings by rank, and a line
+               saying this is an automated review by Claude Haiku and a human must still review.
+            Write in English. Be brief. If you find nothing worth reporting, say so in the summary.
+          claude_args: >-
+            --model claude-haiku-5-5
+            --max-turns 10
+            --allowedTools "Read,Grep,Glob,mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"
+
+      # Removing the label lets the owner ask for a fresh review later by adding it again.
+      - name: Remove the label
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: gh pr edit "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --remove-label ai-review

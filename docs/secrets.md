@@ -47,6 +47,7 @@ unless marked per environment). CI values are copied from the owner's machine by
 | `MATCH_GIT_URL` | Config | Certificates repo: HTTPS locally, SSH (`git@github.com:Charlesuru/refproj-certificates.git`) on CI | `fastlane/.env` | repository variable | — |
 | `MATCH_PASSWORD` | Secret | Passphrase that encrypts the match repo | `fastlane/.env` + password manager | all envs | [match](#ios-certificates-fastlane-match) |
 | `MATCH_GIT_PRIVATE_KEY` | Secret | Private half of the **read-only deploy key** on the certificates repo (ed25519) | — | all envs | [match](#ios-certificates-fastlane-match) |
+| `CLAUDE_CODE_OAUTH_TOKEN` | Secret | Claude Code OAuth token of the owner's Claude subscription, for the label-triggered AI review | — | `ai-review` environment only (set by hand, see runbook) | [Claude token](#claude-token-ci-review) |
 | `MACOS_RUNNER` | Config | Label of the optional self-hosted Mac for iOS deploys ([ci-cd.md](ci-cd.md#self-hosted-mac-runner-optional)); unset = GitHub-hosted | — | repository variable | — |
 | `google-services.json` | Config (treated as secret) | Firebase client config, all four Android apps in one file | `app/android/google-services.json` | `GOOGLE_SERVICES_JSON_BASE64` — all envs (written into the checkout by `scripts/ci/secret-files.sh`) | [Firebase config](#firebase-client-config) |
 | `GoogleService-Info.plist` | Config (treated as secret) | Firebase client config, one per iOS app/environment | `iosApp/Firebase/<Env>/GoogleService-Info.plist` | `GOOGLE_SERVICE_INFO_PLIST_BASE64` — that environment's file in each env | [Firebase config](#firebase-client-config) |
@@ -90,6 +91,13 @@ Firebase project: Google Cloud project `refproj`, one Android and one iOS app pe
   `scripts/github/set-ci-secrets.sh`.
 - **CI deploy key:** run `scripts/github/set-ci-secrets.sh`. It generates a new key, replaces the deploy key
   *RefProj CI (read-only)* on the certificates repo and updates `MATCH_GIT_PRIVATE_KEY` in all environments.
+
+### Claude token (CI review)
+1. On the owner's machine: `claude setup-token` (signs in with the Claude subscription, prints a long-lived token).
+2. `gh secret set CLAUDE_CODE_OAUTH_TOKEN --env ai-review --repo Charlesuru/RefProj` and paste the token at the
+   prompt — never on the command line, in a file or in chat.
+3. Verify: add the label `ai-review` to a PR. To revoke: claude.ai → *Settings* → sign out the token's session /
+   revoke it, then repeat 1–2. Usage counts against the subscription's limits (`docs/ai-workflow.md#ci-review`).
 
 ## If a secret is committed
 1. **Rotate it immediately** using the runbook above. Treat it as public from the moment it was pushed.

@@ -37,6 +37,7 @@
 | `scripts/ai/bot.env` was ignored by `*.env` in `.gitignore` | Renamed to `bot.conf` (later removed with the GitHub App) |
 | `gitleaks dir .` scanned gitignored local secret files | Pre-commit uses `gitleaks git --staged`; the findings were not printed |
 | The first `ai-review` run on #42 waited forever for the `ai-review` environment | GitHub matches a `pull_request` run's environment rule against the PR's **head branch**, not `refs/pull/<n>/merge`; rule changed to `*/*` (every `<type>/…` branch, never `main`) |
+| Then *Set up job* failed: `oven-sh/setup-bun` not allowed | `claude-code-action` runs it internally; the allowlist gets that exact commit (not `@*`), noted next to the pin so both are updated together |
 | The GitHub App was built and then rejected | Unpushed stack rewritten: the App commit dropped, later commits resolved without it, branch deleted — no PR adds and removes it |
 
 ## 4. Verification

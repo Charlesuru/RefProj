@@ -38,11 +38,15 @@ JSON
 
 echo "→ Actions: permissions"
 api -X PUT "repos/$repo/actions/permissions" -F enabled=true -f allowed_actions=selected -F sha_pinning_required=true
+# claude-code-action runs oven-sh/setup-bun itself; only that exact commit is allowed (update it with the action).
 api -X PUT "repos/$repo/actions/permissions/selected-actions" --input - <<'JSON'
 {
   "github_owned_allowed": true,
   "verified_allowed": false,
-  "patterns_allowed": ["gradle/actions/*", "ruby/setup-ruby@*", "anthropics/claude-code-action@*"]
+  "patterns_allowed": [
+    "gradle/actions/*", "ruby/setup-ruby@*", "anthropics/claude-code-action@*",
+    "oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6"
+  ]
 }
 JSON
 api -X PUT "repos/$repo/actions/permissions/workflow" \

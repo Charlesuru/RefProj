@@ -89,7 +89,7 @@ it to every job, so Android and iOS of one run carry the same number.
 | PR previews (`deploy:dev`) only for branches of this repository, never forks or Dependabot; only collaborators with write access can add labels. They reach `dev` only — never `sit`, `stage` or `prod` | `deploy-pr.yml`, GitHub Environments |
 | **No repository- or organization-level secrets.** Deploy callers pass `secrets: inherit` (a called workflow sees no secrets otherwise, not even its environment's), so a repository-level secret would reach every deploy job | GitHub Environments |
 | `GITHUB_TOKEN` is read-only by default; jobs request extra scopes explicitly | workflow `permissions:` |
-| Only GitHub-owned actions plus `gradle/actions`, `ruby/setup-ruby` and `anthropics/claude-code-action`, **pinned to a full commit SHA** (enforced) | Actions settings |
+| Only GitHub-owned actions plus `gradle/actions`, `ruby/setup-ruby` and `anthropics/claude-code-action` (with the one `oven-sh/setup-bun` commit it runs internally — update both together), **pinned to a full commit SHA** (enforced) | Actions settings |
 | Pinned CLI tools are checksum-verified before use | [`scripts/ci/install-tool.sh`](../scripts/ci/install-tool.sh) |
 | Workflows from first-time and outside contributors wait for approval; fork PRs never see secrets | Actions settings |
 | File secrets are written to `$RUNNER_TEMP` with mode 600 and deleted after the job | [`scripts/ci/secret-files.sh`](../scripts/ci/secret-files.sh) |

@@ -36,6 +36,7 @@
 | The site is Swedish: issue-type names are `Uppgift`, `Berättelse`, `Bugg` | `/ticket` passes the Swedish names; `docs/jira.md` lists both |
 | `scripts/ai/bot.env` was ignored by `*.env` in `.gitignore` | Renamed to `bot.conf` (later removed with the GitHub App) |
 | `gitleaks dir .` scanned gitignored local secret files | Pre-commit uses `gitleaks git --staged`; the findings were not printed |
+| The first `ai-review` run on #42 waited forever for the `ai-review` environment | GitHub matches a `pull_request` run's environment rule against the PR's **head branch**, not `refs/pull/<n>/merge`; rule changed to `*/*` (every `<type>/…` branch, never `main`) |
 | The GitHub App was built and then rejected | Unpushed stack rewritten: the App commit dropped, later commits resolved without it, branch deleted — no PR adds and removes it |
 
 ## 4. Verification
@@ -45,6 +46,6 @@
 - PRs #38–#41: every check green, including the new *Conventions* on its own PR; merged by the owner with
   *Rebase and merge* — 7 commits, linear history.
 - `configure-repo.sh` applied; checked through the API: ruleset `main` requires *CI result* + *Conventions*, 0
-  approvals, no bypass; environment `ai-review` (`refs/pull/*/merge`) with `CLAUDE_CODE_OAUTH_TOKEN` (name only);
+  approvals, no bypass; environment `ai-review` (branches `*/*`) with `CLAUDE_CODE_OAUTH_TOKEN` (name only);
   label `ai-review`; `anthropics/claude-code-action@*` allowlisted.
 - Jira: REF-1…REF-12 numbered as in the history table; created and edited through the MCP server.

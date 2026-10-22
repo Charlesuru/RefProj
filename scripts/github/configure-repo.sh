@@ -8,7 +8,7 @@
 #   - security: secret scanning + push protection, Dependabot alerts/security updates,
 #     private vulnerability reporting, CodeQL default setup for workflow files
 #   - GitHub Environments dev/sit (main only), stage/prod (release tags + required reviewer) and
-#     ai-review (PR merge refs; the Claude token for ai-review.yml)
+#     ai-review (PR branches <type>/<name>; the Claude token for ai-review.yml)
 #   - rulesets from .github/settings/ruleset-*.json (protected main, protected release tags)
 # Secrets are NOT set here — see scripts/github/set-ci-secrets.sh (run by the owner).
 # Everything is documented in docs/ci-cd.md.
@@ -100,8 +100,10 @@ configure_environment dev branch main
 echo "→ Environment dev (+ branch refs/pull/*/merge)"
 api -X POST "repos/$repo/environments/dev/deployment-branch-policies" -f name='refs/pull/*/merge' -f type=branch
 configure_environment sit branch main
-# AI review (ai-review.yml, label "ai-review") runs on PR merge refs; its environment holds only the Claude token.
-configure_environment ai-review branch 'refs/pull/*/merge'
+# AI review (ai-review.yml, label "ai-review"): GitHub checks a pull_request run's environment rule against the PR's
+# head branch, not refs/pull/<n>/merge (a non-matching run waits forever). '*/*' matches every branch named by the
+# conventions (<type>/REF-n-…) and never main. Its environment holds only the Claude token.
+configure_environment ai-review branch '*/*'
 configure_environment stage tag 'v*' reviewed
 configure_environment prod tag 'v*' reviewed
 

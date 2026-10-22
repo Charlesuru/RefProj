@@ -85,7 +85,7 @@ it to every job, so Android and iOS of one run carry the same number.
 | `main` only changes through PRs with a green **`CI result`** and **`Conventions`**, linear history, resolved threads; no force-push or deletion | ruleset `main` |
 | Release tags `v*` can only be created/moved/deleted by admins | ruleset `release-tags` |
 | Secrets are **environment** secrets. `sit` accepts only `main`; `dev` accepts `main` and PR merge refs (`refs/pull/*/merge`, for `deploy:dev` previews); `stage`/`prod` accept only `v*` tags and need a reviewer | GitHub Environments |
-| AI review (`ai-review`) only for branches of this repository; its environment `ai-review` holds only the Claude token and accepts only PR merge refs; Claude gets read tools + comment tools, the job token cannot push | `ai-review.yml`, GitHub Environments |
+| AI review (`ai-review`) only for branches of this repository; its environment `ai-review` holds only the Claude token and accepts only `<type>/…` branches (never `main`); Claude gets read tools + comment tools, the job token cannot push | `ai-review.yml`, GitHub Environments |
 | PR previews (`deploy:dev`) only for branches of this repository, never forks or Dependabot; only collaborators with write access can add labels. They reach `dev` only — never `sit`, `stage` or `prod` | `deploy-pr.yml`, GitHub Environments |
 | **No repository- or organization-level secrets.** Deploy callers pass `secrets: inherit` (a called workflow sees no secrets otherwise, not even its environment's), so a repository-level secret would reach every deploy job | GitHub Environments |
 | `GITHUB_TOKEN` is read-only by default; jobs request extra scopes explicitly | workflow `permissions:` |

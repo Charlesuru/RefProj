@@ -50,3 +50,5 @@
   approvals, no bypass; environment `ai-review` (`refs/pull/*/merge`) with `CLAUDE_CODE_OAUTH_TOKEN` (name only);
   label `ai-review`; `anthropics/claude-code-action@*` allowlisted.
 - Jira: REF-1…REF-12 numbered as in the history table; created and edited through the MCP server.
+- AI review: label `ai-review` on #42 → *Claude review* green; one summary comment from `github-actions[bot]` (no
+  blockers, one nit, and a list of what it could not verify), label removed afterwards.

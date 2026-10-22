@@ -185,12 +185,14 @@ Owner decision: certificates repo `Charlesuru/refproj-certificates` (private) �
 - Owner decision: **no GitHub identity for the AI** — the developer who opens a PR owns its code; 0 required approvals;
   the AI never approves, merges or uses `--admin` (CLAUDE.md §3.7). Settles the step-7 open item.
 - `configure-repo.sh` applied and checked; `CLAUDE_CODE_OAUTH_TOKEN` in the `ai-review` environment.
+- AI review on #42 (label `ai-review`): Claude Haiku posted a verdict, one nit and what it could not verify; label removed.
+  It first needed `oven-sh/setup-bun` (run inside `claude-code-action`) allow-listed by exact commit.
 
 ## Step 8 — owner checklist
 - [x] Jira Cloud site + project RefProj (`REF`), work type *Bugg*, REF-3 converted to *Uppgift*
 - [x] Atlassian MCP signed in (`/mcp`)
 - [x] Merge #38 → #41 (rebase), `scripts/github/configure-repo.sh`, Claude token (`claude setup-token` → `ai-review`)
-- [ ] Add the label **`ai-review`** to a PR once and read Claude's comment (the label disappears after the run)
+- [x] Add the label **`ai-review`** to a PR once and read Claude's comment — #42: summary comment posted, label removed
 - [ ] Install **GitHub for Jira** (Atlassian Marketplace, free) and connect `Charlesuru/RefProj` only
 - [ ] Jira automation (*Utrymmesinställningar → Automatisering*): branch created → *Pågående*, PR created →
       *Under granskning*, PR merged → *Klart* ([jira.md](jira.md#automation-jira--project-settings--automation))

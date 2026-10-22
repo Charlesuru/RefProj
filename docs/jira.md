@@ -6,7 +6,7 @@ for a ticket, and `git log` shows the ticket for the code. Workflow: [ai-workflo
 
 | | |
 |---|---|
-| Site | Jira Cloud (Free plan) — `https://<site>.atlassian.net` *(filled in when the site exists)* |
+| Site | Jira Cloud (Free plan) — [`https://studiodraug.atlassian.net`](https://studiodraug.atlassian.net) (UI in Swedish: projects are *Utrymmen*) |
 | Project | **RefProj**, key **`REF`**, team-managed **Kanban** (continuous flow fits trunk-based development; no sprints) |
 | Issue types | **Story** (user-facing behaviour) · **Bug** · **Task** (build, CI, docs, refactoring) |
 | Board columns | **To Do → In Progress → In Review → Done** |
@@ -44,7 +44,9 @@ The AI also moves its tickets (`/implement`), so the board stays right even if a
 
 ## History before Jira
 Steps 2–7 used `REF-<n>` as placeholder keys before the project existed. To keep every old commit pointing at the
-right work, the first tickets were created **in this order**, then closed:
+right work, the first tickets were created **in this order**, then closed. Jira never reuses a number, so the two
+sample work items of the setup wizard were not deleted: the project key was changed from `KAN` to `REF` (which renames
+`KAN-1`/`KAN-2` to `REF-1`/`REF-2`) and both were rewritten as the first two entries:
 
 | Key | Work |
 |---|---|

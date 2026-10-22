@@ -80,8 +80,9 @@ App concept: a simple personal task/habit tracker. Onboarding → login (fake au
 ### Step 7 — Tests ✅ (model: Opus, owner's choice)
 Unit (commonTest), integration (repositories + Ktor MockEngine, Koin graph check), UI (Compose UI tests), screenshot (Roborazzi), architecture (Konsist), coverage (Kover) + thresholds in CI. Each test class labelled with its type.
 
-### Step 8 — Jira + AI workflow (model: Opus)
+### Step 8 — Jira + AI workflow ✅ (model: Opus)
 Jira Cloud project (owner creates), GitHub for Jira app, smart commits/branch naming, commit-msg hook enforcing ticket key, PR template linking tickets. AI workflow: Claude slash commands / skills for "spec → ticket", "implement ticket", "review PR"; Claude GitHub Action for automated PR review; human approval required to merge.
+Outcome (ADR 0012): review runs on the label `ai-review`; the developer who opens a PR owns its code, also AI-written code, and a human merges (0 required approvals while one person owns the project).
 
 ### Step 9 — Summary (model: Opus)
 Complete write-up: architecture, modules, environments, secrets, CI/CD pipeline diagram, test pyramid, observability, workflow. Final review of the whole repo.

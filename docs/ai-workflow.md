@@ -44,3 +44,21 @@ The skills live in [`.claude/skills/`](../.claude/skills/) and are only started 
 [`ticket`](../.claude/skills/ticket/SKILL.md), [`implement`](../.claude/skills/implement/SKILL.md),
 [`review-pr`](../.claude/skills/review-pr/SKILL.md) with its shared [checklist](../.claude/skills/review-pr/checklist.md).
 Jira access: [jira.md → Access](jira.md#access).
+
+## CI review
+[`ai-review.yml`](../.github/workflows/ai-review.yml) runs [`anthropics/claude-code-action`](https://github.com/anthropics/claude-code-action)
+when someone with write access adds the label **`ai-review`** to a pull request. Claude reads `CLAUDE.md` and the
+[review checklist](../.claude/skills/review-pr/checklist.md), posts inline comments and one summary comment as
+`github-actions[bot]`, and the workflow removes the label again — add it again for a fresh review after new pushes.
+
+| | |
+|---|---|
+| When | only on the label — never automatically, so nothing uses the quota unless someone asks |
+| Model and limits | Claude Haiku, `--max-turns 10`, job timeout 10 minutes |
+| Authentication | `CLAUDE_CODE_OAUTH_TOKEN` (the owner's Claude subscription, `claude setup-token`) in the environment `ai-review` — [secrets.md](secrets.md#claude-token-ci-review). A company would use an Anthropic API key with a spend limit, or workload identity federation instead of a stored key |
+| Quota | uses the subscription's normal usage limits; a review of a small PR is a small fraction of one interactive session. Reaching the limit pauses usage until it resets — it only costs money if *extra usage* is switched on in the Claude settings |
+| Tools | `Read`, `Grep`, `Glob`, `gh pr view/diff/comment`, inline comments — no edits, no pushes, no other commands |
+| Not for | forks and Dependabot (no access to the secret) |
+
+Its comments are advice: inline comments open threads that must be resolved (ruleset), but only the owner's approval
+counts. GitHub Models — the free option considered first — was retired on 2026-07-30 (ADR 0012).

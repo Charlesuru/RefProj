@@ -36,6 +36,7 @@ flowchart LR
 |---|---|---|---|
 | [`ci.yml`](../.github/workflows/ci.yml) | every PR (also stacked PRs), push to `main` | Quality gate; the required check is **`CI result`** | none |
 | [`pr-conventions.yml`](../.github/workflows/pr-conventions.yml) | every PR: opened, pushed, title or base edited | Traceability: PR title, branch and every commit subject name a Jira ticket; required check **`Conventions`** ([pr-workflow.md](pr-workflow.md#conventions-check)) | none |
+| [`ai-review.yml`](../.github/workflows/ai-review.yml) | label **`ai-review`** on a PR (same-repo branches only) | Claude reviews the PR and comments; never approves ([ai-workflow.md](ai-workflow.md#ci-review)) | `ai-review` |
 | [`deploy-main.yml`](../.github/workflows/deploy-main.yml) | push to `main` (code changes, not docs) | DEV, both platforms | `dev` |
 | [`deploy-sit.yml`](../.github/workflows/deploy-sit.yml) | 02:00 UTC Mon–Fri (skipped if `main` is already in SIT), or manual | SIT, both platforms | `sit` |
 | [`device-tests.yml`](../.github/workflows/device-tests.yml) | 01:30 UTC Mon–Fri, or manual | On-device Android tests on a managed emulator ([testing.md](testing.md#on-device-tests)) | none |
@@ -84,10 +85,11 @@ it to every job, so Android and iOS of one run carry the same number.
 | `main` only changes through PRs with a green **`CI result`** and **`Conventions`**, linear history, resolved threads; no force-push or deletion | ruleset `main` |
 | Release tags `v*` can only be created/moved/deleted by admins | ruleset `release-tags` |
 | Secrets are **environment** secrets. `sit` accepts only `main`; `dev` accepts `main` and PR merge refs (`refs/pull/*/merge`, for `deploy:dev` previews); `stage`/`prod` accept only `v*` tags and need a reviewer | GitHub Environments |
+| AI review (`ai-review`) only for branches of this repository; its environment `ai-review` holds only the Claude token and accepts only PR merge refs; Claude gets read tools + comment tools, the job token cannot push | `ai-review.yml`, GitHub Environments |
 | PR previews (`deploy:dev`) only for branches of this repository, never forks or Dependabot; only collaborators with write access can add labels. They reach `dev` only — never `sit`, `stage` or `prod` | `deploy-pr.yml`, GitHub Environments |
 | **No repository- or organization-level secrets.** Deploy callers pass `secrets: inherit` (a called workflow sees no secrets otherwise, not even its environment's), so a repository-level secret would reach every deploy job | GitHub Environments |
 | `GITHUB_TOKEN` is read-only by default; jobs request extra scopes explicitly | workflow `permissions:` |
-| Only GitHub-owned actions plus `gradle/actions` and `ruby/setup-ruby`, **pinned to a full commit SHA** (enforced) | Actions settings |
+| Only GitHub-owned actions plus `gradle/actions`, `ruby/setup-ruby` and `anthropics/claude-code-action`, **pinned to a full commit SHA** (enforced) | Actions settings |
 | Pinned CLI tools are checksum-verified before use | [`scripts/ci/install-tool.sh`](../scripts/ci/install-tool.sh) |
 | Workflows from first-time and outside contributors wait for approval; fork PRs never see secrets | Actions settings |
 | File secrets are written to `$RUNNER_TEMP` with mode 600 and deleted after the job | [`scripts/ci/secret-files.sh`](../scripts/ci/secret-files.sh) |

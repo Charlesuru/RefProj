@@ -7,7 +7,8 @@
 #   - Actions: read-only default token, SHA-pinned + allow-listed actions, approval for outside contributors
 #   - security: secret scanning + push protection, Dependabot alerts/security updates,
 #     private vulnerability reporting, CodeQL default setup for workflow files
-#   - GitHub Environments dev/sit (main only) and stage/prod (release tags + required reviewer)
+#   - GitHub Environments dev/sit (main only), stage/prod (release tags + required reviewer) and
+#     ai-review (PR merge refs; the Claude token for ai-review.yml)
 #   - rulesets from .github/settings/ruleset-*.json (protected main, protected release tags)
 # Secrets are NOT set here — see scripts/github/set-ci-secrets.sh (run by the owner).
 # Everything is documented in docs/ci-cd.md.
@@ -41,7 +42,7 @@ api -X PUT "repos/$repo/actions/permissions/selected-actions" --input - <<'JSON'
 {
   "github_owned_allowed": true,
   "verified_allowed": false,
-  "patterns_allowed": ["gradle/actions/*", "ruby/setup-ruby@*"]
+  "patterns_allowed": ["gradle/actions/*", "ruby/setup-ruby@*", "anthropics/claude-code-action@*"]
 }
 JSON
 api -X PUT "repos/$repo/actions/permissions/workflow" \
@@ -99,12 +100,18 @@ configure_environment dev branch main
 echo "→ Environment dev (+ branch refs/pull/*/merge)"
 api -X POST "repos/$repo/environments/dev/deployment-branch-policies" -f name='refs/pull/*/merge' -f type=branch
 configure_environment sit branch main
+# AI review (ai-review.yml, label "ai-review") runs on PR merge refs; its environment holds only the Claude token.
+configure_environment ai-review branch 'refs/pull/*/merge'
 configure_environment stage tag 'v*' reviewed
 configure_environment prod tag 'v*' reviewed
 
 echo "→ Label deploy:dev"
 gh label create "deploy:dev" --repo "$repo" --force --color 1F5EFF \
   --description "Deploy this pull request to DEV testers (deploy-pr.yml)" >/dev/null
+
+echo "→ Label ai-review"
+gh label create "ai-review" --repo "$repo" --force --color 7B61FF \
+  --description "Ask Claude for an automated review of this pull request (ai-review.yml)" >/dev/null
 
 if [[ "$skip_rulesets" == false ]]; then
   for file in .github/settings/ruleset-*.json; do

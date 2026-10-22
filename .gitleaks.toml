@@ -21,6 +21,13 @@ secretGroup = 1
 keywords = ["base64", "basic_authorization"]
 
 [[rules]]
+id = "anthropic-oauth-token"
+description = "Claude Code OAuth token (claude setup-token) — CLAUDE_CODE_OAUTH_TOKEN"
+regex = '''\b(sk-ant-oat01-[A-Za-z0-9_\-]{40,})'''
+secretGroup = 1
+keywords = ["sk-ant-oat01-"]
+
+[[rules]]
 id = "refproj-forbidden-secret-file"
 description = "Key, certificate, profile or Firebase config file — these must never be committed"
 path = '''(?i)(?:\.(?:jks|keystore|p8|p12|pfx|pem|key|cer|mobileprovision|provisionprofile)|google-services\.json|GoogleService-Info\.plist|service-account[^/]*\.json|play-store-credentials[^/]*\.json)$'''

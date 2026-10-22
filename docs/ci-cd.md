@@ -35,6 +35,7 @@ flowchart LR
 | Workflow | Trigger | What | Secrets |
 |---|---|---|---|
 | [`ci.yml`](../.github/workflows/ci.yml) | every PR (also stacked PRs), push to `main` | Quality gate; the required check is **`CI result`** | none |
+| [`pr-conventions.yml`](../.github/workflows/pr-conventions.yml) | every PR: opened, pushed, title or base edited | Traceability: PR title, branch and every commit subject name a Jira ticket; required check **`Conventions`** ([pr-workflow.md](pr-workflow.md#conventions-check)) | none |
 | [`deploy-main.yml`](../.github/workflows/deploy-main.yml) | push to `main` (code changes, not docs) | DEV, both platforms | `dev` |
 | [`deploy-sit.yml`](../.github/workflows/deploy-sit.yml) | 02:00 UTC Mon–Fri (skipped if `main` is already in SIT), or manual | SIT, both platforms | `sit` |
 | [`device-tests.yml`](../.github/workflows/device-tests.yml) | 01:30 UTC Mon–Fri, or manual | On-device Android tests on a managed emulator ([testing.md](testing.md#on-device-tests)) | none |
@@ -80,7 +81,7 @@ it to every job, so Android and iOS of one run carry the same number.
 ## Security model
 | Control | Where |
 |---|---|
-| `main` only changes through PRs with a green **`CI result`**, linear history, resolved threads; no force-push or deletion | ruleset `main` |
+| `main` only changes through PRs with a green **`CI result`** and **`Conventions`**, linear history, resolved threads; no force-push or deletion | ruleset `main` |
 | Release tags `v*` can only be created/moved/deleted by admins | ruleset `release-tags` |
 | Secrets are **environment** secrets. `sit` accepts only `main`; `dev` accepts `main` and PR merge refs (`refs/pull/*/merge`, for `deploy:dev` previews); `stage`/`prod` accept only `v*` tags and need a reviewer | GitHub Environments |
 | PR previews (`deploy:dev`) only for branches of this repository, never forks or Dependabot; only collaborators with write access can add labels. They reach `dev` only — never `sit`, `stage` or `prod` | `deploy-pr.yml`, GitHub Environments |

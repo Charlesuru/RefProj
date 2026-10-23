@@ -57,6 +57,7 @@ The AI also moves its tickets to In Progress (`/implement`), so the board stays 
 |---|---|
 | People | Jira web / mobile app |
 | The AI (Claude Code, locally) | **Atlassian Rovo MCP server** in [`.mcp.json`](../.mcp.json) (`https://mcp.atlassian.com/v1/mcp/authv2`). Each developer signs in with OAuth in the browser (`/mcp` → *atlassian* → *Authenticate*); the AI acts with **that person's** Jira permissions. No API token on disk, nothing in CI |
+| The `repo-guide` agent (`claude --agent repo-guide`) | The same MCP server, **read-only**: its tool list has only the read tools (search, get ticket, remote links), and the hook `.claude/hooks/read-only-atlassian.sh` blocks every Atlassian tool not named `get*`, `search*` or `lookup*`. It never creates, edits, comments on or transitions tickets (REF-21) |
 | GitHub | GitHub for Atlassian app (read-only on code; installed on `Charlesuru/RefProj` only) |
 
 ## History before Jira

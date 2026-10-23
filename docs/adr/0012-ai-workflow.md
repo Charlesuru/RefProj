@@ -12,7 +12,7 @@ The brief asks for an AI-driven, spec-driven workflow — AI writes tickets, imp
 
 ## Decision
 1. **Jira Cloud (Free), project `REF`, team-managed Kanban** (To Do → In Progress → In Review → Done). The placeholder
-   keys REF-1…REF-11 were created first, in order, so old commits link to the right work. **GitHub for Jira** links
+   keys REF-1…REF-11 were created first, in order, so old commits link to the right work. **GitHub for Atlassian** (formerly GitHub for Jira) links
    branches, commits and PRs by key; Jira automation moves tickets on branch/PR events.
 2. **Conventions enforced in CI:** `pr-conventions.yml` (required check `Conventions`) checks the PR title, branch name
    and every commit subject with the same rules as the `commit-msg` hook (`scripts/conventions.sh`).

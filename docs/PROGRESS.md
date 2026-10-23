@@ -2,8 +2,7 @@
 
 Read at the start of every AI session (after `docs/PLAN.md`). Update at the end of every step.
 
-**Next action:** finish the step-8 owner checklist (GitHub for Jira, Jira automation), then step 9 — final summary &
-docs (model: Opus).
+**Next action:** step 9 — final summary & docs (model: Opus).
 Detailed step logs: `docs/log/`.
 
 | Step | Scope | Status |
@@ -189,14 +188,15 @@ Owner decision: certificates repo `Charlesuru/refproj-certificates` (private) �
   It first needed `oven-sh/setup-bun` (run inside `claude-code-action`) allow-listed by exact commit.
 
 ## Step 8 — owner checklist
-- [x] Jira Cloud site + project RefProj (`REF`), work type *Bugg*, REF-3 converted to *Uppgift*
+- [x] Jira Cloud site + project RefProj (`REF`), work type *Bug*, REF-3 converted to a task
 - [x] Atlassian MCP signed in (`/mcp`)
 - [x] Merge #38 → #41 (rebase), `scripts/github/configure-repo.sh`, Claude token (`claude setup-token` → `ai-review`)
 - [x] Add the label **`ai-review`** to a PR once and read Claude's comment — #42: summary comment posted, label removed
-- [ ] Install **GitHub for Jira** (Atlassian Marketplace, free) and connect `Charlesuru/RefProj` only
-- [ ] Jira automation (*Utrymmesinställningar → Automatisering*): branch created → *Pågående*, PR created →
-      *Under granskning*, PR merged → *Klart* ([jira.md](jira.md#automation-jira--project-settings--automation))
-- [ ] Delete the GitHub App `refproj-ai` if it was created (*Settings → Developer settings → GitHub Apps*)
+- [x] Install **GitHub for Atlassian** (formerly GitHub for Jira) on `Charlesuru/RefProj` only — REF-12 shows its
+      branches, commits and 5 PRs
+- [x] Jira flows *Start work* (branch created → In Progress), *Review* (PR created → In Review), *Done* (PR merged →
+      Done) ([jira.md](jira.md#automation-space-settings--automation))
+- The GitHub App `refproj-ai` was never created — nothing to delete
 
 ## Open items / decisions pending
 - Play Console moved *App integrity* to the *Protected with Play* page; the signing-certificate view was not found there.

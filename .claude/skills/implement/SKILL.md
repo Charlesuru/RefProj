@@ -15,7 +15,9 @@ Implement Jira ticket `$ARGUMENTS`. You write the code; **the developer owns it*
   dependency or architecture change not yet decided; it needs a secret or console access (CLAUDE.md §4).
 - Restate the plan in a few lines: modules touched, flag, tests per acceptance criterion. Ask only if something is
   genuinely open — the ticket was approved already.
-- Move the ticket to **In Progress** (Atlassian MCP transition) once the plan stands.
+- Move the ticket to **In Progress** (Atlassian MCP transition) once the plan stands. Status names come back localised
+  (*Pågående*); pick the transition by its target status category, not by name. Jira automation also does this when
+  the branch is created.
 
 ## 2. Branch
 ```bash

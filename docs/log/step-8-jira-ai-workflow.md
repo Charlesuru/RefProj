@@ -13,12 +13,12 @@
 | Jira access for the AI | **Atlassian Rovo MCP server** (per-user OAuth in the browser, no API token on disk) |
 | CI review | **Claude only, on the label `ai-review`**, with the owner's Claude subscription token — the owner must never exceed the quota or pay; seeing how AI review is wired into CI matters more than review quality |
 | A GitHub identity for the AI | First chosen: GitHub App `refproj-ai` (so the owner could approve AI PRs and `main` could require 1 approval, with an admin bypass for the owner's own PRs). **Dropped before merge** by the owner: *every line is owned by the human who opens the PR, whoever typed it* — with one person, approving "the AI's" PR is a ritual. 0 required approvals; a team sets 1 code-owner approval |
-| Way of working | Owner tasks in **small steps**, one at a time; Jira in **Swedish** UI terms and by navigation, not deep links |
+| Way of working | Owner tasks in **small steps**, one at a time; Jira by navigation, not deep links (UI first in Swedish, switched to English at the end) |
 
 ## 2. What was built
 | Area | Result |
 |---|---|
-| Jira | Jira Cloud Free, site `studiodraug.atlassian.net`, team-managed Kanban project **RefProj / `REF`** (columns Att göra → Pågående → Under granskning → Klart); work types Uppgift, Berättelse, Bugg, Epic, Underuppgift; REF-1…REF-11 *Klart* (labels `history`, `plan-step`), REF-12 for this step |
+| Jira | Jira Cloud Free, site `studiodraug.atlassian.net`, team-managed Kanban project **RefProj / `REF`** (columns Att göra → Pågående → Under granskning → Klart); work types Task, Story, Bug, Epic, Subtask; REF-1…REF-11 *Klart* (labels `history`, `plan-step`), REF-12 for this step |
 | Conventions in CI | `scripts/conventions.sh` (shared rules), used by the `commit-msg` hook and by `pr-conventions.yml` → required check **Conventions**: PR title, branch name, same key in both, every commit subject, no merge commits; Dependabot exempt; ✅/❌ job summary |
 | Skills | `/ticket` (draft → Jira after a yes), `/implement` (ticket → branch → code → gates → PR from the developer's account), `/review-pr` (comment-only review); shared `review-pr/checklist.md`; started only by a person |
 | MCP | `.mcp.json` → Atlassian Rovo MCP (`/mcp` → *atlassian* → *Authenticate*) |
@@ -33,7 +33,8 @@
 | The Jira setup wizard created project *Team Draug* (`KAN`) with three sample items | Project renamed to RefProj, key changed to `REF` (renames `KAN-n`); the samples were rewritten as REF-1…REF-3 instead of deleted, because Jira never reuses numbers |
 | REF-3 was a sub-task; the API refused to change its type ("Ärendetypen är ogiltig"), and it lost its parent when REF-2 changed type | Owner converted it to *Uppgift* in the web UI (found through search, not on the board) |
 | Jira Markdown escaped task-list checkboxes | ✅ / ⬜ characters instead |
-| The site is Swedish: issue-type names are `Uppgift`, `Berättelse`, `Bugg` | `/ticket` passes the Swedish names; `docs/jira.md` lists both |
+| The site's default language is Swedish: the API returns `Uppgift`, `Berättelse`, and our own type was created as `Bugg` | Type renamed to `Bug`; `/ticket` picks types by `untranslatedName` (Story/Task/Bug), `/implement` transitions by status category |
+| Jira's automation UI differed from the instructions: rules are now *flows*, and the Swedish action name was *Överför arbetsuppgift* | Owner switched the UI to English (*Transition work item*); `docs/jira.md` uses the current names |
 | `scripts/ai/bot.env` was ignored by `*.env` in `.gitignore` | Renamed to `bot.conf` (later removed with the GitHub App) |
 | `gitleaks dir .` scanned gitignored local secret files | Pre-commit uses `gitleaks git --staged`; the findings were not printed |
 | The first `ai-review` run on #42 sat queued, then *waiting* on the `ai-review` environment, during a GitHub Actions incident | Misread as a branch-rule mismatch and the rule changed to `*/*` — the next run failed with *Branch "refs/pull/42/merge" is not allowed*, which proves GitHub matches `pull_request` runs against `refs/pull/<n>/merge`. Rule restored; lesson: check githubstatus.com before changing settings |
@@ -50,5 +51,7 @@
   approvals, no bypass; environment `ai-review` (`refs/pull/*/merge`) with `CLAUDE_CODE_OAUTH_TOKEN` (name only);
   label `ai-review`; `anthropics/claude-code-action@*` allowlisted.
 - Jira: REF-1…REF-12 numbered as in the history table; created and edited through the MCP server.
+- GitHub for Atlassian on RefProj only: REF-12's *Development* panel lists its branches, commits and 5 PRs. Flows
+  *Start work*, *Review*, *Done* enabled.
 - AI review: label `ai-review` on #42 → *Claude review* green; one summary comment from `github-actions[bot]` (no
   blockers, one nit, and a list of what it could not verify), label removed afterwards.

@@ -6,13 +6,13 @@ for a ticket, and `git log` shows the ticket for the code. Workflow: [ai-workflo
 
 | | |
 |---|---|
-| Site | Jira Cloud (Free plan) — [`https://studiodraug.atlassian.net`](https://studiodraug.atlassian.net) (UI in Swedish: projects are *Utrymmen*) |
+| Site | Jira Cloud (Free plan) — [`https://studiodraug.atlassian.net`](https://studiodraug.atlassian.net) (site default language Swedish, so the API returns Swedish names; the owner uses the UI in English) |
 | Project | **RefProj**, key **`REF`**, team-managed **Kanban** (continuous flow fits trunk-based development; no sprints) |
-| Issue types | **Story** (*Berättelse*, user-facing behaviour) · **Bug** (*Bugg*, added under *Utrymmesinställningar → Arbetstyper*) · **Task** (*Uppgift*: build, CI, docs, refactoring) |
+| Issue types | **Story** (user-facing behaviour) · **Bug** (added under *Space settings → Work types*) · **Task** (build, CI, docs, refactoring). In the API: *Berättelse*, *Bug*, *Uppgift* — match on `untranslatedName` |
 | Board columns | **To Do → In Progress → In Review → Done** |
 
 ## How a ticket links to the code
-The **GitHub for Jira** app (Atlassian, free) reads the repository and attaches everything that names a ticket key to
+The **GitHub for Atlassian** app (formerly *GitHub for Jira*; by Atlassian, free) reads the repository and attaches everything that names a ticket key to
 the ticket's *Development* panel — no smart-commit syntax is needed:
 
 | Where the key appears | Format (checked locally by `commit-msg`, in CI by *Conventions*) | Shows in Jira as |
@@ -26,8 +26,11 @@ the ticket's *Development* panel — no smart-commit syntax is needed:
 subject. We do not rely on them: status changes come from the automation rules below, so they work the same for
 humans and the AI.
 
-### Automation (Jira → Project settings → Automation)
-| Rule | Trigger | Action |
+### Automation (Space settings → Automation)
+Jira calls the rules *flows*: *Create flow → Create from scratch* (not *with Rovo*, which uses Rovo credits). The
+action is **Transition work item**. The Free plan limits flow runs per month — plenty for one person.
+
+| Flow | Trigger | Action |
 |---|---|---|
 | Start work | *Branch created* | ticket → **In Progress** |
 | Review | *Pull request created* | ticket → **In Review** |
@@ -40,7 +43,7 @@ The AI also moves its tickets (`/implement`), so the board stays right even if a
 |---|---|
 | People | Jira web / mobile app |
 | The AI (Claude Code, locally) | **Atlassian Rovo MCP server** in [`.mcp.json`](../.mcp.json) (`https://mcp.atlassian.com/v1/mcp/authv2`). Each developer signs in with OAuth in the browser (`/mcp` → *atlassian* → *Authenticate*); the AI acts with **that person's** Jira permissions. No API token on disk, nothing in CI |
-| GitHub | GitHub for Jira app (read-only on code; installed on `Charlesuru/RefProj` only) |
+| GitHub | GitHub for Atlassian app (read-only on code; installed on `Charlesuru/RefProj` only) |
 
 ## History before Jira
 Steps 2–7 used `REF-<n>` as placeholder keys before the project existed. To keep every old commit pointing at the

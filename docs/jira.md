@@ -6,9 +6,9 @@ for a ticket, and `git log` shows the ticket for the code. Workflow: [ai-workflo
 
 | | |
 |---|---|
-| Site | Jira Cloud (Free plan) — [`https://studiodraug.atlassian.net`](https://studiodraug.atlassian.net) (site default language Swedish, so the API returns Swedish names; the owner uses the UI in English) |
+| Site | Jira Cloud (Free plan) — [`https://studiodraug.atlassian.net`](https://studiodraug.atlassian.net) (UI in English; names in the UI and the API follow each user's language, e.g. *Task* / *Uppgift*) |
 | Project | **RefProj**, key **`REF`**, team-managed **Kanban** (continuous flow fits trunk-based development; no sprints) |
-| Issue types | **Story** (user-facing behaviour) · **Bug** (added under *Space settings → Work types*) · **Task** (build, CI, docs, refactoring). In the API: *Berättelse*, *Bug*, *Uppgift* — match on `untranslatedName` |
+| Issue types | **Story** (user-facing behaviour) · **Bug** (added under *Space settings → Work types*) · **Task** (build, CI, docs, refactoring). Tools match on `untranslatedName`, which does not depend on the user's language |
 | Board columns | **To Do → In Progress → In Review → Done** |
 
 ## How a ticket links to the code

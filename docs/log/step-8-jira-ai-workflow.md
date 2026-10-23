@@ -33,7 +33,7 @@
 | The Jira setup wizard created project *Team Draug* (`KAN`) with three sample items | Project renamed to RefProj, key changed to `REF` (renames `KAN-n`); the samples were rewritten as REF-1…REF-3 instead of deleted, because Jira never reuses numbers |
 | REF-3 was a sub-task; the API refused to change its type ("Ärendetypen är ogiltig"), and it lost its parent when REF-2 changed type | Owner converted it to *Uppgift* in the web UI (found through search, not on the board) |
 | Jira Markdown escaped task-list checkboxes | ✅ / ⬜ characters instead |
-| The site's default language is Swedish: the API returns `Uppgift`, `Berättelse`, and our own type was created as `Bugg` | Type renamed to `Bug`; `/ticket` picks types by `untranslatedName` (Story/Task/Bug), `/implement` transitions by status category |
+| Jira names follow the user's language: with a Swedish UI the API returned `Uppgift`, `Berättelse`, and our own type was created as `Bugg` | Type renamed to `Bug`; `/ticket` picks types by `untranslatedName` (Story/Task/Bug), `/implement` transitions by status category |
 | Jira's automation UI differed from the instructions: rules are now *flows*, and the Swedish action name was *Överför arbetsuppgift* | Owner switched the UI to English (*Transition work item*); `docs/jira.md` uses the current names |
 | `scripts/ai/bot.env` was ignored by `*.env` in `.gitignore` | Renamed to `bot.conf` (later removed with the GitHub App) |
 | `gitleaks dir .` scanned gitignored local secret files | Pre-commit uses `gitleaks git --staged`; the findings were not printed |

@@ -56,8 +56,8 @@ Then ask: **"Ska jag skapa ticketen i Jira så här?"** Only a clear yes creates
 ## 3. Create
 - Atlassian MCP: find the site (accessible resources), then create the issue in project **REF** with the chosen
   issue type, summary (imperative, ≤ 80 chars, no key), the description above (Markdown) and the labels.
-  The site's default language is Swedish, so the API returns localised type names (`Berättelse`, `Uppgift`). Look the
-  types up (project issue-type metadata) and pass the `name` of the one whose `untranslatedName` is `Story`, `Bug` or `Task`.
+  Type names come back in the signed-in user's language (`Story` or `Berättelse`). Look the types up (project
+  issue-type metadata) and pass the `name` of the one whose `untranslatedName` is `Story`, `Bug` or `Task`.
 - Report the key and URL. The next step is `/implement REF-<n>` — say which model the user should use for it.
 
 ## Never

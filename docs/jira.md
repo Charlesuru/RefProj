@@ -23,8 +23,20 @@ the ticket's *Development* panel — no smart-commit syntax is needed:
 | Deployments | the workflows that deploy a commit (`deploy-main.yml`, `release.yml`) | builds/deployments, once enabled in the app |
 
 **Smart commits** (`REF-42 #comment …`, `#time`, `#<transition>`) are allowed in the commit **body**, never the
-subject. We do not rely on them: status changes come from the automation rules below, so they work the same for
-humans and the AI.
+subject. We do not rely on them: status changes come from the automation flow below and by hand, so they work the
+same for humans and the AI.
+
+### One story, several pull requests
+A story is a unit of **value** that the PO accepts; a pull request is a unit of **review**. With trunk-based
+development a story is often delivered in several small PRs behind a feature flag (each branch < 2 days), and every
+branch, commit and PR names the story's key, so Jira shows all of them on the story. Sub-tasks are not created just to
+map PRs; use them only when work is split between people.
+
+| Status | Set when | By |
+|---|---|---|
+| **In Progress** | the first branch for the ticket is created | the *Start work* flow (and `/implement`) |
+| **In Review** | the ticket's **last** PR is opened — not before | the developer (or `/implement`, when told it is the last PR) |
+| **Done** | the acceptance criteria are met — a merge alone does not mean done | the PO, by hand |
 
 ### Automation (Space settings → Automation)
 Jira calls the rules *flows*: *Create flow → Create from scratch* (not *with Rovo*, which uses Rovo credits). The
@@ -33,10 +45,12 @@ action is **Transition work item**. The Free plan limits flow runs per month —
 | Flow | Trigger | Action |
 |---|---|---|
 | Start work | *Branch created* | ticket → **In Progress** |
-| Review | *Pull request created* | ticket → **In Review** |
-| Done | *Pull request merged* | ticket → **Done** |
+| ~~Review~~ (off) | *Pull request created* | ticket → **In Review** |
+| ~~Done~~ (off) | *Pull request merged* | ticket → **Done** |
 
-The AI also moves its tickets (`/implement`), so the board stays right even if a rule is off.
+*Review* and *Done* are turned off (REF-20): they assumed one PR per ticket, so a story delivered in several PRs went
+to In Review on its first PR and to Done on its first merge. Both statuses are set by hand instead (see above).
+The AI also moves its tickets to In Progress (`/implement`), so the board stays right even if the flow is off.
 
 ## Access
 | Who | How |

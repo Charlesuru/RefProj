@@ -210,8 +210,16 @@ Owner decision: certificates repo `Charlesuru/refproj-certificates` (private) �
   "awaiting merge" in steps 5 and 6.
 
 ## Step 9 — owner checklist
-- [ ] Read `docs/overview.md` on GitHub (the Mermaid diagrams render there) and merge the REF-13 PR (**Rebase and merge**)
-- [ ] Pick the next work from the open checklist items above and *Open items* below; each becomes a ticket via `/ticket`
+- [x] Read `docs/overview.md` on GitHub (the Mermaid diagrams render there) and merge the REF-13 PR (**Rebase and merge**)
+- [x] Pick the next work from the open checklist items above and *Open items* below; each becomes a ticket via `/ticket`
+      — REF-14 (epic, due dates)
+
+## After step 9 — REF-20 (a story may span several PRs)
+- First epic of the manual walkthrough: REF-14 *Task due dates and reminders*, first story REF-15.
+- A story is often delivered in several small PRs, so the owner turned off the Jira flows *Review* and *Done*
+  (2026-10-23); only *Start work* is active. In Review (last PR opened) and Done (acceptance criteria met, by the PO)
+  are set by hand; no sub-tasks just to map PRs. `/ticket`, `/implement` and the docs follow:
+  [jira.md](jira.md#one-story-several-pull-requests).
 
 ## Open items / decisions pending
 - Play Console moved *App integrity* to the *Protected with Play* page; the signing-certificate view was not found there.

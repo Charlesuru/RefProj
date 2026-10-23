@@ -36,7 +36,7 @@ flowchart LR
 | Step | Who | How |
 |---|---|---|
 | Spec → ticket | AI drafts, **owner approves** | `/ticket <idea>` — duplicates check, acceptance criteria, flag, test plan; created in Jira only after a yes |
-| Ticket → PR | AI | `/implement REF-n` — branch, code, tests, gates, both apps run, commits + PR from the developer's account, ticket → *In Review* |
+| Ticket → PR | AI | `/implement REF-n` — branch, code, tests, gates, both apps run, commits + PR from the developer's account; a story may take several PRs, ticket → *In Review* with its last one |
 | Review | AI (advisory) | label **`ai-review`** on the PR (CI, Claude Haiku) or `/review-pr n` locally (deeper, current model) — comments, never approvals |
 | Decision | **owner** | reads the diff and the AI's comments, resolves every thread, *Rebase and merge* (in a team: a colleague approves first) |
 

@@ -7,7 +7,8 @@ disable-model-invocation: true
 
 # /implement — ticket → branch → code → PR
 
-Implement Jira ticket `$ARGUMENTS`. You write the code; **the developer owns it** — the PR goes out from their account — and a human merges (CLAUDE.md §3).
+Implement Jira ticket `$ARGUMENTS` — or the next slice of it: a story may span several small PRs that all name its
+key (`docs/jira.md#one-story-several-pull-requests`). You write the code; **the developer owns it** — the PR goes out from their account — and a human merges (CLAUDE.md §3).
 
 ## 1. Read the ticket
 - Atlassian MCP: fetch `$ARGUMENTS` (summary, description, acceptance criteria, labels, status, comments).
@@ -15,6 +16,8 @@ Implement Jira ticket `$ARGUMENTS`. You write the code; **the developer owns it*
   dependency or architecture change not yet decided; it needs a secret or console access (CLAUDE.md §4).
 - Restate the plan in a few lines: modules touched, flag, tests per acceptance criterion. Ask only if something is
   genuinely open — the ticket was approved already.
+- Several PRs? Check the ticket's *Development* panel and `git log --grep $ARGUMENTS origin/main` for slices already
+  merged, and say which slice this PR is and whether it is the last one.
 - Move the ticket to **In Progress** (Atlassian MCP transition) once the plan stands. Status names come back in the user's
   language (*In Progress* or *Pågående*); pick the transition by its target status category, not by name. Jira automation also does this when
   the branch is created.
@@ -22,7 +25,7 @@ Implement Jira ticket `$ARGUMENTS`. You write the code; **the developer owns it*
 ## 2. Branch
 ```bash
 git switch main && git pull --ff-only
-git switch -c <type>/$ARGUMENTS-<short-description>      # lower-case words joined by '-'
+git switch -c <type>/$ARGUMENTS-<short-description>      # lower-case words joined by '-'; one branch per PR slice
 ```
 Type from the ticket: Story → `feat`, Bug → `fix`, Task → `chore`/`build`/`ci`/`docs`/`refactor`/`test` as fits.
 
@@ -59,7 +62,8 @@ Never `--no-verify`; a failing hook is fixed, not skipped.
 - Before opening it, show the developer the commits and the diff summary; they are the author and read it first.
 - `gh pr create --base main --title "…" --body-file <file>`
 - Optional deeper review: tell the owner they can add the label **`ai-review`** (it uses their Claude quota).
-- Move the ticket to **In Review** and comment the PR link on it (Atlassian MCP).
+- Comment the PR link on the ticket (Atlassian MCP). Move it to **In Review** only if this is the ticket's **last**
+  PR; otherwise it stays In Progress. Never move it to **Done** — the PO does that when the acceptance criteria are met.
 
 ## 7. Hand over
 Watch CI (`gh pr checks <n> --watch` in the background). Green → tell the owner (in Swedish) the PR number, what to
@@ -69,3 +73,4 @@ look at, and what to test manually. Red → fix, push again.
 - Approve, merge, enable auto-merge, or use `gh pr merge --admin`.
 - Push to `main`, force-push someone else's branch, or commit without the `Co-Authored-By: Claude` trailer.
 - Mark acceptance criteria as done that were not verified.
+- Move a ticket to Done, or to In Review before its last PR is open.

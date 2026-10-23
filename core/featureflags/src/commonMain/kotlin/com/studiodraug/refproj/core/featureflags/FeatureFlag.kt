@@ -24,6 +24,11 @@ enum class FeatureFlag(
         description = "Show version and build number on the home screen",
         enabledByDefaultIn = setOf(DEV, SIT, STAGE),
     ),
+    TASK_DUE_DATES(
+        key = "task_due_dates",
+        description = "Due dates and reminders on tasks (REF-14)",
+        enabledByDefaultIn = setOf(DEV),
+    ),
     ;
 
     fun isEnabledByDefault(environment: AppEnvironment): Boolean = environment in enabledByDefaultIn

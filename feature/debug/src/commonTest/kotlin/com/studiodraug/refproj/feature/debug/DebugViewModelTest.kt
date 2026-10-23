@@ -75,7 +75,7 @@ class DebugViewModelTest {
             val state = viewModel.state.value
             assertEquals("DEV", state.environment.environment)
             assertEquals("1.0.0-test (1)", state.environment.version)
-            assertEquals(listOf(FeatureFlag.HOME_BUILD_INFO), state.flags.map { it.flag })
+            assertEquals(FeatureFlag.entries, state.flags.map { it.flag })
             assertEquals("test@example.com", state.testAccountEmail)
         }
 
@@ -93,14 +93,14 @@ class DebugViewModelTest {
             assertEquals(
                 FeatureFlagState(FeatureFlag.HOME_BUILD_INFO, enabled = false, FeatureFlagState.Source.OVERRIDE),
                 viewModel.state.value.flags
-                    .single(),
+                    .single { it.flag == FeatureFlag.HOME_BUILD_INFO },
             )
 
             viewModel.onAction(DebugAction.FlagOverrideRemoved(FeatureFlag.HOME_BUILD_INFO))
             assertEquals(
                 FeatureFlagState.Source.DEFAULT,
                 viewModel.state.value.flags
-                    .single()
+                    .single { it.flag == FeatureFlag.HOME_BUILD_INFO }
                     .source,
             )
 
@@ -109,7 +109,7 @@ class DebugViewModelTest {
             assertEquals(
                 FeatureFlagState.Source.DEFAULT,
                 viewModel.state.value.flags
-                    .single()
+                    .single { it.flag == FeatureFlag.HOME_BUILD_INFO }
                     .source,
             )
         }
@@ -177,7 +177,7 @@ class DebugViewModelTest {
             assertEquals(
                 FeatureFlagState.Source.DEFAULT,
                 viewModel.state.value.flags
-                    .single()
+                    .single { it.flag == FeatureFlag.HOME_BUILD_INFO }
                     .source,
             )
         }

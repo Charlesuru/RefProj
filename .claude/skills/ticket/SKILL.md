@@ -45,7 +45,9 @@ Write the ticket **in English** (the user reads it in Swedish chat, but tickets 
 ```
 
 Rules for the draft:
-- One ticket = one PR-sized change (< 2 days, trunk-based). Larger → split it and say how.
+- One ticket = one deliverable the PO can accept. It may span several small PRs (each < 2 days, trunk-based), all
+  naming its key — say the expected PR slices under **Notes**. Do not create sub-tasks just to map PRs. A ticket that
+  holds several independently valuable changes → split it into separate tickets and say how.
 - User-facing, unfinished across PRs → behind a feature flag, OFF in PROD.
 - New module, new dependency or an architecture change → say so under **Notes**; it needs the owner's decision
   (CLAUDE.md §4) before implementation.

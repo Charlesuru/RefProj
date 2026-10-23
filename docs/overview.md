@@ -278,8 +278,9 @@ release graph. Testers open it from the environment badge on the screen edge. It
 
 ## 13. Jira and the AI workflow
 **Traceability:** Jira Cloud project `REF` (Kanban: To Do → In Progress → In Review → Done). The *GitHub for Atlassian*
-app attaches every branch, commit and PR that names a key to its ticket. Jira automation moves a ticket when a
-branch is created, a PR is opened and the PR is merged.
+app attaches every branch, commit and PR that names a key to its ticket. A story may be delivered in several PRs.
+Jira automation moves a ticket to In Progress when its first branch is created; In Review (last PR opened) and Done
+(acceptance criteria met, by the PO) are set by hand — `docs/jira.md#one-story-several-pull-requests`.
 
 | Where | Format |
 |---|---|

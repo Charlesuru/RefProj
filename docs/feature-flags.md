@@ -33,6 +33,7 @@ changes) or `isEnabled(...)` for a one-off check. Gate the entry point (tab, but
 | Flag | Default on in | Purpose |
 |---|---|---|
 | `home_build_info` | DEV, SIT, STAGE | Version and build number on the home screen |
+| `task_due_dates` | DEV | Due dates and reminders on tasks (REF-14) — in progress |
 
 Step 5 added no flag: onboarding, login, tasks and profile were merged complete, and PROD has not been released yet.
 The next feature that spans several PRs ships behind a flag.

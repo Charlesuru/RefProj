@@ -2,7 +2,8 @@
 
 Read at the start of every AI session (after `docs/PLAN.md`). Update at the end of every step.
 
-**Next action:** step 9 — final summary & docs (model: Opus).
+**Next action:** all nine plan steps are done. New work starts from a Jira ticket (`/ticket`); the owner's open
+checklist items and *Open items* below are the backlog. Overview of the whole setup: [overview.md](overview.md).
 Detailed step logs: `docs/log/`.
 
 | Step | Scope | Status |
@@ -11,11 +12,11 @@ Detailed step logs: `docs/log/`.
 | 2 | Fastlane + secrets + signing (match, Play upload key) | ✅ Done 2026-10-14 (PR #1; Firebase → step 4) |
 | 3 | CI/CD (GitHub Actions → later self-hosted Mac runner) | ✅ Done 2026-10-14 (PRs #2–#5) |
 | 4 | Core: design system, Koin, Nav3, feature flags, observability (Firebase), localisation, domain/data | ✅ Done 2026-10-15 (PRs #8–#15) |
-| 5 | Features: onboarding, login, tabbed logged-in shell | ✅ Done 2026-10-16 (PRs #18–#22, awaiting merge) |
-| 6 | Debug menu | ✅ Done 2026-10-21 (REF-10, four stacked PRs, awaiting merge) |
+| 5 | Features: onboarding, login, tabbed logged-in shell | ✅ Done 2026-10-16 (PRs #18–#22) |
+| 6 | Debug menu | ✅ Done 2026-10-21 (REF-10, PRs #27–#30) |
 | 7 | Tests: unit, integration, UI, screenshot, architecture + coverage | ✅ Done 2026-10-21 (REF-11, PRs #31–#37) |
 | 8 | Jira integration + AI workflow (spec → ticket → code → PR → AI review) | ✅ Done 2026-10-22 (REF-12, PRs #38–#42) |
-| 9 | Final summary & docs | |
+| 9 | Final summary & docs | ✅ Done 2026-10-23 (REF-13) |
 
 ## Step 1 — verified
 - `./gradlew :app:android:assembleDevDebug allTests spotlessCheck detekt` → green
@@ -152,7 +153,7 @@ Owner decision: certificates repo `Charlesuru/refproj-certificates` (private) �
   login. iOS DEV (simulator): launches with the badge; not clicked through (no UI automation here).
 
 ## Step 6 — owner checklist
-- [ ] Merge the four REF-10 PRs in order (**Rebase and merge**), one at a time; ask the AI to restack after each merge
+- [x] Merge the four REF-10 PRs in order (**Rebase and merge**) — #27–#30 merged 2026-10-21
 - [ ] On a device (DEV from App Distribution / TestFlight after merge): open the menu via the `DEV` tab, try
       *Sign in as test user* and the screen catalog on iOS (not clicked through by the AI)
 - [ ] Optional: SIT release build → *Crash the app*, reopen the app, check that the crash shows up in Crashlytics
@@ -197,6 +198,20 @@ Owner decision: certificates repo `Charlesuru/refproj-certificates` (private) �
 - [x] Jira flows *Start work* (branch created → In Progress), *Review* (PR created → In Review), *Done* (PR merged →
       Done) ([jira.md](jira.md#automation-space-settings--automation))
 - The GitHub App `refproj-ai` was never created — nothing to delete
+
+## Step 9 — verified
+- `docs/overview.md`: the final summary of the whole setup, one section per point of the owner's brief, each linking to
+  its detailed doc/ADR; Mermaid module graph, CI/CD pipeline and AI loop, test pyramid. README links to it first.
+  Log: [step-9-summary.md](log/step-9-summary.md).
+- Whole-repo review against the code: every relative link and anchor in the 44 tracked Markdown files resolves;
+  module list, workflows, lanes, test counts (53 labelled classes, 75 screenshot references), coverage floors and
+  versions match; gitleaks over the full history is clean; no secret or generated file is tracked.
+- Doc drift fixed: CLAUDE.md project map (`tests/architecture`, `config/kover`), README doc list and JDK note, stale
+  "awaiting merge" in steps 5 and 6.
+
+## Step 9 — owner checklist
+- [ ] Read `docs/overview.md` on GitHub (the Mermaid diagrams render there) and merge the REF-13 PR (**Rebase and merge**)
+- [ ] Pick the next work from the open checklist items above and *Open items* below; each becomes a ticket via `/ticket`
 
 ## Open items / decisions pending
 - Play Console moved *App integrity* to the *Protected with Play* page; the signing-certificate view was not found there.

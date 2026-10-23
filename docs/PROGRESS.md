@@ -221,6 +221,19 @@ Owner decision: certificates repo `Charlesuru/refproj-certificates` (private) �
   are set by hand; no sub-tasks just to map PRs. `/ticket`, `/implement` and the docs follow:
   [jira.md](jira.md#one-story-several-pull-requests).
 
+## After step 9 — REF-21 (repo-guide reads Jira)
+- `repo-guide` can answer questions about tickets: its `tools:` list adds only the Atlassian MCP read tools
+  (`getAccessibleAtlassianResources`, `getVisibleJiraProjects`, `searchJiraIssuesUsingJql`, `getJiraIssue`,
+  `getJiraIssueRemoteIssueLinks`) — not the whole server, which would include write tools. A second guard,
+  `.claude/hooks/read-only-atlassian.sh`, blocks every Atlassian tool not named `get*`/`search*`/`lookup*`, because
+  the MCP acts with the developer's own Jira permissions.
+- Verified locally: the hook passes the read tools and blocks `createJiraIssue`, `editJiraIssue`,
+  `transitionJiraIssue`, `addCommentToJiraIssue`, `createIssueLink`, `fetch` and an empty payload.
+- Verified with `claude --agent repo-guide -p`: it read REF-15 from Jira (status, summary, link); asked to call
+  `createJiraIssue`, it had no such tool and nothing was created.
+- [ ] Owner: in an interactive `claude --agent repo-guide`, approve the Atlassian read tools on first use and ask about
+      a ticket
+
 ## Open items / decisions pending
 - Play Console moved *App integrity* to the *Protected with Play* page; the signing-certificate view was not found there.
   Upload-key registration is instead proven by the successful API upload above.

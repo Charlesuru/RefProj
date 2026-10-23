@@ -99,12 +99,13 @@ Stop and ask the user (in Swedish, with step-by-step instructions) when:
 | `domain` | Use cases + business models (pure Kotlin) |
 | `data` | Repositories, API clients, persistence |
 | `feature/*` | One module per user-facing feature |
+| `tests/architecture` | Konsist architecture tests over every module (layer rules, conventions, test labels) |
 | `build-logic/` | Gradle convention plugins (`refproj.*`) |
 | `fastlane/` | Build/test/upload lanes for both platforms — `bundle exec fastlane lanes` |
 | `.github/` | CI/CD workflows, Dependabot, CODEOWNERS, PR template, repo settings as code — see `docs/ci-cd.md` |
 | `.githooks/`, `scripts/` | Git hooks (gitleaks, format, commit-msg), `setup.sh`, CI helpers (`scripts/ci`), GitHub setup (`scripts/github`) |
 | `.claude/`, `.mcp.json` | Claude Code: skills `/ticket`, `/implement`, `/review-pr` (`docs/ai-workflow.md`), agent `repo-guide` (read-only Q&A, `claude --agent repo-guide`), Atlassian MCP for Jira (`docs/jira.md`) |
-| `config/detekt` | Static analysis rules |
-| `docs/` | Architecture, ADRs, runbooks, progress log |
+| `config/` | detekt rules (`config/detekt`), coverage floors per module (`config/kover`) |
+| `docs/` | Overview (`docs/overview.md`), architecture, ADRs, runbooks, progress log |
 
 Progress and next steps: `docs/PROGRESS.md`. Read it at the start of every session.

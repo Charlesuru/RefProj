@@ -11,3 +11,4 @@ was fixed. Complements `docs/PROGRESS.md` (status and next action) and the ADRs 
 | 6 — Debug menu | [step-6-debug-menu.md](step-6-debug-menu.md) |
 | 7 — Tests | [step-7-tests.md](step-7-tests.md) |
 | 8 — Jira + AI workflow | [step-8-jira-ai-workflow.md](step-8-jira-ai-workflow.md) |
+| 9 — Final summary | [step-9-summary.md](step-9-summary.md) |

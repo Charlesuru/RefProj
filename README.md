@@ -7,7 +7,7 @@ Enterprise reference project — Compose Multiplatform app for Android and iOS.
 ## Requirements
 | Tool | Version |
 |---|---|
-| JDK | 21+ (Temurin recommended) |
+| JDK | 21+ (Temurin recommended) to start Gradle; the daemon runs on JDK 25 (`gradle/gradle-daemon-jvm.properties`), downloaded by Gradle if missing |
 | Android Studio | latest stable, with the Kotlin Multiplatform plugin |
 | Xcode | 26+ (Apple silicon Mac) |
 | XcodeGen | `brew install xcodegen` |
@@ -60,6 +60,9 @@ secret and dependency scanning). `main` ships to DEV + SIT; a `vX.Y.Z` tag ships
 Details, release how-to and the security model: [docs/ci-cd.md](docs/ci-cd.md).
 
 ## Docs
+**Start here: [docs/overview.md](docs/overview.md)** — the whole setup on one page: architecture, environments,
+secrets, CI/CD pipeline, tests, observability, workflow.
+
 - [CLAUDE.md](CLAUDE.md) — rules for AI agents (and humans)
 - [docs/ai-workflow.md](docs/ai-workflow.md) — spec → Jira ticket → AI implementation → review → human merge ([docs/jira.md](docs/jira.md))
 - [docs/architecture.md](docs/architecture.md) — modules, layers, environments
@@ -68,5 +71,8 @@ Details, release how-to and the security model: [docs/ci-cd.md](docs/ci-cd.md).
 - [docs/ci-cd.md](docs/ci-cd.md) — pipelines, releasing, runners, repository settings
 - [docs/testing.md](docs/testing.md) — test types, how to run and write them, screenshots, coverage
 - [docs/secrets.md](docs/secrets.md) — every secret, where it lives, how to rotate it
+- App: [features](docs/features.md), [feature flags](docs/feature-flags.md), [debug menu](docs/debug-menu.md),
+  [observability](docs/observability.md), [design system](docs/design-system.md), [localisation](docs/localisation.md)
+- [docs/learning/](docs/learning/README.md) — explanatory guides for people new to enterprise mobile setups
 - [SECURITY.md](SECURITY.md) — reporting a vulnerability
 - [docs/PROGRESS.md](docs/PROGRESS.md) — build-out progress

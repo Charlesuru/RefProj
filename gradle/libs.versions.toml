@@ -6,7 +6,7 @@
 kotlin = "2.4.21"
 # KSP 2.x is versioned independently of Kotlin since 2.3.0.
 ksp = "2.3.12"
-agp = "9.4.1"
+agp = "9.5.0"
 compose-multiplatform = "1.12.2"
 compose-material3 = "1.9.0"
 # Jetpack Compose artifact that Compose Multiplatform 1.12 builds on; only ui-test-manifest is used directly.
@@ -21,7 +21,7 @@ android-minSdk = "26"
 
 # --- Kotlin libraries ---
 kotlinx-coroutines = "1.11.0"
-kotlinx-serialization = "1.11.0"
+kotlinx-serialization = "1.12.0"
 kotlinx-datetime = "0.8.0"
 kotlinx-collections-immutable = "0.5.2"
 

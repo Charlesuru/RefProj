@@ -90,7 +90,7 @@ compose-rules = "0.6.8"
 # Vulnerable libraries that our dependencies pull into the shipped app. Applied as constraints in
 # app/android/build.gradle.kts. Drop a pin once the depending library itself requires a fixed version.
 #   Guava 31.1-android (Firebase Analytics: play-services-measurement 24.0.0) -> fixed 32.0.0: GHSA-7g45-4rm6-3mm3 (moderate)
-guava-android = "33.7.2-android"
+guava-android = "33.8.0-android"
 
 [libraries]
 # Kotlin
